@@ -32,7 +32,7 @@
 |---|---|---|---|---|
 | PO-01 | Alta | ¿Cómo se cobra el SaaS (suscripción fija por clínica o por sillón o profesional)? | Modelo comercial, no el MVP técnico | Equipo de producto |
 | PO-02 | Resuelta (DD-12) | ¿Cómo se valida al paciente en la reserva pública: código por email (recomendado), DNI + email, o confirmación de la recepción? | US-031, RN-RE-05 | Equipo de producto y seguridad |
-| PO-03 | Alta | ¿El alojamiento en un PaaS fuera de Argentina implica una transferencia internacional de datos personales bajo la Ley 25.326? ¿Qué región y qué cláusulas contractuales corresponden? | Elección de proveedor (DD-04) | Equipo con asesoría legal |
+| PO-03 | Alta (región elegida; base legal pendiente) | Región decidida por el Líder: `sa-east-1` (São Paulo). Brasil **no** figura entre los países con nivel adecuado de la AAIP: ¿se firman las cláusulas contractuales modelo (Disposición 60/2016, Resolución 198/2023) o se obtiene un dictamen legal? ¿Qué PaaS ofrece región en São Paulo? | Despliegue (C-20) y elección de proveedor (DD-04) | Equipo con asesoría legal |
 | PO-04 | Resuelta (DD-11) | ¿Cómo se da de alta una clínica nueva y quién lo hace (script manual, endpoint interno, autoservicio)? ¿Existe un rol de operador de plataforma? | Épica 8, aprovisionamiento de tenants | Equipo de producto |
 | PO-05 | Resuelta (SU-08) | ¿Cuánto antes del turno sale el recordatorio por email (propuesto: 24 hs)? ¿Hay más de un recordatorio? | US-050 | Equipo de producto |
 | PO-06 | Media | ¿Qué granularidad usa la grilla de turnos (propuesto: 15 min)? ¿Es configurable por clínica? | Disponibilidad (US-030) | Equipo de producto |

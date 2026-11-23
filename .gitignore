@@ -1,0 +1,24 @@
+# Dependencias y compilación
+node_modules/
+dist/
+coverage/
+
+# Entorno local: nunca se versiona (el ejemplo sí)
+.env
+.env.*
+!.env.example
+
+# Archivos temporales y de sistema
+*.log
+npm-debug.log*
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+
+# Configuración local de herramientas de IA (puede contener permisos o secretos)
+.claude/settings.local.json
+
+# Artefactos evaluables del repositorio: NO se ignoran a propósito.
+# No agregar reglas para .atl/skill-registry.md, openspec/ ni .active-orchestrator-state.json.

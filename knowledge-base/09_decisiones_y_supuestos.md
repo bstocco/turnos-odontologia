@@ -31,6 +31,7 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 ### DD-04 — Hosting en un PaaS económico y email transaccional
 **Estado**: decidido en el tipo (Q4 = a); proveedor concreto abierto
 **Decisión**: PaaS económico (Railway, Render o Fly.io) con PostgreSQL gestionado, y Resend o Brevo para email.
+**Región (decisión del Líder, 2026-11-22)**: base de datos y backend en Sudamérica (`sa-east-1`, São Paulo, Brasil) o infraestructura local equivalente. **Base legal:** Brasil **no figura** en la lista de países con nivel adecuado de protección de la AAIP (verificado el 2026-11-22 en `argentina.gob.ar/transferencias-internacionales`). La transferencia requiere cláusulas contractuales modelo (Disposición DNPDP 60/2016, Resolución AAIP 198/2023) o una validación legal equivalente. Pendiente de asesoría legal (PO-03); bloquea el despliegue (C-20). El PaaS elegido debe ofrecer región en São Paulo: no está verificado cuál de los tres candidatos la ofrece.
 **Contexto**: presupuesto bajo y equipo de 4 personas sin dedicación a operaciones.
 **Alternativas consideradas**: (b) VPS propia con Docker; (c) diferir.
 **Justificación**: menos trabajo de operación.

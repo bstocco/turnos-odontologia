@@ -1,0 +1,9 @@
+# Fines de línea estables entre Windows y Linux.
+# Las migraciones SQL se verifican por huella: un CRLF cambiaría el hash.
+*.sql text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

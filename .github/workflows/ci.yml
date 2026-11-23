@@ -1,0 +1,87 @@
+# Integración continua (diseño D11).
+# Todas las credenciales de este archivo son descartables: la base es efímera y no hay datos
+# reales ni secretos del proyecto (spec quality-gates).
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Calidad (lint, formato, tipos)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # `npm ci` falla si package.json y package-lock.json no coinciden.
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+
+  pruebas:
+    name: Pruebas (unitarias, integración, api, build)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci_superusuario_descartable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      PGPASSWORD: ci_superusuario_descartable
+      MIGRA_PASSWORD: ci_migra_descartable
+      APP_PASSWORD: ci_app_descartable
+      TEST_DATABASE_URL: postgres://app:ci_app_descartable@localhost:5432/turnos_test
+      TEST_DATABASE_MIGRATION_URL: postgres://migra:ci_migra_descartable@localhost:5432/turnos_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Validar docker-compose.yml
+        env:
+          POSTGRES_PASSWORD: ci_superusuario_descartable
+        run: docker compose config --quiet
+
+      # El mismo script que usa docker compose, ejecutado con psql (psql 15 o superior).
+      - name: Inicializar roles y bases
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docker/postgres/init/01-roles.sql
+
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run test:api
+
+      # Verifica la carga de módulos y /salud fuera de tsx, sobre el código compilado.
+      - name: Prueba de humo del build
+        env:
+          DATABASE_URL: postgres://app:ci_app_descartable@localhost:5432/turnos_test
+          PORT: '3100'
+        run: |
+          npm run build
+          node dist/main.js &
+          servidor=$!
+          curl --fail --silent --retry 20 --retry-connrefused --retry-delay 1 http://127.0.0.1:3100/salud | tee /dev/stderr | grep -q '"estado":"ok"'
+          kill "$servidor"

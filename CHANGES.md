@@ -155,7 +155,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 0 — Cimientos
 
 ### [C-01] `foundation-setup`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado (archivado el 2026-11-22). Seguimiento pendiente: 5 tareas que dependen de un repositorio remoto o de Docker (5.1, 6.2, 6.3, 7.1 parte CI y 9.2); ver `openspec/changes/archive/2026-11-22-c-01-foundation-setup/tasks.md`, sección "Seguimiento pendiente al archivar"
 - **Scope**: Esqueleto del repositorio, convenciones compartidas y verificación de la plataforma. Lo ejecuta el líder.
   - Proyecto TypeScript/Node.js: `tsconfig` estricto, ESLint y Prettier, estructura hexagonal `src/{domain,application,infrastructure,interfaces/http}`, `migrations/`, `seeds/`, `test/{unit,integration,api}`
   - App Fastify mínima con `GET /salud`, manejo central de errores con códigos de dominio estables y logger estructurado con redacción de datos personales
@@ -169,6 +169,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
   - Verificación en el PaaS candidato (tier gratuito): `CREATE EXTENSION btree_gist`, Row-Level Security y columna `fin_sillon` común con `CHECK` (R-04, R-05). Registrar el proveedor elegido en DD-04
   - README de desarrollo: cómo levantar el entorno, convenciones de ramas y de migraciones
   - Zona: raíz del repo, `src/interfaces/http/` (esqueleto), `.github/`, `docker-compose.yml`
+  - Decisiones del Líder: el `.gitignore` NO ignora `.atl/skill-registry.md`, `openspec/` ni `.active-orchestrator-state.json` (artefactos evaluables). Región de despliegue `sa-east-1` (São Paulo): Brasil no figura en la lista de nivel adecuado de la AAIP, así que la transferencia requiere cláusulas contractuales modelo o validación legal (PO-03, pendiente; bloquea C-20). Los roles `app` y `migra` los crea `docker/postgres/init/01-roles.sql`. Detalle en `openspec/changes/c-01-foundation-setup/` y `docs/plataforma/informe-validacion-postgres.md`
 - **Dependencias**: ninguna
 - **Governance**: BAJO
 - **Leer antes**:
@@ -210,7 +211,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 - **Scope**: Plataforma de datos multi-tenant con aislamiento por Row-Level Security
   - Pool de PostgreSQL y `withTenant(clinicaId, fn)`: transacción con `SET LOCAL app.clinica_id`, nunca por conexión
   - `RequestContext { clinicaId, actor: { tipo, id, rol } }` en `src/application/shared/`: contrato compartido por auth, auditoría y casos de uso
-  - Migración `C03_001`: roles de base `app` (sin superusuario, sin `BYPASSRLS`, sin ser propietario) y `migra`; extensión `btree_gist`; tablas `clinica` y `clinica_config`
+  - Migración `C03_001`: extensión `btree_gist`; tablas `clinica` y `clinica_config`; privilegios del rol `app` sobre ellas. Los roles `app` (sin superusuario, sin `BYPASSRLS`, sin ser propietario) y `migra` ya existen: los crea el script de inicialización de C-01 (`docker/postgres/init/01-roles.sql`), porque una migración no puede crear el rol con el que se ejecuta
   - Helper SQL `aplicar_rls(tabla)`: `ENABLE` + `FORCE ROW LEVEL SECURITY` y política `clinica_id = current_setting('app.clinica_id')::uuid`
   - Función `SECURITY DEFINER` `resolver_clinica_por_slug(slug)` de alcance mínimo para rutas públicas
   - Arnés de pruebas de integración multi-tenant (`test/support/aislamiento.ts`): dos clínicas sintéticas, la A no lee ni escribe datos de la B
