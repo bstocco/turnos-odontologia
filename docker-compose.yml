@@ -1,0 +1,33 @@
+# PostgreSQL para desarrollo local y pruebas de integración (diseño D10).
+#
+# Las contraseñas NO tienen valor por defecto: definilas en tu entorno o en un `.env` local
+# (no versionado) antes de levantar el servicio. Son contraseñas descartables de desarrollo;
+# nunca uses las de otro entorno.
+#   POSTGRES_PASSWORD  superusuario de la instancia (solo para el aprovisionamiento)
+#   MIGRA_PASSWORD     rol `migra` (propietario del esquema, ejecuta migraciones)
+#   APP_PASSWORD       rol `app` (la aplicación; sin BYPASSRLS ni propiedad de tablas)
+#
+# Levantar:  docker compose up -d --wait
+# Bajar:     docker compose down            (agregá -v para borrar los datos)
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definí POSTGRES_PASSWORD}
+      MIGRA_PASSWORD: ${MIGRA_PASSWORD:?Definí MIGRA_PASSWORD}
+      APP_PASSWORD: ${APP_PASSWORD:?Definí APP_PASSWORD}
+    ports:
+      # Solo loopback: la base de desarrollo no se expone a la red.
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:

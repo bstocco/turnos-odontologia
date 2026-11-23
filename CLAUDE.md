@@ -60,7 +60,7 @@ Cargá la skill correspondiente al contexto ANTES de escribir código.
 
 Las skills especializadas del stack (Fastify, Vitest, PostgreSQL, seguridad) están **recomendadas, no instaladas**: ver `.atl/skill-registry.md`.
 
-> Los compact rules de cada skill los resuelve el orquestador desde [.atl/skill-registry.md](.atl/skill-registry.md) (generado por `skill-registry`; no versionado — no está en el repo). Esta tabla solo mapea skill→rol.
+> Los compact rules de cada skill los resuelve el orquestador desde [.atl/skill-registry.md](.atl/skill-registry.md) (generado por `skill-registry` y versionado en el repo, por decisión del Líder: es un artefacto evaluable). Esta tabla solo mapea skill→rol.
 
 ---
 
