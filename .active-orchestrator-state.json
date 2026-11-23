@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "step": "find-skill",
+  "step": "done",
   "owner": "active-orchestrator",
   "foundation": {
     "version": 1,
@@ -52,7 +52,7 @@
       },
       "find-skill": {
         "variant": "recommend",
-        "status": "pending",
+        "status": "done",
         "requires": [
           "kb"
         ],
@@ -60,7 +60,7 @@
       },
       "registry": {
         "variant": "index",
-        "status": "pending",
+        "status": "done",
         "requires": [
           "find-skill"
         ],
@@ -70,7 +70,7 @@
       },
       "agents": {
         "variant": "generate",
-        "status": "pending",
+        "status": "done",
         "requires": [
           "kb",
           "roadmap",
@@ -99,7 +99,8 @@
         "outputs": [],
         "decided_on": "2026-11-22"
       }
-    }
+    },
+    "completed_on": "2026-11-22"
   },
   "discovery": {
     "created_by": "discovery-research",
@@ -339,5 +340,120 @@
       "C-19",
       "C-20"
     ]
+  },
+  "skills": {
+    "recommended": [
+      {
+        "name": "mcollina/skills@fastify-best-practices",
+        "installs": 106700,
+        "fit": "alta",
+        "use": "C-01, C-08, C-12 (Fastify, plugins, validación, errores)"
+      },
+      {
+        "name": "antfu/skills@vitest",
+        "installs": 49100,
+        "fit": "alta",
+        "use": "C-02, C-09, C-18 (Vitest)"
+      },
+      {
+        "name": "supabase/agent-skills@supabase-postgres-best-practices",
+        "installs": 494600,
+        "fit": "media-alta",
+        "use": "C-03, C-05, C-09 (PostgreSQL general; partes específicas de Supabase no aplican)"
+      },
+      {
+        "name": "wshobson/agents@nodejs-backend-patterns",
+        "installs": 50900,
+        "fit": "media",
+        "use": "C-01, C-06 (patrones de backend Node.js)"
+      },
+      {
+        "name": "affaan-m/ecc@security-review",
+        "installs": 21100,
+        "fit": "media-alta",
+        "use": "C-06, C-15, C-19 (revisión de seguridad)"
+      },
+      {
+        "name": "wshobson/agents@github-actions-templates",
+        "installs": 18600,
+        "fit": "media",
+        "use": "C-01, C-20 (CI/CD)"
+      },
+      {
+        "name": "wshobson/agents@openapi-spec-generation",
+        "installs": 17400,
+        "fit": "media",
+        "use": "C-18 (contrato OpenAPI)"
+      },
+      {
+        "name": "github/awesome-copilot@postgresql-code-review",
+        "installs": 13000,
+        "fit": "media",
+        "use": "C-03, C-09 (revisión de SQL; cobertura de RLS no confirmada)"
+      },
+      {
+        "name": "affaan-m/ecc@deployment-patterns",
+        "installs": 13200,
+        "fit": "baja-media",
+        "use": "C-20 (despliegue; genérica)"
+      },
+      {
+        "name": "usestrix/strix@owasp-top-10-testing",
+        "installs": 18600,
+        "fit": "media",
+        "use": "C-19 (pruebas OWASP; la herramienta no fue evaluada)"
+      },
+      {
+        "name": "mblode/agent-skills@multi-tenant-architecture",
+        "installs": 1900,
+        "fit": "media-baja",
+        "use": "C-03 (multi-tenant; pocas instalaciones)"
+      }
+    ],
+    "recommended_at": "2026-11-22",
+    "discarded": [
+      "prisma/skills (se decidió SQL explícito, DD-08)",
+      "neondatabase/agent-skills (proveedor de hosting aún no elegido)",
+      "dobroslavradosavljevic/skills@bullmq (se usa pg-boss, DD-09)",
+      "clerk/skills y better-auth/skills (acoplados a servicios de terceros)",
+      "skills de Azure y AWS (el hosting es un PaaS económico)"
+    ],
+    "installed": []
+  },
+  "registry": {
+    "created_by": "skill-registry",
+    "path": ".atl/skill-registry.md",
+    "skills_count": 19,
+    "generated_on": "2026-11-22"
+  },
+  "agents": {
+    "created_by": "agent-instruction",
+    "files": [
+      "CLAUDE.md"
+    ],
+    "reglas_applied": [
+      "Ley 25.326: sin datos de pacientes en logs, errores ni cola; auditar lecturas y exportaciones",
+      "Sin datos reales de pacientes en desarrollo, tests ni CI",
+      "Multi-tenant: clinica_id con RLS en toda tabla de clínica, rol de la app sin BYPASSRLS",
+      "Sin solapamientos por profesional ni por sillón, con constraints de exclusión",
+      "TypeScript estricto sin any",
+      "SQL parametrizado y migraciones inmutables",
+      "Dominio puro sin I/O",
+      "Integración con PostgreSQL real",
+      "timestamptz en UTC con zona IANA de la clínica",
+      "Tokens, códigos y contraseñas siempre con hash",
+      "auditoria solo INSERT",
+      "404 ante recursos de otra clínica",
+      "Sin secretos en repo ni logs",
+      "Equipo de 4: 1 líder y 3 implementadores en ramas separadas",
+      "Sin commit ni push sin pedido explícito; conventional commits",
+      "Sin build tras cada cambio salvo pedido"
+    ],
+    "team": {
+      "size": 4,
+      "leader": 1,
+      "implementers": 3,
+      "source": "reglas del proyecto (team-mode omitido)"
+    }
   }
 }
