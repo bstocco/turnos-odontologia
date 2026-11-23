@@ -57,16 +57,16 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 **Trade-offs aceptados**: clínicas en otra zona requieren cambiar el valor de su configuración. Hay que usar zonas IANA, no desplazamientos fijos.
 
 ### DD-08 — Monolito modular hexagonal con Fastify, SQL explícito y Vitest
-**Estado**: **propuesto por la fundación, pendiente de confirmar**
-**Decisión propuesta**: arquitectura hexagonal en un monolito, Fastify como framework, SQL explícito con migraciones versionadas y Vitest.
+**Estado**: decidido (aprobado por el equipo el 2026-11-22)
+**Decisión**: arquitectura hexagonal en un monolito, Fastify como framework, SQL explícito con migraciones versionadas y Vitest.
 **Contexto**: pediste "lógica de dominio pura" y una prueba automatizada fuerte; el equipo es de 3 personas en ramas separadas.
 **Alternativas consideradas**: NestJS (más pesado, el dominio tiende a acoplarse); Express o Fastify sin capas fijas (la estructura se degrada).
 **Justificación**: el dominio se prueba sin infraestructura y los constraints y políticas RLS requieren SQL que un ORM típico no expresa.
 **Trade-offs aceptados**: requiere disciplina en los límites entre capas.
 
 ### DD-09 — Cola de tareas sobre PostgreSQL
-**Estado**: **propuesto, pendiente de confirmar**
-**Decisión propuesta**: cola de trabajos sobre PostgreSQL (por ejemplo pg-boss) para emails y recordatorios.
+**Estado**: decidido (aprobado por el equipo el 2026-11-22)
+**Decisión**: cola de trabajos sobre PostgreSQL con pg-boss (sin Redis) para emails y recordatorios.
 **Justificación**: evita sumar Redis y su costo.
 **Trade-offs aceptados**: menor rendimiento que una cola dedicada; suficiente para el volumen del MVP.
 
@@ -76,6 +76,22 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 **Contexto**: Atiendo y Agenda Profesional la evidencian como parte del flujo de cancelación.
 **Justificación**: priorizar el núcleo (agenda sin solapamientos) en 8 a 12 semanas.
 **Trade-offs aceptados**: menor recuperación de huecos por cancelaciones de último momento en la v1.
+
+### DD-11 — Alta de clínicas por endpoint administrativo interno o seed inicial
+**Estado**: decidido (aprobado por el equipo el 2026-11-22; cierra PO-04)
+**Decisión**: en el MVP las clínicas nuevas se crean con un endpoint administrativo interno protegido por clave de servicio, o con un seed inicial. No hay autoservicio ni rol de operador de plataforma en la v1.
+**Contexto**: el Discovery no definía cómo se aprovisionan los tenants.
+**Alternativas consideradas**: autoservicio de alta; rol de operador de plataforma con interfaz.
+**Justificación**: cierra la épica 8 con el menor costo y deja el aprovisionamiento fuera de la superficie pública.
+**Trade-offs aceptados**: el alta depende de una persona del equipo; el autoservicio queda para una etapa posterior.
+
+### DD-12 — Validación del paciente en la reserva pública por código de email
+**Estado**: decidido (aprobado por el equipo el 2026-11-22; cierra PO-02)
+**Decisión**: antes de confirmar una reserva pública, el paciente valida el email con un código de un solo uso, con vencimiento y límite de intentos.
+**Contexto**: riesgo de reservas falsas o duplicadas por el enlace público (R-02).
+**Alternativas consideradas**: DNI más email sin código; confirmación de la recepción.
+**Justificación**: valida que el paciente controla el email sin exigirle una cuenta.
+**Trade-offs aceptados**: agrega un paso a la reserva y depende de la entrega del email.
 
 ## Supuestos inferidos
 
@@ -105,7 +121,7 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 
 ### SU-05 — Sillón asignado automáticamente en la reserva pública
 **Supuesto**: el paciente no elige sillón y no hay tipos de sillón por prestación.
-**Origen**: propuesta de la fundación; el Discovery no lo define.
+**Origen**: propuesta de la fundación; **aprobada por el equipo el 2026-11-22** (asignación automática del sillón en la reserva pública).
 **Riesgo si es falso**: prestaciones que requieran un sillón particular obligarían a modelar tipos de sillón.
 **Cómo validar**: PO-11.
 
@@ -123,6 +139,6 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 
 ### SU-08 — El recordatorio por email sale 24 horas antes
 **Supuesto**: valor por defecto; no fijado por el Discovery.
-**Origen**: propuesta de la fundación.
+**Origen**: propuesta de la fundación; **aprobada por el equipo el 2026-11-22** (recordatorio automático 24 horas antes).
 **Riesgo si es falso**: menor eficacia contra el ausentismo.
 **Cómo validar**: PO-05.

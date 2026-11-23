@@ -35,3 +35,7 @@ Sistema SaaS multi-tenant para clínicas odontológicas argentinas pequeñas y m
 - **Decidido** = confirmado por el equipo. **Propuesto** o **Suposición** = propuesta de la fundación pendiente de confirmar.
 - Los códigos son estables: `RN-*` reglas, `US-*` historias, `DD-*` decisiones, `SU-*` supuestos, `PO-*` preguntas, `R-*` riesgos, `IN-*` inconsistencias.
 - Los datos reales de pacientes están **prohibidos** fuera de producción (RN-DA-01).
+
+## Actualización 2026-11-22
+
+El equipo aprobó DD-08 (hexagonal, Fastify, SQL explícito, Vitest), DD-09 (pg-boss sobre PostgreSQL), SU-05 (asignación automática de sillón), SU-08 (recordatorio 24 hs antes), DD-11 (alta de clínicas por endpoint interno o seed) y DD-12 (validación por código de email). Las marcas "propuesto" o "Suposición" que quedan en los archivos 03, 05, 07 y 08 sobre esos puntos se leen como **decididas**. Las demás Suposiciones siguen pendientes. Ver `CHANGES.md` para la secuencia de implementación.

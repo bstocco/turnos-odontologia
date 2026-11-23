@@ -31,10 +31,10 @@
 | ID | Prioridad | Pregunta | Bloquea | Decisor |
 |---|---|---|---|---|
 | PO-01 | Alta | ¿Cómo se cobra el SaaS (suscripción fija por clínica o por sillón o profesional)? | Modelo comercial, no el MVP técnico | Equipo de producto |
-| PO-02 | Alta | ¿Cómo se valida al paciente en la reserva pública: código por email (recomendado), DNI + email, o confirmación de la recepción? | US-031, RN-RE-05 | Equipo de producto y seguridad |
+| PO-02 | Resuelta (DD-12) | ¿Cómo se valida al paciente en la reserva pública: código por email (recomendado), DNI + email, o confirmación de la recepción? | US-031, RN-RE-05 | Equipo de producto y seguridad |
 | PO-03 | Alta | ¿El alojamiento en un PaaS fuera de Argentina implica una transferencia internacional de datos personales bajo la Ley 25.326? ¿Qué región y qué cláusulas contractuales corresponden? | Elección de proveedor (DD-04) | Equipo con asesoría legal |
-| PO-04 | Alta | ¿Cómo se da de alta una clínica nueva y quién lo hace (script manual, endpoint interno, autoservicio)? ¿Existe un rol de operador de plataforma? | Épica 8, aprovisionamiento de tenants | Equipo de producto |
-| PO-05 | Media | ¿Cuánto antes del turno sale el recordatorio por email (propuesto: 24 hs)? ¿Hay más de un recordatorio? | US-050 | Equipo de producto |
+| PO-04 | Resuelta (DD-11) | ¿Cómo se da de alta una clínica nueva y quién lo hace (script manual, endpoint interno, autoservicio)? ¿Existe un rol de operador de plataforma? | Épica 8, aprovisionamiento de tenants | Equipo de producto |
+| PO-05 | Resuelta (SU-08) | ¿Cuánto antes del turno sale el recordatorio por email (propuesto: 24 hs)? ¿Hay más de un recordatorio? | US-050 | Equipo de producto |
 | PO-06 | Media | ¿Qué granularidad usa la grilla de turnos (propuesto: 15 min)? ¿Es configurable por clínica? | Disponibilidad (US-030) | Equipo de producto |
 | PO-07 | Media | ¿La recepción puede forzar un turno en feriado o fuera del horario del profesional (sobreturno administrativo)? | RN-AG-07 | Equipo de producto |
 | PO-08 | Media | Al bloquear una franja con turnos existentes: ¿se rechaza (propuesto) o se cancelan o reprograman automáticamente? | US-021 | Equipo de producto |
@@ -42,7 +42,7 @@
 | PO-10 | Media | ¿Cuánto se retienen los datos tras dar de baja una clínica y las copias de seguridad? (Oclusar publica 90 días como referencia) | Política de datos | Equipo con asesoría legal |
 | PO-11 | Media | ¿Hay prestaciones que exijan un tipo de sillón particular (cirugía, ortodoncia)? | Modelo de sillón, SU-05 | Equipo de producto |
 | PO-12 | Media | ¿El paciente puede reprogramar por enlace, o solo cancelar y volver a reservar? | IN-02 | Equipo de producto |
-| PO-13 | Media | ¿Se confirma la arquitectura propuesta (hexagonal, Fastify, SQL explícito, Vitest, cola en PostgreSQL)? | DD-08, DD-09; estructura del repositorio | Equipo técnico |
+| PO-13 | Resuelta (DD-08, DD-09) | ¿Se confirma la arquitectura propuesta (hexagonal, Fastify, SQL explícito, Vitest, cola en PostgreSQL)? | DD-08, DD-09; estructura del repositorio | Equipo técnico |
 | PO-14 | Media | ¿Se registra la base ante la AAIP (Ley 25.326) y quién lo gestiona? | Lanzamiento | Equipo con asesoría legal |
 | PO-15 | Baja | ¿Quién mantiene los feriados cada año (plantilla nacional más ajustes por clínica)? | US-004 | Equipo técnico |
 | PO-16 | Baja | ¿Qué formato tiene la exportación (JSON, CSV, ambos)? | US-062 | Equipo técnico |

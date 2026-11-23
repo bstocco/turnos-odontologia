@@ -5,11 +5,11 @@
 | Capa | Tecnología | Estado |
 |---|---|---|
 | Lenguaje y runtime | TypeScript sobre Node.js | **Definido** (restricción del proyecto) |
-| API | REST sobre HTTP, con Fastify | **Propuesto**: Fastify es una propuesta del equipo de fundación, pendiente de confirmar (DD-08) |
+| API | REST sobre HTTP, con Fastify | **Decidido** (DD-08): Fastify |
 | Base de datos | PostgreSQL con `btree_gist` y Row-Level Security | **Definido** (PostgreSQL); extensión y RLS por decisión de arquitectura (DD-01, DD-02) |
-| Pruebas | Vitest o Jest | **Definido** como "Vitest/Jest"; se propone Vitest (DD-08) |
-| Acceso a datos | SQL explícito con migraciones versionadas | **Propuesto**: los constraints de exclusión y las políticas RLS requieren SQL, no se expresan en un ORM típico (DD-08) |
-| Cola de tareas | Cola sobre PostgreSQL (por ejemplo pg-boss) | **Propuesto**: evita sumar Redis y su costo (DD-09) |
+| Pruebas | Vitest o Jest | **Decidido** (DD-08): Vitest |
+| Acceso a datos | SQL explícito con migraciones versionadas | **Decidido** (DD-08): los constraints de exclusión y las políticas RLS requieren SQL, no se expresan en un ORM típico |
+| Cola de tareas | Cola sobre PostgreSQL (por ejemplo pg-boss) | **Decidido** (DD-09): pg-boss; evita sumar Redis y su costo |
 | Email | Resend o Brevo | **Opción elegida (Q4=a)**; proveedor concreto a decidir |
 | Hosting | PaaS económico (Railway, Render o Fly.io) con PostgreSQL gestionado | **Opción elegida (Q4=a)**; proveedor concreto a decidir |
 
@@ -17,7 +17,7 @@ La versión mínima de cada componente se fija al crear el proyecto (primer chan
 
 ## Arquitectura general
 
-**Monolito modular con dominio puro (arquitectura hexagonal)**: un solo despliegue, bajo costo y límites claros entre capas. Propuesto por el equipo de fundación; ver DD-08 y `08_arquitectura_propuesta.md`.
+**Monolito modular con dominio puro (arquitectura hexagonal)**: un solo despliegue, bajo costo y límites claros entre capas. Decidido (DD-08); ver DD-08 y `08_arquitectura_propuesta.md`.
 
 ```
  Clientes (Postman / futuros frontends / enlaces en emails y WhatsApp)
