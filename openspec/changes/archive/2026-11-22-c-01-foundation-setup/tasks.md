@@ -30,7 +30,7 @@
 
 ## 5. Migraciones y base de datos local
 
-- [ ] 5.1 Crear `docker-compose.yml` y `docker/postgres/init/01-roles.sql` (base y roles `migra` y `app`, este último sin superusuario, sin `BYPASSRLS` y sin ser propietario; D7), con contraseñas leídas del entorno. Verificar que `docker compose config` valida el archivo (donde haya Docker) y que el mismo script se aplica con `psql` en CI.
+- [x] 5.1 Crear `docker-compose.yml` y `docker/postgres/init/01-roles.sql` (base y roles `migra` y `app`, este último sin superusuario, sin `BYPASSRLS` y sin ser propietario; D7), con contraseñas leídas del entorno. Verificar que `docker compose config` valida el archivo (donde haya Docker) y que el mismo script se aplica con `psql` en CI. **Cerrada con CI en verde:** en CI terminaron bien `docker compose config --quiet` (paso «Validar docker-compose.yml») y `psql -f docker/postgres/init/01-roles.sql` (paso «Inicializar roles y bases»); [run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e, y [run en la rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885), commit 99dae1d.
 - [x] 5.2 Implementar el análisis de nombres, el orden `(NN, seq)`, la detección de duplicados y la huella con fines de línea normalizados (D7). Pruebas unitarias: orden entre changes, nombre fuera del patrón, secuencia repetida y huella idéntica para contenido con CRLF y con LF.
 - [x] 5.3 Implementar la ejecución: tabla `schema_migrations`, transacción por migración, bloqueo asesor, rechazo de migraciones editadas y uso exclusivo de `DATABASE_MIGRATION_URL`. Pruebas de integración: segunda ejecución sin cambios, migración nueva, migración editada, sentencia inválida a mitad de archivo (la tabla no queda creada), dos ejecuciones simultáneas y conexión de migraciones ausente.
 - [x] 5.4 Exponer `npm run db:migrate` y crear una migración de ejemplo **solo para pruebas** (en un directorio de fixtures, no en `migrations/`). Verificar que `npm run db:migrate` sobre una base vacía termina bien y deja `schema_migrations` vacía.
@@ -38,12 +38,12 @@
 ## 6. Pruebas y integración continua
 
 - [x] 6.1 Crear `vitest.config.ts` con los proyectos `unit`, `integration` y `api` (confirmando la sintaxis de proyectos en la versión instalada), la preparación global con la guarda de host de D8 y una prueba de propiedades mínima con fast-check. Verificar que `npm run test:unit` pasa y que `test:integration` sin `TEST_DATABASE_URL` falla con un mensaje claro.
-- [ ] 6.2 Crear `.github/workflows/ci.yml` (D11): trabajo de calidad (lint, formato, tipos) y trabajo de pruebas con PostgreSQL de servicio, el script de inicialización, `npm ci`, pruebas unitarias, de integración y `api`, y una prueba de humo del build (`node dist/main.js` y `GET /salud`). Verificar con `gh run list` que el flujo termina en verde sobre la rama.
+- [x] 6.2 Crear `.github/workflows/ci.yml` (D11): trabajo de calidad (lint, formato, tipos) y trabajo de pruebas con PostgreSQL de servicio, el script de inicialización, `npm ci`, pruebas unitarias, de integración y `api`, y una prueba de humo del build (`node dist/main.js` y `GET /salud`). Verificar con `gh run list` que el flujo termina en verde sobre la rama. **Cerrada con CI en verde:** el flujo se ejecutó y sus dos trabajos (calidad y pruebas) terminaron en verde; `actions/checkout@v7` y `actions/setup-node@v7` aceptaron `node-version-file` y `cache`. [run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e, y [run en la rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885), commit 99dae1d.
 - [ ] 6.3 Verificar las barreras de calidad: en una rama descartable introducir un error de tipos y comprobar que CI falla; cambiar `package.json` sin actualizar `package-lock.json` y comprobar que la instalación falla. Descartar la rama y registrar los enlaces de ejecución en el informe de la tarea 7.2.
 
 ## 7. Spike de plataforma (R-04 y R-05)
 
-- [ ] 7.1 Escribir las pruebas de `test/integration/platform/` (D14): `btree_gist`, exclusión por profesional y por sillón con rangos solapados y contiguos, RLS forzada sin contexto con rol no propietario, rechazo de la columna generada con `timestamptz + interval` (confirmando el código de error) y columna común con `CHECK` de coherencia. Verificar que pasan en CI y, donde haya base local, también en la máquina.
+- [x] 7.1 Escribir las pruebas de `test/integration/platform/` (D14): `btree_gist`, exclusión por profesional y por sillón con rangos solapados y contiguos, RLS forzada sin contexto con rol no propietario, rechazo de la columna generada con `timestamptz + interval` (confirmando el código de error) y columna común con `CHECK` de coherencia. Verificar que pasan en CI y, donde haya base local, también en la máquina. **Cerrada con CI en verde:** el paso `npm run test:integration`, que incluye las 18 pruebas de `test/integration/platform/`, terminó en verde; [run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e, y [run en la rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885), commit 99dae1d. El primer run (commits 08eb1a0 y 4d615a9: [rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45094846497) y [main](https://github.com/bstocco/turnos-odontologia/actions/runs/45094823516)) falló solo en el test de concurrencia, que se corrigió para aceptar `23P01` o `40P01` (commit 99dae1d).
 - [x] 7.2 Redactar `docs/plataforma/informe-validacion-postgres.md` con la versión de PostgreSQL, la decisión sobre `fin_sillon`, el resultado de cada prueba y una tabla de entornos (local, CI, `sa-east-1`) donde lo no probado figure como "no verificado". Verificar que cada fila de la tabla se corresponde con una ejecución real o con la leyenda "no verificado".
 
 ## 8. Documentación y coherencia del repositorio
@@ -56,7 +56,7 @@
 ## 9. Verificación integral
 
 - [x] 9.1 Desde un clon limpio, correr `npm ci`, `npm run lint`, `npm run typecheck`, `npm run test:unit` y `npm run build` y comprobar que terminan sin errores. Verificar que `openspec validate c-01-foundation-setup --strict` pasa.
-- [ ] 9.2 Confirmar que CI queda en verde en la rama con todas las pruebas, incluidas las de integración, `api` y spike, y que cada escenario de las 7 specs tiene una prueba o una verificación documentada. Dejar la tabla escenario→prueba en la descripción del PR.
+- [x] 9.2 Confirmar que CI queda en verde en la rama con todas las pruebas, incluidas las de integración, `api` y spike, y que cada escenario de las 7 specs tiene una prueba o una verificación documentada. Dejar la tabla escenario→prueba en la descripción del PR. **Cerrada con CI en verde, con una excepción:** pasaron unitarias, integración, `api`, spike y la prueba de humo del build; [run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e, y [run en la rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885), commit 99dae1d. **No se elaboró la tabla escenario→prueba de las 7 specs** (ver el seguimiento al final).
 
 ## Workflow follow-up
 
@@ -67,11 +67,13 @@
 
 ## Seguimiento pendiente al archivar (2026-11-22)
 
-Este change se archivó con 5 tareas sin marcar por falta de un repositorio remoto y de Docker en la máquina del Líder. Se retoman cuando el repositorio se suba a GitHub. Lo implementado y verificado en local está descripto en cada tarea y en `docs/plataforma/informe-validacion-postgres.md`.
+Este change se archivó con 5 tareas sin marcar por falta de un repositorio remoto y de Docker en la máquina del Líder. **Actualización (2026-11-23):** al subir el repositorio a GitHub, CI terminó en verde y se cerraron 4 de las 5. Quedan pendientes la tarea 6.3 y la tabla escenario→prueba de la 9.2.
 
-- **5.1** Ejecutar `docker compose config` con Docker (el flujo de CI ya lo hace) y comprobar en CI que `docker/postgres/init/01-roles.sql` se aplica con `psql`. El script ya se probó contra PostgreSQL 17.12 real con un ejecutor equivalente.
-- **6.2** Hacer la primera ejecución real de `.github/workflows/ci.yml` y confirmar que ambos trabajos (calidad y pruebas) terminan en verde. Confirmar también que `actions/checkout@v7` y `actions/setup-node@v7` aceptan los parámetros usados (`node-version-file`, `cache`), porque no se pudieron ejecutar.
-- **6.3** En una rama descartable, introducir un error de tipos y comprobar que CI falla; cambiar `package.json` sin actualizar `package-lock.json` y comprobar que la instalación falla. En local ya se verificó que `tsc` devuelve error y que `npm ci` falla con código 1. Registrar los enlaces de ejecución en el informe de validación.
-- **7.1** Confirmar que las 18 pruebas de `test/integration/platform/` pasan en CI. Ya pasaron 18 de 18 en local contra PostgreSQL 17.12.
-- **9.2** Confirmar CI en verde con todas las pruebas (unit, integración, api y spike) y dejar la tabla escenario→prueba de las 7 specs en la descripción del PR.
-- Al cerrar estas cinco, agregar en el informe de validación la fila de CI con el enlace de la ejecución.
+Runs en verde: [run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e, y [run en la rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885), commit 99dae1d. En ambos pasaron los dos trabajos: calidad (`npm ci`, lint, formato y tipos) y pruebas (validación de `docker-compose.yml`, inicialización de roles con `psql`, unitarias, integración, `api` y prueba de humo del build).
+
+- **5.1** ✅ Cerrada. `docker compose config` y el script de roles con `psql` pasaron en CI.
+- **6.2** ✅ Cerrada. Primera ejecución real del flujo, en verde.
+- **7.1** ✅ Cerrada. Las 18 pruebas del spike pasan en CI (junto con el resto de integración).
+- **9.2** ✅ Cerrada para CI en verde. **Pendiente:** elaborar la tabla escenario→prueba de las 7 specs (49 escenarios) y dejarla en la descripción de un PR o en `docs/plataforma/`.
+- **6.3** ⏳ Pendiente. En una rama descartable, introducir un error de tipos y comprobar que CI falla; cambiar `package.json` sin actualizar `package-lock.json` y comprobar que la instalación falla. En local ya se verificó que `tsc` devuelve error y que `npm ci` falla con código 1. Los dos runs fallidos del 2026-11-23 ([rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45094846497) y [main](https://github.com/bstocco/turnos-odontologia/actions/runs/45094823516)) probaron que CI se pone en rojo ante una prueba que falla, pero no reemplazan este experimento.
+- Al cerrar 6.3, agregar en `docs/plataforma/informe-validacion-postgres.md` los enlaces de esa ejecución.

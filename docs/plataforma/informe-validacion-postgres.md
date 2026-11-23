@@ -10,8 +10,8 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
 | Entorno | Estado | Detalle |
 |---|---|---|
 | **Local (esta máquina)** | **Verificado** el 2026-11-22 | PostgreSQL **17.12** (`x86_64-windows`, compilación MSVC) embebido, ejecutado fuera del repositorio. Roles `migra` y `app` creados con `docker/postgres/init/01-roles.sql`. Resultado: **32 de 32** pruebas de integración en verde (18 del spike y 14 del runner de migraciones). |
-| **Integración continua (GitHub Actions)** | **No verificado** | El flujo `.github/workflows/ci.yml` está escrito y su YAML es válido, pero no se ejecutó: el repositorio no tiene remoto configurado. |
-| **Imagen `postgres:17` de Docker** | **No verificado** | No hay Docker en la máquina del Líder. Se espera el mismo comportamiento que el local (misma versión mayor), pero no se comprobó. |
+| **Integración continua (GitHub Actions)** | **Verificado** el 2026-11-23 | Runs en verde: [main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192) (commit 6d7312e) y [rama](https://github.com/bstocco/turnos-odontologia/actions/runs/45096089885) (commit 99dae1d), con la imagen `postgres:17` como servicio y el script de roles ejecutado con `psql`. Pasaron unitarias, integración (incluido este spike), `api` y la prueba de humo del build. El primer run falló solo por el deadlock `40P01` descripto abajo. |
+| **Imagen `postgres:17` de Docker** | **Verificado en CI** | Es la imagen del servicio de PostgreSQL en GitHub Actions. En la máquina del Líder no hay Docker, así que `docker compose up` no se probó en local. |
 | **`sa-east-1` (PaaS gestionado)** | **No verificado** | No se crearon cuentas ni recursos en la nube; requiere aprobación explícita del Líder. Ver "Pendientes". |
 
 > El PostgreSQL local es una compilación embebida para pruebas. No equivale a un servicio gestionado: los permisos de la extensión, la versión y los parámetros pueden diferir.
@@ -66,6 +66,6 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
 
 ## Pendientes
 
-- Ejecutar el flujo de CI en un repositorio remoto y registrar acá el enlace de la ejecución.
+- Probar las barreras de calidad de CI con una rama descartable (error de tipos y lockfile desalineado) y registrar acá los enlaces (tarea 6.3 de C-01).
 - Verificar `btree_gist` y RLS en el PostgreSQL gestionado de la región elegida. **Requiere aprobación del Líder** para crear cuentas o recursos.
 - Confirmar con asesoría legal la base de la transferencia de datos a `sa-east-1` (ver `knowledge-base/10_preguntas_abiertas.md`, PO-03).

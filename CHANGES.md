@@ -155,7 +155,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 0 — Cimientos
 
 ### [C-01] `foundation-setup`
-- **Estado**: `[x]` completado (archivado el 2026-11-22). Seguimiento pendiente: 5 tareas que dependen de un repositorio remoto o de Docker (5.1, 6.2, 6.3, 7.1 parte CI y 9.2); ver `openspec/changes/archive/2026-11-22-c-01-foundation-setup/tasks.md`, sección "Seguimiento pendiente al archivar"
+- **Estado**: `[x]` completado (archivado el 2026-11-22). CI en verde en GitHub Actions ([run en main](https://github.com/bstocco/turnos-odontologia/actions/runs/45096148192), commit 6d7312e). Seguimiento: cerradas 5.1, 6.2, 7.1 y 9.2; pendientes la 6.3 (rama descartable con error de tipos y lockfile desalineado) y la tabla escenario→prueba de la 9.2. Ver `openspec/changes/archive/2026-11-22-c-01-foundation-setup/tasks.md`, sección "Seguimiento pendiente al archivar"
 - **Scope**: Esqueleto del repositorio, convenciones compartidas y verificación de la plataforma. Lo ejecuta el líder.
   - Proyecto TypeScript/Node.js: `tsconfig` estricto, ESLint y Prettier, estructura hexagonal `src/{domain,application,infrastructure,interfaces/http}`, `migrations/`, `seeds/`, `test/{unit,integration,api}`
   - App Fastify mínima con `GET /salud`, manejo central de errores con códigos de dominio estables y logger estructurado con redacción de datos personales
