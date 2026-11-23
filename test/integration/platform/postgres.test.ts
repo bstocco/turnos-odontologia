@@ -236,7 +236,13 @@ describe('R-04 y exclusión: solapamientos por profesional y por sillón', () =>
     ).resolves.toBeDefined();
   });
 
-  it('dos reservas concurrentes sobre el mismo hueco: gana una y la otra recibe 23P01', async () => {
+  // Con restricciones de exclusión, dos inserciones concurrentes sobre el mismo hueco se esperan
+  // entre sí: cada una ve la fila sin confirmar de la otra al verificar las restricciones. Si la
+  // espera es circular, PostgreSQL aborta una con 40P01 (deadlock) tras `deadlock_timeout` (1 s por
+  // defecto); si no, la perdedora recibe 23P01 (violación de exclusión). Cuál ocurre depende del
+  // orden de ejecución, y en ambos casos gana una sola transacción. C-09 debe tratar 40P01 igual
+  // que 23P01: el hueco está ocupado (409, o reintento con otro sillón en la reserva pública).
+  it('dos reservas concurrentes sobre el mismo hueco: gana una y la otra recibe 23P01 o 40P01', async () => {
     await limpiar();
     const clientes = await Promise.all(
       [1, 2].map(async () => {
@@ -256,8 +262,9 @@ describe('R-04 y exclusión: solapamientos por profesional y por sillón', () =>
           .then(() => 'ok' as const)
           .catch((e: { code?: string }) => e.code ?? 'error'),
       );
-      const resultados = (await Promise.all(intentos)).sort();
-      expect(resultados).toEqual(['23P01', 'ok']);
+      const resultados = await Promise.all(intentos);
+      expect(resultados.filter((r) => r === 'ok')).toHaveLength(1);
+      expect(['23P01', '40P01']).toContain(resultados.find((r) => r !== 'ok'));
     } finally {
       await Promise.all(clientes.map((c) => c.end()));
     }

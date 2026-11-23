@@ -340,7 +340,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 - **Scope**: Persistencia de turnos y casos de uso de agenda, sin HTTP
   - Migración `C09_001`: tabla `turno` con `fin_sillon` como columna común más `CHECK` de coherencia con `buffer_minutos`, `rango_profesional` y `rango_sillon`, **constraints de exclusión** por profesional y por sillón (`WHERE estado NOT IN ('cancelado','reprogramado')`), índices y `aplicar_rls`
   - Repositorio y `AgendaReader` (consultas de ocupación) que implementan los puertos de C-02
-  - Casos de uso: `agendarTurno`, `reprogramarTurno` (una transacción, RN-TU-02), `cancelarTurno`, `confirmarTurno`, `marcarAtendido`, `marcarAusente`; validan con el dominio y traducen el error `23P01` a `TURNO_SOLAPADO_PROFESIONAL` o `TURNO_SOLAPADO_SILLON` (409)
+  - Casos de uso: `agendarTurno`, `reprogramarTurno` (una transacción, RN-TU-02), `cancelarTurno`, `confirmarTurno`, `marcarAtendido`, `marcarAusente`; validan con el dominio y traducen los errores `23P01` y `40P01` (deadlock entre reservas concurrentes del mismo hueco) a `TURNO_SOLAPADO_PROFESIONAL` o `TURNO_SOLAPADO_SILLON` (409)
   - Asignación automática de sillón libre con reintento ante concurrencia (RN-RE-03)
   - Puerto `TurnoEventPublisher` con eventos de dominio (creado, confirmado, cancelado, reprogramado); implementación nula por defecto, que consume C-14
   - Auditoría en cada caso de uso (C-07)

@@ -33,7 +33,7 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
 | Sillón libre justo al terminar el buffer (10:45) | Aceptado |
 | Turno `cancelado` o `reprogramado` | Libera el horario |
 | Dos clínicas con los mismos ids de profesional y sillón | No chocan (la clave incluye `clinica_id`) |
-| Dos inserciones concurrentes sobre el mismo hueco | Gana una y la otra recibe `23P01` |
+| Dos inserciones concurrentes sobre el mismo hueco | Gana una sola; la otra recibe `23P01` **o `40P01`** (deadlock, tras `deadlock_timeout`, 1 s por defecto). Lo observó CI el 2026-11-22; en local salió `23P01` |
 
 **Hallazgo útil para C-09:** las columnas de rango pueden ser **generadas** (`tstzrange(inicio, fin, '[)')` es inmutable y PostgreSQL las acepta). Solo `fin_sillon` no puede serlo (ver abajo).
 
@@ -62,7 +62,7 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
    Sin `missing_ok = true`, una consulta sin contexto falla con error en vez de devolver cero filas. Sin `NULLIF`, una conexión que ya ejecutó un `SET LOCAL` queda con el parámetro vacío y la conversión a `uuid` falla.
 2. **Fijar el contexto (C-03).** `SELECT set_config('app.clinica_id', $1, true)` acepta parámetros y su efecto termina con la transacción (el tercer argumento `true` equivale a `SET LOCAL`).
 3. **`FORCE ROW LEVEL SECURITY` también alcanza al propietario (C-03, C-05, C-17).** Una migración que cargue o transforme datos de tablas de clínica con el rol `migra` verá cero filas si no fija el contexto. Los seeds y las migraciones de datos deben fijar `app.clinica_id` o planificarse de otra forma.
-4. **Concurrencia (C-09).** El error `23P01` es la señal de "hueco ocupado": el caso de uso debe traducirlo a `TURNO_SOLAPADO_PROFESIONAL` o `TURNO_SOLAPADO_SILLON` (`409`) y, en la reserva pública, reintentar con el siguiente sillón libre.
+4. **Concurrencia (C-09).** Los errores `23P01` (violación de exclusión) y `40P01` (deadlock entre dos reservas concurrentes del mismo hueco, que PostgreSQL resuelve tras `deadlock_timeout`) son la señal de "hueco ocupado": el caso de uso debe tratar ambos igual y traducirlos a `TURNO_SOLAPADO_PROFESIONAL` o `TURNO_SOLAPADO_SILLON` (`409`) y, en la reserva pública, reintentar con el siguiente sillón libre.
 
 ## Pendientes
 

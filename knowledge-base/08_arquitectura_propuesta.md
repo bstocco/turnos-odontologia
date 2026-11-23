@@ -60,7 +60,7 @@ turnos-odontologia/
 
 **No solapamiento (Q2 = a)**
 - Validación en el dominio más constraints de exclusión de PostgreSQL por profesional y por sillón (ver `04_modelo_de_datos.md`).
-- Un error `23P01` (violación de exclusión) se traduce a `409` con código de dominio.
+- Un error `23P01` (violación de exclusión) o `40P01` (deadlock entre reservas concurrentes del mismo hueco) se traduce a `409` con código de dominio.
 - Para la reserva pública, si el sillón elegido falla por concurrencia, se reintenta con el siguiente sillón libre antes de responder `409`.
 
 **Validación de entrada:** esquemas explícitos en el borde HTTP; el dominio revalida invariantes. Consultas parametrizadas siempre.
