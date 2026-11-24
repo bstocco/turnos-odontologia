@@ -67,5 +67,19 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
 ## Pendientes
 
 - Probar las barreras de calidad de CI con una rama descartable (error de tipos y lockfile desalineado) y registrar acá los enlaces (tarea 6.3 de C-01).
-- Verificar `btree_gist` y RLS en el PostgreSQL gestionado de la región elegida. **Requiere aprobación del Líder** para crear cuentas o recursos.
-- Confirmar con asesoría legal la base de la transferencia de datos a `sa-east-1` (ver `knowledge-base/10_preguntas_abiertas.md`, PO-03).
+- Verificar `btree_gist` y RLS en el PostgreSQL gestionado de la región elegida (Fly.io, `gru`). **Requiere aprobación del Líder** para crear cuentas o recursos; se hará en el despliegue de C-20.
+- Validación legal previa a producción de las cláusulas contractuales modelo para la transferencia a São Paulo (ver "Base legal de la región" y `knowledge-base/10_preguntas_abiertas.md`, PO-03).
+
+## Base legal de la región
+
+- **Región elegida:** São Paulo (`sa-east-1` / `gru`), decidida por el Líder (PO-03).
+- **Nivel de protección:** Brasil **no** figura entre los países con nivel adecuado de la AAIP. Este informe no afirma nivel adecuado para esa jurisdicción.
+- **Base de la transferencia:** se adoptan las cláusulas contractuales modelo (Disposición DNPDP 60/2016 y Resolución AAIP 198/2023), según PO-03 en `knowledge-base/10_preguntas_abiertas.md`.
+- **Estado:** **pendiente** la validación legal previa a producción. Mientras tanto, la región figura como "no verificado" en la tabla de entornos.
+
+## Selección de PaaS para C-20
+
+- **Proveedor elegido:** **Fly.io**, región `gru` (São Paulo), correspondiente a la región `sa-east-1` de este informe, con PostgreSQL gestionado.
+- **Requisitos que debe cumplir** (de los hallazgos de este informe): `CREATE EXTENSION btree_gist` por el rol de migraciones y roles de aplicación sin `BYPASSRLS` ni propiedad de las tablas.
+- **Estado:** **pendiente de verificación operativa** en el despliegue de C-20. Que Fly.io soporte `btree_gist` y roles sin `BYPASSRLS` es un requisito a comprobar, no un hecho verificado.
+- **Sin acciones todavía:** no se crearon cuentas ni se generaron costos. Hacerlo requiere la aprobación explícita del Líder.
