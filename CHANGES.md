@@ -185,7 +185,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > Los changes C-02, C-03 y C-04 son independientes entre sí y se ejecutan en paralelo (GATE 1).
 
 ### [C-02] `dominio-agenda-puro`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Lógica de agenda en TypeScript puro, sin I/O ni base de datos
   - `Intervalo` semiabierto `[inicio, fin)` con `seSolapa`, `contiene` y adyacencia (fin = inicio no solapa; RN-AG-03)
   - Ocupación: rango del profesional `[inicio, fin)` y rango del sillón `[inicio, fin + buffer)` (RN-AG-02, RN-AG-05)
@@ -207,7 +207,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-03] `db-tenant-rls`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Plataforma de datos multi-tenant con aislamiento por Row-Level Security
   - Pool de PostgreSQL y `withTenant(clinicaId, fn)`: transacción con `SET LOCAL app.clinica_id`, nunca por conexión
   - `RequestContext { clinicaId, actor: { tipo, id, rol } }` en `src/application/shared/`: contrato compartido por auth, auditoría y casos de uso
@@ -229,7 +229,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-04] `utilidades-comunicacion-y-tokens`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Utilidades puras de comunicación y seguridad, sin I/O
   - `normalizarTelefonoAr` a formato internacional `549` + área + número, sin el `15`; validación de teléfonos inválidos (RN-NO-04, RN-PA-03)
   - `construirEnlaceWhatsapp(telefono, mensaje)` → `https://wa.me/<número>?text=<mensaje codificado>`
@@ -253,7 +253,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > Los changes C-05, C-06 y C-07 pueden proponerse en paralelo una vez cerrada la FASE 1.
 
 ### [C-05] `datos-clinica-y-pacientes`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Persistencia de los recursos de la clínica y de los pacientes, sin HTTP
   - Migración `C05_001`: tablas `profesional`, `horario_atencion`, `sillon` (con `buffer_minutos`), `prestacion`, `feriado`, `paciente` y `bloqueo`, cada una con `clinica_id` y `aplicar_rls`
   - Constraints: `hora_desde < hora_hasta`, DNI único por clínica, feriado único por fecha, bloqueos sin solape por profesional (exclusión)
@@ -273,7 +273,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-06] `auth-personal-rbac`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Autenticación JWT del personal y control de acceso por roles
   - Migración `C06_001`: `usuario` (email único por clínica, `hash_contrasena` argon2id, `rol`, `profesional_id` sin FK, `activo`, `ultimo_acceso`) y tabla de refresh tokens (hash, rotación, revocación), con `aplicar_rls`
   - `POST /auth/login`, `POST /auth/refresh` (rotativo), `POST /auth/logout`; token de acceso corto; mensajes genéricos; límite de tasa por IP y email
@@ -500,7 +500,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-17] `alta-clinicas-interno`
-- **Estado**: `[x]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Aprovisionamiento de clínicas nuevas (PO-04 cerrado)
   - `POST /interno/clinicas` protegido por clave de servicio (`ADMIN_INTERNAL_KEY`, comparación en tiempo constante, desactivable por entorno) y fuera del RBAC de clínicas
   - Crea la clínica, su `clinica_config` por defecto y el primer usuario administrador con contraseña temporal
