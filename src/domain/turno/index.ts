@@ -17,3 +17,5 @@ export {
   type OrigenTurno,
   type Turno,
 } from './turno.js';
+export type { TurnoEventPublisher, EventoDeTurno } from './turno-eventos.js';
+export { turnoEventPublisherNulo } from './turno-eventos.js';
