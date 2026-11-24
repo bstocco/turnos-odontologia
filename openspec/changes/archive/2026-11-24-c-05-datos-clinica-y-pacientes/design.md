@@ -181,3 +181,9 @@ Deben confirmarse con el Líder **antes del apply** (governance ALTO). Ninguna c
 8. **PO-11** (tipos de sillón por prestación): no se modela; si se resuelve por sí, hará falta una tabla de compatibilidad en un change posterior.
 9. **PO-15** (mantenimiento anual de feriados): el seed trae una lista estática del año; la plantilla nacional es de C-08.
 10. **PO-06** (granularidad): se lee de `clinica_config` tal como la dejó C-03; C-05 no la valida.
+
+## Resoluciones del apply
+
+- **Open Questions 1-7**: aprobadas por la Líder en el PR #8; los valores provisionales de este documento quedan vigentes. C-03 ya está fusionado en la rama (`withTenant(clinicaId, fn)` entrega un `pg.PoolClient`; arnés en `test/support/aislamiento.ts`).
+- **D5**: el spike pasó en PG 17 (`minutos_del_dia` IMMUTABLE, `24:00` -> 1440); no hizo falta el plan B.
+- **Ajustes menores durante el apply** (sin cambiar specs): (a) los `crear` de profesional, sillón, prestación, paciente, bloqueo y feriado aceptan un `id` opcional para que el seed sea reproducible; (b) el índice `paciente_apellido_idx` y la búsqueda por apellido usan `translate(lower(apellido), 'áéíóúü', 'aeiouu')` para que el prefijo "go" encuentre "Gómez" como pide el escenario; (c) `reemplazarFranjas` usa un `SAVEPOINT` para dejar intactas las franjas previas y la transacción usable; (d) `paciente.creado_en` depende del reloj y no entra en la comparación de reproducibilidad del seed.
