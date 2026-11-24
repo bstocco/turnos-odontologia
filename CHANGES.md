@@ -273,7 +273,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-06] `auth-personal-rbac`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Autenticación JWT del personal y control de acceso por roles
   - Migración `C06_001`: `usuario` (email único por clínica, `hash_contrasena` argon2id, `rol`, `profesional_id` sin FK, `activo`, `ultimo_acceso`) y tabla de refresh tokens (hash, rotación, revocación), con `aplicar_rls`
   - `POST /auth/login`, `POST /auth/refresh` (rotativo), `POST /auth/logout`; token de acceso corto; mensajes genéricos; límite de tasa por IP y email
