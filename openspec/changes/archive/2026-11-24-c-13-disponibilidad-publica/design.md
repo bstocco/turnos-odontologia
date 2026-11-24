@@ -143,11 +143,11 @@ resolverClinicaPorSlug(ejecutor, slug): Promise<string | null>   // infraestruct
 
 ## Open Questions
 
-Requieren decisión del Líder. Las marcadas **BLOQUEA** impiden empezar el apply (o el grupo de tareas indicado).
+Resoluciones del Líder (aprobación del PR #15) y estado:
 
-- **Q1 (BLOQUEA el apply)**: ¿Quién crea `resolver_clinica_por_slug`? (a) C-13 con `migrations/C13_001_*` y el adaptador `clinica-publica` fuera de la zona declarada (recomendado: no frena el camino crítico); (b) Agente A en un `C03_002` y C-13 espera. En ambos casos con la forma de D1.
-- **Q2 (BLOQUEA el grupo 5 de tasks)**: ¿Se aprueba `GET /publico/{slug}/profesionales` con `id`, `nombre` y `apellido`? Sin ella el flujo público no puede elegir profesional. Si se rechaza, se quita el grupo 5 y el requisito del spec.
+- **Q1 (RESUELTA, opción a)**: C-13 crea `migrations/C13_001_resolver_clinica_por_slug.sql` y el adaptador `src/infrastructure/db/repositories/clinica-publica/index.ts`, con la forma de D1.
+- **Q2 (APROBADA)**: se incluye `GET /publico/{slug}/profesionales` con `id`, `nombre` y `apellido` (grupo 5 de tasks).
 - **Q3 (no bloquea)**: "cualquier profesional" en una sola consulta. Provisional: `profesionalId` obligatorio; el cliente consulta por profesional.
-- **Q4 (no bloquea C-13; bloquea producción)**: `trustProxy` con los saltos del PaaS en `app.ts` (C-01/C-20). Provisional: `request.ip` tal cual; las pruebas usan `inject` con `remoteAddress` distintos.
+- **Q4 (DIFERIDA a C-19/C-20)**: `trustProxy` con los saltos del PaaS en `app.ts` (C-01/C-20). No se toca en C-13: `request.ip` tal cual; las pruebas usan `inject` con `remoteAddress` distintos. Los hallazgos de C-06 de Risks tampoco se corrigen aquí (se notan para C-19/C-20).
 - **Q5 (no bloquea)**: revocar el `SELECT` directo de `app` sobre `clinica` cuando el resto del código deje de usarlo (C-19).
 - **Provisionales que no cambian el diseño**: rango máximo 14 días y horizonte 90 (ajustables por constante); `30/min` por IP (`RATE_LIMIT_PUBLIC`); `max-age=60` de catálogos; capacidad LRU 10000. **PO-06**: se usa la granularidad configurada por clínica (C-08). **PO-07**: sin excepciones; un feriado bloquea el día. **PO-11**: sin tipos de sillón. **PO-09** (tope de 2 reservas activas) es de C-15 y no afecta a la consulta.
