@@ -249,3 +249,12 @@ export function describirConfig(config: Config): Record<string, unknown> {
 export function nombresSensibles(): ReadonlySet<string> {
   return NOMBRES_SENSIBLES;
 }
+
+/**
+ * Clave de servicio del endpoint interno de alta de clínicas (C-17): variable
+ * opcional, sin exigir los valores obligatorios del perfil `app` (ninguna URL).
+ */
+export function cargarAdminInternalKey(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  const valor = env.ADMIN_INTERNAL_KEY;
+  return valor === undefined || valor.trim() === '' ? undefined : valor;
+}

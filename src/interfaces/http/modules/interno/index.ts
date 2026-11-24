@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import Type, { type Static } from 'typebox';
 
 import { ErrorDeDominio } from '../../../../domain/shared/errores.js';
-import { loadConfig } from '../../../../config/index.js';
+import { cargarAdminInternalKey } from '../../../../config/index.js';
 import { compararEnTiempoConstante } from '../../../../infrastructure/crypto/index.js';
 
 import { aprovisionarClinica } from '../../../../application/aprovisionamiento/index.js';
@@ -25,8 +25,9 @@ export default async function moduloInterno(app: FastifyInstance): Promise<void>
     '/interno/clinicas',
     { schema: { body: CuerpoNuevaClinica } },
     async (request, reply) => {
-      const config = loadConfig('app');
-      const claveConfigurada = config.adminInternalKey;
+      // Guarda de clave de servicio primero: sin cargar el repositorio ni otras
+      // variables obligatorias (en la prueba de API no están cargadas).
+      const claveConfigurada = cargarAdminInternalKey();
       const header = request.headers.authorization;
       const claveIntroducida = header === undefined ? undefined : header.replace(/^Bearer\s+/i, '');
       if (
