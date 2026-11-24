@@ -421,7 +421,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-13] `disponibilidad-publica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Consulta pública de prestaciones y horarios libres, sin cuenta
   - `GET /publico/{slug}/prestaciones` y `GET /publico/{slug}/disponibilidad` (profesional, prestación y rango de fechas)
   - La clínica se resuelve con `resolver_clinica_por_slug` y el cálculo de disponibilidad es el de C-02 (profesional, sillón, buffer, feriados y bloqueos)
