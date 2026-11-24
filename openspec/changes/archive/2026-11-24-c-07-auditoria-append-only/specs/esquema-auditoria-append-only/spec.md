@@ -7,7 +7,7 @@ Define el esquema PostgreSQL inmutable y aislado por clínica para registrar eve
 ## ADDED Requirements
 
 ### Requirement: Tabla auditoria e índices de consulta
-The system SHALL persist audit events in table `auditoria` with sequential identity `id`, mandatory `clinica_id` referencing `clinica`, `ocurrio_en` (`timestamptz` UTC defaulting to `now()`), `actor_tipo`, nullable `actor_id`, `accion`, `entidad`, nullable `entidad_id`, `datos_antes` (`jsonb`), `datos_despues` (`jsonb`), and `ip` (`inet`), indexed by clinic, timestamp, entity, and actor.
+The system SHALL persist audit events in table `auditoria` with sequential identity `id`, mandatory `clinica_id` referencing `clinica`, `ocurrio_en` (`timestamptz` UTC defaulting to `now()`), `actor_tipo`, nullable `actor_id`, `accion`, `entidad`, nullable `uuid` `entidad_id`, `datos_antes` (`jsonb`), `datos_despues` (`jsonb`), and `ip` (`inet`), indexed by clinic, timestamp, entity, and actor.
 
 #### Scenario: Inserción completa con identificador secuencial e instante UTC
 - **WHEN** se inserta un registro de auditoría completo dentro del contexto de la clínica A
@@ -15,12 +15,12 @@ The system SHALL persist audit events in table `auditoria` with sequential ident
 - **AND** conserva los valores de `actor_tipo`, `actor_id`, `accion`, `entidad`, `entidad_id`, `datos_antes`, `datos_despues` e `ip`
 
 #### Scenario: Inserción compatible con aprovisionamiento de clínica existente
-- **WHEN** se ejecuta la sentencia `INSERT INTO auditoria (clinica_id, ocurrio_en, actor_tipo, accion, entidad, entidad_id) VALUES ($1, now(), 'sistema', 'creacion', 'clinica', $1)` con un UUID válido en `$1`
+- **WHEN** se ejecuta la sentencia literal de `C-17` `INSERT INTO auditoria (clinica_id, ocurrio_en, actor_tipo, accion, entidad, entidad_id) VALUES ($1, now(), 'sistema', 'creacion', 'clinica', $1)` con un UUID válido en `$1`
 - **THEN** la base acepta la inserción sin requerir `actor_id`, `datos_antes`, `datos_despues` ni `ip`
-- **AND** almacena la representación textual del UUID en `entidad_id`
+- **AND** almacena ese UUID en `entidad_id`
 
 ### Requirement: Integridad de actores, acciones y entidades en la base
-The system SHALL enforce check constraints on `auditoria` restricting `actor_tipo` to `usuario`, `paciente_enlace`, or `sistema`, requiring non-empty `actor_id` when `actor_tipo` is `usuario` or `paciente_enlace`, permitting nullable non-empty `actor_id` for `sistema`, and requiring non-empty snake_case identifiers for `accion` and `entidad` plus non-empty `entidad_id` when present.
+The system SHALL enforce check constraints on `auditoria` restricting `actor_tipo` to `usuario`, `paciente_enlace`, or `sistema`, requiring non-empty `actor_id` when `actor_tipo` is `usuario` or `paciente_enlace`, permitting nullable non-empty `actor_id` for `sistema`, and requiring non-empty snake_case identifiers for `accion` and `entidad` plus valid UUID syntax when `entidad_id` is provided.
 
 #### Scenario: Aceptación de los tres tipos de actor válidos
 - **WHEN** se insertan registros con `actor_tipo` igual a `usuario` (con `actor_id`), `paciente_enlace` (con `actor_id`) y `sistema` (con `actor_id` nulo o no vacío)
@@ -35,8 +35,8 @@ The system SHALL enforce check constraints on `auditoria` restricting `actor_tip
 - **THEN** la base rechaza la inserción con violación de constraint `23514`
 
 #### Scenario: Rechazo de acción, entidad o identificador de entidad inválidos
-- **WHEN** se intenta insertar una `accion` o `entidad` vacía o fuera del formato snake_case minúscula, o un `entidad_id` vacío o con solo espacios
-- **THEN** la base rechaza la inserción con violación de constraint `23514`
+- **WHEN** se intenta insertar una `accion` o `entidad` vacía o fuera del formato snake_case minúscula, o un `entidad_id` con formato distinto de UUID
+- **THEN** la base rechaza la inserción con violación de constraint `23514` para `accion`/`entidad` o error `22P02` para `entidad_id` no-UUID
 
 ### Requirement: Inmutabilidad append-only en doble barrera
 The system SHALL enforce append-only immutability on `auditoria` through a double barrier: granting only `SELECT` and `INSERT` privileges to the application role (with table ownership retained by the migration role) and attaching a statement-level trigger before `UPDATE`, `DELETE`, or `TRUNCATE` that raises an error.

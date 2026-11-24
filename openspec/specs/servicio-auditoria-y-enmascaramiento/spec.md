@@ -1,10 +1,10 @@
-# Spec Delta
+# servicio-auditoria-y-enmascaramiento Specification
 
 ## Purpose
 
 Provee el puerto append-only, el servicio de aplicación de auditoría, el enmascaramiento recursivo de datos personales y credenciales en cumplimiento de la Ley 25.326, y su adaptador transaccional sobre PostgreSQL.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Puerto append-only y frontera hexagonal en aplicación
 The application layer SHALL expose an append-only audit repository port with a single insertion operation and an audit service accepting `RequestContext` without modifying `RequestContext` and without importing database, HTTP, or infrastructure modules.
@@ -15,7 +15,7 @@ The application layer SHALL expose an append-only audit repository port with a s
 - **AND** invoca únicamente la operación de inserción del repositorio append-only
 
 ### Requirement: Validación de contexto, actores e IP antes de persistir
-The audit service SHALL validate `clinicaId` as a UUID, accept actor types `usuario`, `paciente_enlace`, and `sistema` (requiring non-empty `actor.id` for `usuario` and `paciente_enlace`, and normalizing blank `actor.id` to `null` for `sistema`), enforce snake_case `accion` and `entidad`, validate optional `ip` addresses, and reject invalid inputs with a domain validation error containing no personal data.
+The audit service SHALL validate `clinicaId` as a UUID, accept actor types `usuario`, `paciente_enlace`, and `sistema` (requiring non-empty `actor.id` for `usuario` and `paciente_enlace`, and normalizing blank `actor.id` to `null` for `sistema`), enforce snake_case `accion` and `entidad`, validate optional `entidadId` as a UUID and optional `ip` addresses, and reject invalid inputs with a domain validation error containing no personal data.
 
 #### Scenario: Registro válido para usuario, paciente por enlace y sistema
 - **WHEN** se registra auditoría con un `RequestContext` de actor `usuario`, `paciente_enlace` o `sistema` (con `actor.id` presente o vacío en `sistema`) y metadatos válidos
@@ -26,8 +26,8 @@ The audit service SHALL validate `clinicaId` as a UUID, accept actor types `usua
 - **THEN** el servicio falla con un error de dominio de tipo solicitud inválida sin llamar al repositorio
 - **AND** el mensaje de error no contiene datos personales
 
-#### Scenario: Rechazo ante acción, entidad o dirección IP mal formada
-- **WHEN** `accion` o `entidad` está vacía o no cumple snake_case minúscula, o `ip` no es una dirección IPv4/IPv6 válida
+#### Scenario: Rechazo ante acción, entidad, entidadId o dirección IP mal formada
+- **WHEN** `accion` o `entidad` está vacía o no cumple snake_case minúscula, `entidadId` no vacío no es un UUID válido, o `ip` no es una dirección IPv4/IPv6 válida
 - **THEN** el servicio falla con un error de dominio de tipo solicitud inválida sin llamar al repositorio
 
 ### Requirement: Enmascaramiento recursivo de datos personales y credenciales

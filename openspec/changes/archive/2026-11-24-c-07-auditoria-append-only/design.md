@@ -64,7 +64,7 @@ Columnas de `auditoria`:
 - `actor_id text` (nullable solo para `sistema`)
 - `accion text NOT NULL` (`CHECK (accion ~ '^[a-z][a-z0-9_]*$')`)
 - `entidad text NOT NULL` (`CHECK (entidad ~ '^[a-z][a-z0-9_]*$')`)
-- `entidad_id text` (nullable; `CHECK (entidad_id IS NULL OR length(btrim(entidad_id)) > 0)`)
+- `entidad_id uuid` (nullable; ajustado en `Q2` para compatibilidad literal con `C-17`)
 - `datos_antes jsonb` (nullable)
 - `datos_despues jsonb` (nullable)
 - `ip inet` (nullable)
@@ -72,13 +72,14 @@ Columnas de `auditoria`:
 Constraint condicional para `actor_id` (`auditoria_actor_id_check`):
 ```sql
 CHECK (
-  (actor_tipo IN ('usuario', 'paciente_enlace') AND actor_id IS NOT NULL AND length(btrim(actor_id)) > 0)
-  OR
   (actor_tipo = 'sistema' AND (actor_id IS NULL OR length(btrim(actor_id)) > 0))
+  OR
+  (actor_tipo <> 'sistema' AND actor_id IS NOT NULL AND length(btrim(actor_id)) > 0)
 )
 ```
-- **Compatibilidad literal con C-17**: en `repositorio-de-clinicas.ts`, C-17 ejecuta `INSERT INTO auditoria (clinica_id, ocurrio_en, actor_tipo, accion, entidad, entidad_id) VALUES ($1, now(), 'sistema', 'creacion', 'clinica', $1)`. Aquí `$1` entra como `uuid` en `clinica_id` y PostgreSQL resuelve la asignación al parámetro `entidad_id text` mediante coerción de tipo `uuid -> text` (validado explícitamente en pruebas de integración contra PG 17). `actor_id`, `datos_antes`, `datos_despues` e `ip` quedan en `NULL`.
-- *Alternativa descartada*: `actor_id uuid NOT NULL` y `entidad_id uuid`. Descartada porque rompería C-17 (omite `actor_id`), impediría identificar trabajos del sistema por nombre de job (`'recordatorio-24h'`) o pacientes por identificador de enlace, y limitaría futuras entidades con IDs no-UUID o numéricos (como `auditoria.id` en exportaciones).
+El orden `actor_tipo = 'sistema'` vs `actor_tipo <> 'sistema'` garantiza que un `actor_tipo` inválido con `actor_id` no vacío supere `auditoria_actor_id_check` y dispare `auditoria_actor_tipo_check` al evaluarse los `CHECK` en orden alfabético.
+- **Compatibilidad literal con C-17**: en `repositorio-de-clinicas.ts`, C-17 ejecuta `INSERT INTO auditoria (clinica_id, ocurrio_en, actor_tipo, accion, entidad, entidad_id) VALUES ($1, now(), 'sistema', 'creacion', 'clinica', $1)`. Al probar contra PostgreSQL 17 con `entidad_id text`, el motor rechazaba esa sentencia con `42P08` (`inconsistent types deduced for parameter $1`). Con `entidad_id uuid` (resolución ajustada de `Q2`), `$1` se deduce unívocamente como `uuid` en ambas columnas y la sentencia literal de `C-17` pasa sin tocar ningún archivo de `C-17`. `actor_id`, `datos_antes`, `datos_despues` e `ip` quedan en `NULL`.
+- *Alternativa descartada*: `entidad_id text` (propuesta inicial de `Q2`) exigiría editar `C-17` (`$2` o `($1::uuid)::text`); `actor_id uuid NOT NULL` rompería `C-17` y bloquearía identificadores textuales de workers/enlaces.
 
 ### D3. Doble barrera de inmutabilidad (`RN-AU-01`)
 1. **Barrera 1 (privilegios de rol)**:
@@ -174,7 +175,7 @@ Consumidores posteriores en el roadmap:
 - **[Enmascaramiento global de `nombre` sobre catálogos no personales]** → si en el futuro se audita un cambio sobre `sillon` o `prestacion` pasando `{ nombre: 'Sillón 1' }`, un matcher global por clave `nombre` lo redactará como `[REDACTADO]`. Mitigación: consultar en Q1 con el líder si se prefiere el criterio conservador alineado con `log-redaction` de C-01 (propuesto) o un enmascaramiento sensible a contexto para catálogos.
 - **[Alto volumen de escrituras por auditoría de lecturas (`RN-AU-03`)]** → aceptado en `DD-05`; mitigado con índices específicos para `C-16` y particionado/retención evaluable en `C-20` (`PO-10`).
 - **[Tests de integración imposibilitados de truncar `auditoria`]** → mitigado diseñando casos independientes por ID/entidad o reiniciando el esquema en `beforeAll`.
-- **[Coerción `$1` en C-17]** → si bien PostgreSQL asigna `uuid` hacia parámetros de texto cuando corresponde, queda cubierta como prueba obligatoria de integración contra PG 17 usando exactamente la sentencia de `repositorio-de-clinicas.ts`.
+- **[Limitación de `entidad_id` a tipo `uuid` (`Q2`)]** → todas las entidades de negocio definidas en `04_modelo_de_datos.md` usan clave primaria `uuid`, por lo que `entidad_id uuid` cubre la operación actual y la compatibilidad literal con `C-17`. Si un cambio futuro necesitara auditar una entidad sin UUID (p. ej. un lote con ID compuesto), requerirá `C07_002` o pasar el detalle en `datos_despues`.
 - **[Desalineación accidental entre `withTenant` y el repositorio de auditoría]** → si un caso de uso futuro instanciara auditoría con otro `EjecutorSql` fuera de su transacción, perdería atomicidad. Mitigación: `crearRepositorioAuditoriaPg` exige explícitamente el `EjecutorSql` transaccional y `C-07` prueba la reversión conjunta ante `ROLLBACK`.
 
 ## Migration Plan
@@ -194,3 +195,14 @@ Por gobernanza **CRÍTICO** (`CHANGES.md`), el líder debe revisar y aprobar est
 4. **Q4 — Bloqueo de `TRUNCATE` en el trigger**: ¿se aprueba incluir `TRUNCATE` además de `UPDATE` y `DELETE` en el trigger `BEFORE UPDATE OR DELETE OR TRUNCATE FOR EACH STATEMENT` (recordando que en tests de integración no podrá usarse `TRUNCATE auditoria`)?
 5. **Q5 — Política *fail-closed* de los hooks**: ¿se confirma que todo fallo al insertar auditoría en `conAuditoriaDeCambio`, `conAuditoriaDeLecturaPaciente` y `conAuditoriaDeExportacion` propague el error (revirtiendo la transacción e impidiendo entregar ficha/exportación sin auditoría)?
 6. **Q6 — Zona de pruebas en `test/{unit,integration}/auditoria/**`**: ¿se confirma crear las pruebas unitarias y de integración en esas carpetas de `C-07` sin modificar `test/support/**`?
+
+## Resoluciones del apply
+
+Aprobadas por la Líder en el review del PR #11 (2026-11-24):
+
+- **Q1**: Aprobado el enmascaramiento global de `nombre`/`apellido` en todo `datos_antes`/`datos_despues` (alineado con `log-redaction` de `C-01` y máxima seguridad Ley 25.326).
+- **Q2 (ajustado tras hallazgo en PG 17)**: La Líder aprobó revertir `entidad_id` de `text` nullable a **`uuid` nullable** para compatibilidad literal con la sentencia de `C-17` (`VALUES ($1, ..., $1)`) sin modificar archivos de `C-17`, y mantener el orden corregido de `auditoria_actor_id_check` (`actor_tipo = 'sistema' ... OR actor_tipo <> 'sistema' ...`).
+- **Q3**: Aprobado `ip` (`inet` nullable) opcional en `EntradaAuditoria` sin modificar el contrato congelado `RequestContext`.
+- **Q4**: Aprobado incluir `TRUNCATE` en el trigger `BEFORE UPDATE OR DELETE OR TRUNCATE FOR EACH STATEMENT`; en pruebas de integración se usa aislamiento por clínica nueva sintética en lugar de `TRUNCATE auditoria`.
+- **Q5**: Confirmada la política *fail-closed* en los tres hooks (revertir la transacción y bloquear entregas ante fallo de auditoría).
+- **Q6**: Confirmada la zona de pruebas en `test/{unit,integration}/auditoria/**` sin modificar `test/support/**`.
