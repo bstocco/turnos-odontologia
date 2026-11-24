@@ -43,6 +43,7 @@ export const EsquemaEntorno = Type.Object({
   EMAIL_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
   EMAIL_FROM: Type.Optional(Type.String({ minLength: 1 })),
   PUBLIC_BASE_URL: Type.Optional(Type.String({ minLength: 1 })),
+  ADMIN_INTERNAL_KEY: Type.Optional(Type.String({ minLength: 1 })),
 });
 
 type EntornoValidado = Static<typeof EsquemaEntorno>;
@@ -65,6 +66,7 @@ export interface Config {
   readonly emailApiKey: string | undefined;
   readonly emailFrom: string | undefined;
   readonly publicBaseUrl: string | undefined;
+  readonly adminInternalKey: string | undefined;
 }
 
 export interface ProblemaDeConfiguracion {
@@ -209,6 +211,7 @@ export function loadConfig(
     emailApiKey: entorno.EMAIL_API_KEY,
     emailFrom: entorno.EMAIL_FROM,
     publicBaseUrl: entorno.PUBLIC_BASE_URL,
+    adminInternalKey: entorno.ADMIN_INTERNAL_KEY,
   };
 }
 
@@ -222,6 +225,7 @@ export function describirConfig(config: Config): Record<string, unknown> {
     jwtAccessSecret: config.jwtAccessSecret,
     jwtRefreshSecret: config.jwtRefreshSecret,
     emailApiKey: config.emailApiKey,
+    adminInternalKey: config.adminInternalKey,
   };
   const resumen: Record<string, unknown> = {
     perfil: config.perfil,

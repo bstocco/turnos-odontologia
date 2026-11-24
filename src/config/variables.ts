@@ -136,4 +136,11 @@ export const VARIABLES: readonly DefinicionVariable[] = [
     requeridaEn: [],
     ejemplo: 'http://localhost:3000',
   },
+  {
+    nombre: 'ADMIN_INTERNAL_KEY',
+    descripcion: 'Clave de servicio del endpoint interno de alta de clínicas (C-17)',
+    sensible: true,
+    requeridaEn: [],
+    ejemplo: 'cambiar-por-una-clave-larga-aleatoria',
+  },
 ];
