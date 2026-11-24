@@ -62,6 +62,7 @@ describe('API pública de dominio (contrato congelado)', () => {
         'parsearEstado',
         'puedeTransicionar',
         'transicionar',
+        'turnoEventPublisherNulo',
       ].sort(),
     );
     expect(Object.keys(shared).sort()).toEqual(

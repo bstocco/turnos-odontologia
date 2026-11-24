@@ -25,12 +25,15 @@ export const TRANSICIONES: Readonly<Record<EstadoTurno, readonly EstadoTurno[]>>
 /** Estados con los que puede nacer un turno. */
 export const ESTADOS_INICIALES: readonly EstadoTurno[] = ['pendiente_confirmacion', 'confirmado'];
 
-const ESTADOS_ACTIVOS: ReadonlySet<EstadoTurno> = new Set([
+/** Estados activos de un turno existente (RN-AG-09). */
+export const ESTADOS_ACTIVOS_LIST: readonly EstadoTurno[] = [
   'pendiente_confirmacion',
   'confirmado',
   'atendido',
   'ausente',
-]);
+];
+
+const ESTADOS_ACTIVOS: ReadonlySet<EstadoTurno> = new Set(ESTADOS_ACTIVOS_LIST);
 
 /** Un turno activo ocupa al profesional y al sillón (RN-AG-09). */
 export function esActivo(estado: EstadoTurno): boolean {
