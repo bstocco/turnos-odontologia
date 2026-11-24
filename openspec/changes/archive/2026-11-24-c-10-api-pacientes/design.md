@@ -156,6 +156,13 @@ No se expone `DELETE` ni desactivación: `paciente` no tiene `activo`, `app` no 
 
 ## Open Questions
 
+**Resoluciones del Líder (revisión del PR #16, previas al apply)**
+- **Q1 — aprobada**: se crea el lector de solo lectura `src/infrastructure/db/repositories/paciente-acceso/index.ts` (consulta `EXISTS` sobre `turno`) sin editar archivos de otras zonas.
+- **Q2 — aprobada**: el acceso del odontólogo se decide por turnos en estado activo (`ESTADOS_ACTIVOS_LIST`), sin ventana temporal; fuera de alcance responde 404.
+- **Q3 a Q7 — adoptadas** según la recomendación (sin auditoría de búsquedas, sin baja de pacientes, lista `{ id, nombre, apellido, dni }`, DNI en query string con verificación de logs del PaaS en C-20, solo celulares que normaliza C-04).
+- **Diferidos a C-19** (fuera de zona, no se tocan en C-10): FK `turno.paciente_id → paciente`, `UPDATE` por columnas sobre `paciente` y el registro encapsulado de `pluginDeAutenticacion`.
+- **Apply**: el registrador carga `modules/pacientes` automáticamente (igual que C-13), así que no se editó `app.ts`.
+
 Las opciones recomendadas ya están reflejadas en `specs/` y `tasks.md`. Las **bloqueantes** requieren el visto bueno del Líder antes del apply (gobernanza ALTO); si elige otra opción se actualizan los artefactos con `openspec-update-change`.
 
 **Bloqueantes**
