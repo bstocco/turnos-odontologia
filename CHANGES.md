@@ -294,7 +294,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-07] `auditoria-append-only`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Registro de auditoría inmutable
   - Migración `C07_001`: tabla `auditoria` con `aplicar_rls`; el rol de la app solo tiene `INSERT` y `SELECT`; trigger `BEFORE UPDATE OR DELETE` que lanza error (RN-AU-01)
   - `AuditoriaService.registrar(ctx, { accion, entidad, entidadId, antes, despues })` con el actor tomado del `RequestContext`; los campos sensibles se enmascaran en `datos_antes` y `datos_despues`
