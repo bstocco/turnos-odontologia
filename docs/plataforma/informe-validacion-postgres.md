@@ -64,8 +64,35 @@ Este informe dice **qué se verificó, en qué entorno y qué no se verificó**.
 3. **`FORCE ROW LEVEL SECURITY` también alcanza al propietario (C-03, C-05, C-17).** Una migración que cargue o transforme datos de tablas de clínica con el rol `migra` verá cero filas si no fija el contexto. Los seeds y las migraciones de datos deben fijar `app.clinica_id` o planificarse de otra forma.
 4. **Concurrencia (C-09).** Los errores `23P01` (violación de exclusión) y `40P01` (deadlock entre dos reservas concurrentes del mismo hueco, que PostgreSQL resuelve tras `deadlock_timeout`) son la señal de "hueco ocupado": el caso de uso debe tratar ambos igual y traducirlos a `TURNO_SOLAPADO_PROFESIONAL` o `TURNO_SOLAPADO_SILLON` (`409`) y, en la reserva pública, reintentar con el siguiente sillón libre.
 
+## Barreras de calidad de CI (tarea 6.3 de C-01)
+
+Verificado el 2026-11-24 con la rama descartable `test/barreras-ci` (ya borrada en local y en remoto). Cada prueba introdujo un único defecto, y el workflow `.github/workflows/ci.yml` lo rechazó.
+
+| Prueba | Defecto introducido | Resultado | Run |
+|---|---|---|---|
+| Error de tipos | `export const pruebaCiError: number = 'texto';` en `src/main.ts` (limpio para lint y formato) | **Falló** `npm run typecheck` en el job Calidad; `lint` y `format:check` pasaron | [45346163266](https://github.com/bstocco/turnos-odontologia/actions/runs/45346163266) (job [Calidad](https://github.com/bstocco/turnos-odontologia/actions/runs/45346163266/job/138281107236)) |
+| Lockfile desalineado | Dependencia ficticia en `package.json` sin tocar `package-lock.json` | **Falló** `npm ci` en los dos jobs, Calidad y Pruebas | [45346567430](https://github.com/bstocco/turnos-odontologia/actions/runs/45346567430) |
+
+Notas:
+
+- Un primer intento con `const pruebaCiError: number = "texto";` falló en `lint` y dejó `typecheck` sin ejecutar ([run 45345179641](https://github.com/bstocco/turnos-odontologia/actions/runs/45345179641)), así que no sirve como evidencia de la barrera de tipos. Se repitió con una línea que pasa lint y formato.
+- En la prueba de tipos, el job Pruebas también falló, en "Prueba de humo del build", porque `tsc` no compila con el error.
+
 ## Pendientes
 
-- Probar las barreras de calidad de CI con una rama descartable (error de tipos y lockfile desalineado) y registrar acá los enlaces (tarea 6.3 de C-01).
-- Verificar `btree_gist` y RLS en el PostgreSQL gestionado de la región elegida. **Requiere aprobación del Líder** para crear cuentas o recursos.
-- Confirmar con asesoría legal la base de la transferencia de datos a `sa-east-1` (ver `knowledge-base/10_preguntas_abiertas.md`, PO-03).
+- Verificar `btree_gist` y RLS en el PostgreSQL gestionado de la región elegida (Fly.io, `gru`). **Requiere aprobación del Líder** para crear cuentas o recursos; se hará en el despliegue de C-20.
+- Validación legal previa a producción de las cláusulas contractuales modelo para la transferencia a São Paulo (ver "Base legal de la región" y `knowledge-base/10_preguntas_abiertas.md`, PO-03).
+
+## Base legal de la región
+
+- **Región elegida:** São Paulo (`sa-east-1` / `gru`), decidida por el Líder (PO-03).
+- **Nivel de protección:** Brasil **no** figura entre los países con nivel adecuado de la AAIP. Este informe no afirma nivel adecuado para esa jurisdicción.
+- **Base de la transferencia:** se adoptan las cláusulas contractuales modelo (Disposición DNPDP 60/2016 y Resolución AAIP 198/2023), según PO-03 en `knowledge-base/10_preguntas_abiertas.md`.
+- **Estado:** **pendiente** la validación legal previa a producción. Mientras tanto, la región figura como "no verificado" en la tabla de entornos.
+
+## Selección de PaaS para C-20
+
+- **Proveedor elegido:** **Fly.io**, región `gru` (São Paulo), correspondiente a la región `sa-east-1` de este informe, con PostgreSQL gestionado.
+- **Requisitos que debe cumplir** (de los hallazgos de este informe): `CREATE EXTENSION btree_gist` por el rol de migraciones y roles de aplicación sin `BYPASSRLS` ni propiedad de las tablas.
+- **Estado:** **pendiente de verificación operativa** en el despliegue de C-20. Que Fly.io soporte `btree_gist` y roles sin `BYPASSRLS` es un requisito a comprobar, no un hecho verificado.
+- **Sin acciones todavía:** no se crearon cuentas ni se generaron costos. Hacerlo requiere la aprobación explícita del Líder.
