@@ -317,7 +317,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > C-08, C-09 y C-11 se ejecutan en paralelo (GATE 3). C-09 es el núcleo del producto: el líder revisa su PR con especial atención.
 
 ### [C-08] `api-configuracion-clinica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de configuración de la clínica para el administrador (lectura para recepción)
   - Migración `C08_001`: clave foránea `usuario.profesional_id → profesional`
   - Endpoints: `/clinica` (`GET`, `PATCH` de `reserva_requiere_confirmacion`, anticipación de cancelación y granularidad), `/profesionales`, `/profesionales/{id}/horarios`, `/sillones`, `/prestaciones`, `/feriados` (con plantilla de feriados nacionales)
