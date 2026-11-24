@@ -29,7 +29,11 @@ export function crearTokenDeRefresco(clinicaId: string): TokenDeRefrescoCreado {
     t: randomBytes(32).toString('hex'),
   };
   const token = Buffer.from(JSON.stringify(tokenPlano), 'utf8').toString('base64url');
-  return { token, hash: hashSha256(token), venceEn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) };
+  return {
+    token,
+    hash: hashSha256(token),
+    venceEn: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  };
 }
 
 /** Extrae la clínica embebida en el token de refresco (el contexto del repositorio). */

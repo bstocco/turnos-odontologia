@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import Type, { type Static } from 'typebox';
 
 import { contextoDePedido, requireRole } from '../../../../infrastructure/auth/rbac.js';
@@ -15,7 +15,11 @@ import { withTenant } from '../../../../infrastructure/db/tenant/with-tenant.js'
 const CrearBody = Type.Object({
   email: Type.String({ format: 'email', minLength: 1, maxLength: 254 }),
   password: Type.String({ minLength: 8, maxLength: 128 }),
-  rol: Type.Union([Type.Literal('administrador'), Type.Literal('recepcionista'), Type.Literal('odontologo')]),
+  rol: Type.Union([
+    Type.Literal('administrador'),
+    Type.Literal('recepcionista'),
+    Type.Literal('odontologo'),
+  ]),
   profesionalId: Type.Optional(Type.String({ format: 'uuid' })),
   activo: Type.Optional(Type.Boolean()),
 });
@@ -25,7 +29,11 @@ const ActualizarBody = Type.Object({
   email: Type.Optional(Type.String({ format: 'email', minLength: 1, maxLength: 254 })),
   password: Type.Optional(Type.String({ minLength: 8, maxLength: 128 })),
   rol: Type.Optional(
-    Type.Union([Type.Literal('administrador'), Type.Literal('recepcionista'), Type.Literal('odontologo')]),
+    Type.Union([
+      Type.Literal('administrador'),
+      Type.Literal('recepcionista'),
+      Type.Literal('odontologo'),
+    ]),
   ),
   profesionalId: Type.Optional(Type.String({ format: 'uuid' })),
   activo: Type.Optional(Type.Boolean()),

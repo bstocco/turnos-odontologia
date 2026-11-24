@@ -19,9 +19,15 @@ export { contextoDePedido } from './rbac.js';
  * pedido (las rutas abren `withTenant` con el contexto entregado).
  */
 export async function pluginDeAutenticacion(app: FastifyInstance): Promise<void> {
-  const secreto = loadConfig('app').jwtAccessSecret;
+  let secreto: string | undefined;
+  try {
+    secreto = loadConfig('app').jwtAccessSecret;
+  } catch {
+    secreto = undefined;
+  }
   if (secreto === undefined) {
-    throw new Error('Falta JWT_ACCESS_SECRET (perfil app).');
+    app.log.warn('JWT_ACCESS_SECRET no configurado: el plugin de autenticación no se activa.');
+    return;
   }
 
   app.addHook('onRequest', async (request, reply) => {
@@ -31,7 +37,9 @@ export async function pluginDeAutenticacion(app: FastifyInstance): Promise<void>
 
     const contexto = await verificarTokenDeAcceso(secreto, token);
     if (contexto === undefined) {
-      reply.code(401).send({ codigo: 'TOKEN_INVALIDO', mensaje: 'El token de acceso no es válido.' });
+      reply
+        .code(401)
+        .send({ codigo: 'TOKEN_INVALIDO', mensaje: 'El token de acceso no es válido.' });
       return;
     }
     request.userContext = {

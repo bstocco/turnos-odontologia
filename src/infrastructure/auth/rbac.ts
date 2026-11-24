@@ -8,7 +8,11 @@ export type RolDePersonal = 'administrador' | 'recepcionista' | 'odontologo';
 /** Exige que el contexto tenga el rol indicado (matriz RBAC de `03 §RBAC`). */
 export function requireRole(contexto: RequestContext, rol: RolDePersonal): void {
   if (contexto.actor.rol !== rol) {
-    throw new ErrorDeDominio('ACCESO_PROHIBIDO', 'prohibido', 'El rol no tiene permiso para este recurso.');
+    throw new ErrorDeDominio(
+      'ACCESO_PROHIBIDO',
+      'prohibido',
+      'El rol no tiene permiso para este recurso.',
+    );
   }
 }
 
@@ -21,7 +25,11 @@ export function requirePermission(contexto: RequestContext, permission: RolDePer
 export function contextoDePedido(request: FastifyRequest): RequestContext {
   const contexto = request.userContext;
   if (contexto === undefined) {
-    throw new ErrorDeDominio('AUTENTICACION_REQUERIDA', 'no_autenticado', 'Autenticación requerida.');
+    throw new ErrorDeDominio(
+      'AUTENTICACION_REQUERIDA',
+      'no_autenticado',
+      'Autenticación requerida.',
+    );
   }
   return contexto;
 }

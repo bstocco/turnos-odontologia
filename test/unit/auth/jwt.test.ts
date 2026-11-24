@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { firmarTokenDeAcceso, verificarTokenDeAcceso } from '../../../src/infrastructure/auth/jwt.js';
+import {
+  firmarTokenDeAcceso,
+  verificarTokenDeAcceso,
+} from '../../../src/infrastructure/auth/jwt.js';
 
 const SECRET = 'test-secret';
 

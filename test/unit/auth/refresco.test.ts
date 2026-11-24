@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { clinicaDeTokenDeRefresco, crearTokenDeRefresco } from '../../../src/infrastructure/auth/refresco.js';
+import {
+  clinicaDeTokenDeRefresco,
+  crearTokenDeRefresco,
+} from '../../../src/infrastructure/auth/refresco.js';
 import { hashSha256 } from '../../../src/infrastructure/crypto/index.js';
 
 describe('tokens de refresco del personal', () => {

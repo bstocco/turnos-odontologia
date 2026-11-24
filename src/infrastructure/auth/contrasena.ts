@@ -6,6 +6,9 @@ export async function hashContrasena(contrasena: string): Promise<string> {
 }
 
 /** Verifica la contraseña contra el hash argon2id guardado; `false` al no coincidir. */
-export async function verificarContrasena(hashGuardado: string, contrasena: string): Promise<boolean> {
+export async function verificarContrasena(
+  hashGuardado: string,
+  contrasena: string,
+): Promise<boolean> {
   return (await verify(hashGuardado, contrasena)) === true;
 }

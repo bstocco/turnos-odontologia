@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import Type, { type Static } from 'typebox';
 
 import { ErrorDeDominio } from '../../../../domain/shared/errores.js';
@@ -11,7 +11,10 @@ import {
   crearTokenDeRefrescoEnTabla,
   revocarTokenDeRefresco,
 } from '../../../../infrastructure/auth/repositorio-de-usuarios.js';
-import { clinicaDeTokenDeRefresco, crearTokenDeRefresco } from '../../../../infrastructure/auth/refresco.js';
+import {
+  clinicaDeTokenDeRefresco,
+  crearTokenDeRefresco,
+} from '../../../../infrastructure/auth/refresco.js';
 import { LimiteDeTasaPorClave } from '../../../../infrastructure/auth/rate-limit.js';
 import { firmarTokenDeAcceso } from '../../../../infrastructure/auth/jwt.js';
 import { poolDeLaAplicacion } from '../../../../infrastructure/db/pool/index.js';
@@ -35,17 +38,15 @@ type RefreshBody = Static<typeof RefreshBody>;
 const LimitePorIP = new LimiteDeTasaPorClave(5, 60_000);
 const LimitePorEmail = new LimiteDeTasaPorClave(5, 60_000);
 
-const config = loadConfig('app');
-if (config.jwtAccessSecret === undefined) {
-  throw new Error('Falta JWT_ACCESS_SECRET (perfil app).');
-}
-const secretoDelAcceso = config.jwtAccessSecret;
-
 export default async function moduloAuth(app: FastifyInstance): Promise<void> {
   await app.register(pluginDeAutenticacion);
 
   app.post('/auth/login', { schema: { body: LoginBody } }, async (request, reply) => {
     const { email, password, slug } = request.body as LoginBody;
+    const secretoDelAcceso = loadConfig('app').jwtAccessSecret;
+    if (secretoDelAcceso === undefined) {
+      throw new Error('Falta JWT_ACCESS_SECRET (perfil app).');
+    }
     if (LimitePorIP.excedido(request.ip) || LimitePorEmail.excedido(email)) {
       return reply.code(429).send({
         codigo: 'DEMASIADOS_PEDIDOS',
@@ -61,12 +62,17 @@ export default async function moduloAuth(app: FastifyInstance): Promise<void> {
     const usuario = await withTenant(clinicaId, (cliente) =>
       buscarUsuarioPorEmail(cliente, clinicaId, email),
     );
-    const contrasenaCorrecta = usuario === undefined ? false : await verificarContrasena(usuario.hashContrasena, password);
+    const contrasenaCorrecta =
+      usuario === undefined ? false : await verificarContrasena(usuario.hashContrasena, password);
     if (usuario === undefined || !usuario.activo || !contrasenaCorrecta) {
-      throw new ErrorDeDominio('CREDENCIALES_INVALIDAS', 'no_autenticado', 'Credenciales inválidas.');
+      throw new ErrorDeDominio(
+        'CREDENCIALES_INVALIDAS',
+        'no_autenticado',
+        'Credenciales inválidas.',
+      );
     }
 
-    const token = await withTenant(clinicaId, async (cliente) => {
+    await withTenant(clinicaId, async (cliente) => {
       const creado = crearTokenDeRefresco(clinicaId);
       await crearTokenDeRefrescoEnTabla(cliente, {
         clinicaId,
@@ -89,14 +95,22 @@ export default async function moduloAuth(app: FastifyInstance): Promise<void> {
     const { token } = request.body as RefreshBody;
     const clinicaId = clinicaDeTokenDeRefresco(token);
     if (clinicaId === undefined) {
-      throw new ErrorDeDominio('TOKEN_DE_REFRESCO_INVALIDO', 'no_autenticado', 'El token de refresco no es válido.');
+      throw new ErrorDeDominio(
+        'TOKEN_DE_REFRESCO_INVALIDO',
+        'no_autenticado',
+        'El token de refresco no es válido.',
+      );
     }
 
     const hash = hashSha256(token);
     const nuevoToken = await withTenant(clinicaId, async (cliente) => {
       const actual = await buscarTokenDeRefrescoPorHash(cliente, clinicaId, hash);
       if (actual === undefined || actual.revocadaEn !== undefined) {
-        throw new ErrorDeDominio('TOKEN_DE_REFRESCO_INVALIDO', 'no_autenticado', 'El token de refresco no es válido.');
+        throw new ErrorDeDominio(
+          'TOKEN_DE_REFRESCO_INVALIDO',
+          'no_autenticado',
+          'El token de refresco no es válido.',
+        );
       }
       const creado = crearTokenDeRefresco(clinicaId);
       await revocarTokenDeRefresco(cliente, clinicaId, actual.id);
