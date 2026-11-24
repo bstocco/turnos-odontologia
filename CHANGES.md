@@ -358,7 +358,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-10] `api-pacientes`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de la ficha básica del paciente
   - `POST /pacientes`, `GET /pacientes/{id}`, `PATCH /pacientes/{id}`, `GET /pacientes?dni=&apellido=`
   - Normalización del teléfono con C-04 al guardar; DNI único por clínica
