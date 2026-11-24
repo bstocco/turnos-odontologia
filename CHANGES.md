@@ -253,7 +253,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > Los changes C-05, C-06 y C-07 pueden proponerse en paralelo una vez cerrada la FASE 1.
 
 ### [C-05] `datos-clinica-y-pacientes`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Persistencia de los recursos de la clínica y de los pacientes, sin HTTP
   - Migración `C05_001`: tablas `profesional`, `horario_atencion`, `sillon` (con `buffer_minutos`), `prestacion`, `feriado`, `paciente` y `bloqueo`, cada una con `clinica_id` y `aplicar_rls`
   - Constraints: `hora_desde < hora_hasta`, DNI único por clínica, feriado único por fecha, bloqueos sin solape por profesional (exclusión)
