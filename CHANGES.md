@@ -207,7 +207,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-03] `db-tenant-rls`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Plataforma de datos multi-tenant con aislamiento por Row-Level Security
   - Pool de PostgreSQL y `withTenant(clinicaId, fn)`: transacción con `SET LOCAL app.clinica_id`, nunca por conexión
   - `RequestContext { clinicaId, actor: { tipo, id, rol } }` en `src/application/shared/`: contrato compartido por auth, auditoría y casos de uso
@@ -229,7 +229,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-04] `utilidades-comunicacion-y-tokens`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Utilidades puras de comunicación y seguridad, sin I/O
   - `normalizarTelefonoAr` a formato internacional `549` + área + número, sin el `15`; validación de teléfonos inválidos (RN-NO-04, RN-PA-03)
   - `construirEnlaceWhatsapp(telefono, mensaje)` → `https://wa.me/<número>?text=<mensaje codificado>`
