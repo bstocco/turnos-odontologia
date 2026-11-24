@@ -35,4 +35,4 @@ Punto de partida (ver `specs/auth-personal-rbac/spec.md` para el contrato):
 
 1. Aplicar `C06_001_auth_personal.sql` con el runner de C-01 (rol `migra`; `npm run db:migrate`).
 2. Ejecutar las pruebas de auth y RBAC; verificar login/refresh/logout, rate limit y aislamiento (verify del spec).
-3. Rollback: `DROP TABLE usuario, refresh_tokens; DROP FUNCTION resolver_usuario_por_email`.
+3. Rollback: `DROP TABLE token_refresco, usuario; DROP FUNCTION`
