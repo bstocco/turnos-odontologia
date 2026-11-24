@@ -185,7 +185,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > Los changes C-02, C-03 y C-04 son independientes entre sí y se ejecutan en paralelo (GATE 1).
 
 ### [C-02] `dominio-agenda-puro`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Lógica de agenda en TypeScript puro, sin I/O ni base de datos
   - `Intervalo` semiabierto `[inicio, fin)` con `seSolapa`, `contiene` y adyacencia (fin = inicio no solapa; RN-AG-03)
   - Ocupación: rango del profesional `[inicio, fin)` y rango del sillón `[inicio, fin + buffer)` (RN-AG-02, RN-AG-05)
