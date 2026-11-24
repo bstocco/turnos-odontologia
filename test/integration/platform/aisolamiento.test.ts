@@ -59,12 +59,10 @@ describe('especificación db-tenant-rls', () => {
 
   it('la clínica A no inserta una fila de la clínica B (42501)', async () => {
     const codigo = await withTenant(CLINICA_A.id, (cliente) =>
-      cliente
-        .query('INSERT INTO clinica_config (clinica_id) VALUES ($1)', [CLINICA_B.id])
-        .then(
-          () => undefined,
-          (e: { code?: string }) => e.code,
-        ),
+      cliente.query('INSERT INTO clinica_config (clinica_id) VALUES ($1)', [CLINICA_B.id]).then(
+        () => undefined,
+        (e: { code?: string }) => e.code,
+      ),
     );
     expect(codigo).toBe('42501');
   });
