@@ -500,7 +500,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-17] `alta-clinicas-interno`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` pendiente
 - **Scope**: Aprovisionamiento de clínicas nuevas (PO-04 cerrado)
   - `POST /interno/clinicas` protegido por clave de servicio (`ADMIN_INTERNAL_KEY`, comparación en tiempo constante, desactivable por entorno) y fuera del RBAC de clínicas
   - Crea la clínica, su `clinica_config` por defecto y el primer usuario administrador con contraseña temporal
