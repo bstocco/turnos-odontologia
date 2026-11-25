@@ -439,7 +439,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-14] `recordatorios-y-notificaciones-turno`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Emails automáticos asociados a los turnos
   - Suscriptor de `TurnoEventPublisher` (C-09): emails de creación, confirmación, cancelación y reprogramación con las plantillas de C-04, enviados por C-11
   - Job periódico en pg-boss: busca turnos `pendiente_confirmacion` o `confirmado` a 24 horas del inicio (parametrizable) y encola **un solo** recordatorio por turno (idempotente)
