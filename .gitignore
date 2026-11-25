@@ -22,3 +22,6 @@ Thumbs.db
 
 # Artefactos evaluables del repositorio: NO se ignoran a propósito.
 # No agregar reglas para .atl/skill-registry.md, openspec/ ni .active-orchestrator-state.json.
+
+# Salidas de pruebas locales
+probe-out.txt
