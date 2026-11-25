@@ -30,12 +30,13 @@ import { assertNoProduction } from '../src/infrastructure/seed/assert-no-product
 
 export const ID_CLINICA_DEMO = '0d3a0000-0000-4000-8000-000000000001';
 export const SLUG_CLINICA_DEMO = 'clinica-demo';
+
+/** Id fijo del usuario del personal sintético: determinista para los tests de "dos bases vacías". */
+const ID_USUARIO_SINTETICO = '0d3a0000-0000-4000-8000-0000000000ff';
 const NOMBRE_CLINICA_DEMO = 'Clínica de demostración';
 
 const SEMILLA = 20260501;
 const CANTIDAD_DE_PACIENTES = 20;
-/** Autor sintético de los bloqueos: la tabla `usuario` y su FK llegan con C-12. */
-const USUARIO_SINTETICO = '0d3a0000-0000-4000-8000-0000000000ff';
 
 // --- Datos fijos (públicos) -------------------------------------------------------------------
 
@@ -182,12 +183,22 @@ export async function ejecutarSeedDemo(
 
     const primerProfesional = ids[0];
     if (primerProfesional === undefined) throw new Error('No se creó ningún profesional');
+    // Autor sintético (hash de contraseña falso, RN-DA): se usa su id fijo en `creado_por`
+    // (FK de C-12) y en el `usuario` del personal.
+    const usuarioId = (
+      await cliente.query<{ id: string }>(
+        'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) ' +
+          "VALUES ($1, $2, $3, 'hash-sintetico-no-real', 'administrador', NULL) RETURNING id",
+        [ID_USUARIO_SINTETICO, ID_CLINICA_DEMO, `usuario.sintetico.${ID_CLINICA_DEMO}@example.com`],
+      )
+    ).rows[0]?.id;
+    if (usuarioId === undefined) throw new Error('No se pudo crear el usuario sintético.');
     await bloqueos.crear({
       id: faker.string.uuid(),
       profesionalId: primerProfesional,
       intervalo: crearIntervaloOLanzar(BLOQUEO_DEMO.inicio, BLOQUEO_DEMO.fin),
       motivo: BLOQUEO_DEMO.motivo,
-      creadoPor: USUARIO_SINTETICO,
+      creadoPor: usuarioId,
     });
 
     for (let n = 1; n <= CANTIDAD_DE_PACIENTES; n += 1) {

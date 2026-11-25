@@ -187,13 +187,26 @@ export async function insertarBloqueo(
   inicio: string,
   fin: string,
 ): Promise<void> {
-  await comoApp(clinicaId, (c) =>
-    c.query(
+  // C12_001: `bloqueo.creado_por` tiene FK a `usuario`; el usuario de prueba se crea antes.
+  await comoApp(clinicaId, async (c) => {
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) ' +
+        'VALUES (gen_random_uuid(), $1, $2, $3, $4, NULL) RETURNING id',
+      [
+        clinicaId,
+        `usuario.sintetico.${randomUUID()}@example.com`,
+        'hash-sintetico-no-real',
+        'administrador',
+      ],
+    );
+    const creadoPor = rows[0]?.id;
+    if (creadoPor === undefined) throw new Error('No se pudo crear el usuario sintético.');
+    await c.query(
       `INSERT INTO bloqueo (clinica_id, profesional_id, inicio, fin, motivo, creado_por)
-       VALUES ($1, $2, $3, $4, 'motivo sintético reservado', gen_random_uuid())`,
-      [clinicaId, profesionalId, inicio, fin],
-    ),
-  );
+       VALUES ($1, $2, $3, $4, 'motivo sintético reservado', $5)`,
+      [clinicaId, profesionalId, inicio, fin, creadoPor],
+    );
+  });
 }
 
 export interface TurnoSintetico {

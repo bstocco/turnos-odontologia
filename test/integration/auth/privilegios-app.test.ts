@@ -281,8 +281,11 @@ describe('C-06 aislamiento entre clínicas (regla 3) con los privilegios otorgad
     );
 
     // Debe ser la política RLS (WITH CHECK) la que rechaza, no la falta de privilegio.
-    expect(mensajeUsuario).toMatch(/row-level security/);
-    expect(mensajeToken).toMatch(/row-level security/);
+    // El mensaje del motor puede venir en inglés o en español (locale del servidor).
+    const rlsUsuario = /row-level security|política de seguridad de registros/i;
+    const rlsToken = /row-level security|política de seguridad de registros/i;
+    expect(mensajeUsuario).toMatch(rlsUsuario);
+    expect(mensajeToken).toMatch(rlsToken);
   });
 
   it('la clínica A no puede actualizar ni borrar usuarios de la B', async () => {

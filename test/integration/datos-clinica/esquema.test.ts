@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -26,6 +28,27 @@ const PROF_A = 'aaaaaaaa-0000-4000-8000-000000000001';
 const PROF_A2 = 'aaaaaaaa-0000-4000-8000-000000000002';
 const PROF_B = 'bbbbbbbb-0000-4000-8000-000000000001';
 const USUARIO_INEXISTENTE = 'cccccccc-0000-4000-8000-000000000001';
+
+/**
+ * Crea un usuario del personal de prueba (sintético; hash de contraseña falso — RN-DA).
+ * Necesario desde C-12: `bloqueo.creado_por` tiene FK a `usuario`.
+ */
+async function crearUsuarioSintetico(clinicaId: string): Promise<string> {
+  return comoApp(clinicaId, async (c) => {
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) VALUES (gen_random_uuid(), $1, $2, $3, $4, NULL) RETURNING id',
+      [
+        clinicaId,
+        `usuario.sintetico.${randomUUID()}@example.com`,
+        'hash-sintetico-no-real',
+        'administrador',
+      ],
+    );
+    const id = rows[0]?.id;
+    if (id === undefined) throw new Error('No se pudo crear el usuario sintético.');
+    return id;
+  });
+}
 
 interface ErrorPg {
   readonly code?: string;
@@ -72,18 +95,18 @@ const insertarFranja = (
     [clinica, prof, dia, desde, hasta],
   );
 
-const insertarBloqueo = (
+const insertarBloqueo = async (
   clinica: string,
   prof: string,
   inicio: string,
   fin: string,
-  creadoPor = USUARIO_INEXISTENTE,
+  creadoPor?: string,
 ): Promise<ErrorPg | undefined> =>
   intentar(
     clinica,
     `INSERT INTO bloqueo (clinica_id, profesional_id, inicio, fin, creado_por)
      VALUES ($1, $2, $3::timestamptz, $4::timestamptz, $5)`,
-    [clinica, prof, inicio, fin, creadoPor],
+    [clinica, prof, inicio, fin, creadoPor ?? (await crearUsuarioSintetico(clinica))],
   );
 
 const insertarDniPaciente = (clinica: string, dni: string): Promise<ErrorPg | undefined> =>
@@ -403,16 +426,9 @@ describe('bloqueos', () => {
     expect(await insertarBloqueo(CLINICA_A.id, PROF_A2, H(10), H(12))).toBeUndefined();
   });
 
-  it('acepta un creado_por sin usuario (la FK la agrega C-12)', async () => {
-    expect(
-      await insertarBloqueo(
-        CLINICA_A.id,
-        PROF_A,
-        H(10),
-        H(11),
-        'dddddddd-0000-4000-8000-00000000ffff',
-      ),
-    ).toBeUndefined();
+  it('acepta un creado_por con usuario real de la clínica (FK de C-12)', async () => {
+    const creadoPor = await crearUsuarioSintetico(CLINICA_A.id);
+    expect(await insertarBloqueo(CLINICA_A.id, PROF_A, H(10), H(11), creadoPor)).toBeUndefined();
   });
 
   it('rechaza un bloqueo con profesional de otra clínica (clave foránea)', async () => {

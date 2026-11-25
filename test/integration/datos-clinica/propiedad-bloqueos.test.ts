@@ -1,4 +1,6 @@
 import fc from 'fast-check';
+import { randomUUID } from 'node:crypto';
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -14,7 +16,23 @@ const PROFESIONALES = [
   'aaaaaaaa-0000-4000-8000-000000000001',
   'aaaaaaaa-0000-4000-8000-000000000002',
 ] as const;
-const USUARIO = 'cccccccc-0000-4000-8000-000000000001';
+let USUARIO: string;
+
+/** Crea un usuario del personal de prueba (sintético; hash de contraseña falso — RN-DA). */
+async function crearUsuarioSintetico(clinicaId: string): Promise<string> {
+  return comoApp(clinicaId, async (c) => {
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) VALUES (gen_random_uuid(), $1, $2, $3, $4, NULL) RETURNING id',
+      [
+        clinicaId,
+        `usuario.sintetico.${randomUUID()}@example.com`,
+        'hash-sintetico-no-real',
+        'administrador',
+      ],
+    );
+    return rows[0]?.id ?? '';
+  });
+}
 const BASE_MS = Date.UTC(2026, 11, 10, 8, 0, 0);
 const HORA_MS = 3_600_000;
 
@@ -30,6 +48,7 @@ beforeEach(async () => {
     entorno.urlMigra,
     'TRUNCATE bloqueo, horario_atencion, profesional CASCADE',
   );
+  USUARIO = await crearUsuarioSintetico(CLINICA_A.id);
   for (const id of PROFESIONALES) {
     await comoApp(CLINICA_A.id, (c) =>
       c.query(
