@@ -156,3 +156,16 @@ Por gobernanza **CRÍTICO** (`CHANGES.md`), la Líder debe aprobar explícitamen
 6. **Q6 — Cableado fuera de zona de `C-15`**:
    - (a) ¿Se aprueba cablear `crearProveedorEnlacesTurnoPg` en `src/infrastructure/queue/worker-cli.ts` (activado automáticamente cuando `PUBLIC_BASE_URL` esté configurada) para que los emails reales enviados por el worker `C-14` incluyan los enlaces de un solo uso?
    - (b) ¿Se prefiere encapsular la traducción `23P01` (`turno_sin_solape_profesional`/`turno_sin_solape_sillon`) y `40P01` dentro de `src/infrastructure/db/repositories/reserva-publica/` o extender `src/infrastructure/db/repositories/compartido/errores.ts`?
+
+## Resoluciones del apply
+
+Aprobadas por la Líder el `2026-11-25`:
+
+- **Q1**: Aprobado crear `codigo_verificacion` y `token_accion` en `migrations/C15_001_reserva_publica_otp_y_tokens.sql` con `aplicar_rls`, FK compuesta `(clinica_id, turno_id) REFERENCES turno (clinica_id, id)` y la función `SECURITY DEFINER` `resolver_clinica_por_hash_token(p_hash_token text)` siguiendo el patrón de `C13_001`.
+- **Q2**: Aprobado el envío directo fuera de transacción vía `EmailSender` (registrando solo estado en `notificacion` con `tipo = 'codigo'` y `turno_id = NULL`, sin código ni PII en `pg-boss`) y responder `503 ERROR_PROVEEDOR_EMAIL` ante fallo SMTP en `/codigo` para dar feedback inmediato al paciente.
+- **Q3**: Aprobado el conteo de `PO-09` (`origen = 'enlace_web'`, `estado IN ('pendiente_confirmacion', 'confirmado')`, `inicio > ahora`) con `pg_advisory_xact_lock` y responder `422 TOPE_RESERVAS_ACTIVAS_ALCANZADO` (diferenciándolo limpiamente del `409` por solapamiento).
+- **Q4**: Aprobado reutilizar `paciente.id` por DNI (`RN-RE-04`) sin sobrescribir datos existentes (completando solo `email` si era `NULL`), auditar bajo `paciente_enlace` y no exponer datos personales en la respuesta `201`.
+- **Q5**: Aprobado el contrato de `POST /api/v1/publico/turnos/accion` con respuesta uniforme `404 TOKEN_ACCION_INVALIDO` para evitar enumeración de tokens y no tocar `TipoDeError` fuera de zona.
+- **Q6**:
+  - (a) Aprobado inyectar `crearProveedorEnlacesTurnoPg` en `src/infrastructure/queue/worker-cli.ts` cuando `PUBLIC_BASE_URL` esté configurada.
+  - (b) Aprobado encapsular la traducción de `23P01`/`40P01` dentro de `src/infrastructure/db/repositories/reserva-publica/` para mantener aislamiento estricto de zona sin tocar archivos compartidos.
