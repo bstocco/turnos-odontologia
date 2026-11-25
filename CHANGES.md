@@ -401,7 +401,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-12] `api-turnos-y-agenda`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de turnos, agenda y bloqueos para el personal
   - Endpoints: `POST /turnos`, `GET /turnos/{id}`, `POST /turnos/{id}/{cancelar|reprogramar|confirmar|atendido|ausente}`, `GET /turnos/{id}/enlace-whatsapp` (con C-04)
   - `GET /agenda?desde&hasta&profesionalId&sillonId`: vista diaria y semanal con turnos, bloqueos y feriados; el odontólogo ve solo la propia
