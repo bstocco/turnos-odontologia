@@ -84,8 +84,14 @@ jobs:
 
       - name: Modo worker (arranque y cierre ordenado con SIGTERM)
         run: |
+          # El worker exige EMAIL_API_KEY y un EMAIL_FROM válido al arrancar. Los valores son
+          # falsos y descartables (dominio reservado .test): la base de CI no tiene clínicas ni
+          # turnos, así que no se encola ni se envía ningún correo.
           docker run --detach --name worker --network host \
             --env DATABASE_URL="$URL_APP" \
+            --env EMAIL_API_KEY=ci-valor-descartable \
+            --env EMAIL_FROM="Turnos CI <no-responder@example.test>" \
+            --env PUBLIC_BASE_URL=https://turnos.example.test \
             turnos:ci node dist/infrastructure/queue/worker-cli.js
           for i in $(seq 1 30); do
             if docker logs worker 2>&1 | grep -q 'Worker de notificaciones iniciado'; then arranco=1; break; fi

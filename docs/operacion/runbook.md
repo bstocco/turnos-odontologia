@@ -53,6 +53,7 @@ Cada rotación se hace primero en `pruebas`. Cargar secretos sin dejar el valor 
 |---|---|---|
 | `JWT_ACCESS_SECRET` | Los tokens de acceso vigentes dejan de ser válidos **(a verificar: no se comprobó si el código admite dos claves a la vez)** | Los usuarios tienen que volver a iniciar sesión. |
 | `JWT_REFRESH_SECRET` | Los tokens de refresco firmados con la clave anterior dejan de ser válidos **(a verificar)** | Cierra todas las sesiones. |
+| `EMAIL_API_KEY` | **Secreto obligatorio del worker**: sin ella (y sin un `EMAIL_FROM` válido) el worker no arranca. Rotarla corta el envío de correos hasta cargar la nueva | El proveedor de email (`Resend` o `Brevo`) **sigue sin elegirse**: hasta entonces no hay valor real que cargar. En CI se usa un valor falso descartable. |
 | `ADMIN_INTERNAL_KEY` | Solo afecta al endpoint interno de alta de clínicas | Sin impacto en usuarios. Actualizar quien la usa. |
 | `DATABASE_URL`, `DATABASE_MIGRATION_URL` | Cambiar la contraseña del rol (`app` o `migra`) en la base y luego el secreto, en ese orden, en una ventana corta | Desconexión breve del worker y la API. |
 
