@@ -481,7 +481,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-16] `exportacion-auditoria-ausentismo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Consulta de auditoría, exportación de datos y registro de ausentismo para el administrador
   - `GET /auditoria` con filtros por entidad, actor y rango de fechas
   - `POST /exportaciones` y `GET /exportaciones/{id}`: archivo con pacientes, turnos, profesionales, sillones, prestaciones y auditoría de **su** clínica, en un formato abierto (formato a definir, PO-16); la exportación queda auditada (RN-DA-04, RN-AU-03)
