@@ -88,11 +88,11 @@ jobs:
             --env DATABASE_URL="$URL_APP" \
             turnos:ci node dist/infrastructure/queue/worker-cli.js
           for i in $(seq 1 30); do
-            if docker logs worker 2>&1 | grep -q 'Worker de notificaciones iniciado'; then arrancó=1; break; fi
+            if docker logs worker 2>&1 | grep -q 'Worker de notificaciones iniciado'; then arranco=1; break; fi
             [ "$(docker inspect --format '{{.State.Running}}' worker)" = "true" ] || break
             sleep 1
           done
-          [ "${arrancó:-0}" = "1" ] || { echo "El worker no arrancó."; docker logs worker; exit 1; }
+          [ "${arranco:-0}" = "1" ] || { echo "El worker no arrancó."; docker logs worker; exit 1; }
           docker stop --time 30 worker
           codigo=$(docker inspect --format '{{.State.ExitCode}}' worker)
           echo "Código de salida del worker tras SIGTERM: $codigo"
