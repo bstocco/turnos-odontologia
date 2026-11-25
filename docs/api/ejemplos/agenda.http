@@ -1,0 +1,6 @@
+# Agenda de un profesional: turnos activos, bloqueos y feriados del rango (C-12).
+@baseUrl = http://localhost:3000
+
+### Agenda de un día (desde inclusive, hasta exclusive; opcionalmente un sillón)
+GET {{baseUrl}}/api/v1/agenda?desde=2026-12-14&hasta=2026-12-15&profesionalId={{profesionalId}}
+Authorization: Bearer {{token}}

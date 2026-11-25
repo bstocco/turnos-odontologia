@@ -1,0 +1,2826 @@
+{
+  "components": {
+    "schemas": {}
+  },
+  "info": {
+    "title": "API de turnos odontológicos",
+    "version": "1.2.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/v1/agenda": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "desde",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "profesionalId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sillonId",
+            "required": false,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/auditoria": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/ausentismo": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "password": {
+                    "maxLength": 128,
+                    "minLength": 8,
+                    "type": "string"
+                  },
+                  "slug": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "slug"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "maxLength": 512,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "maxLength": 512,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/bloqueos": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "fin": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "inicio": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "motivo": {
+                    "type": "string"
+                  },
+                  "profesionalId": {
+                    "format": "uuid",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "profesionalId",
+                  "inicio",
+                  "fin"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/bloqueos/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/clinica": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "cancelacionAnticipacionHoras": {
+                      "type": "integer"
+                    },
+                    "granularidadMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "reservaRequiereConfirmacion": {
+                      "type": "boolean"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "zonaHoraria": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "slug",
+                    "zonaHoraria",
+                    "reservaRequiereConfirmacion",
+                    "cancelacionAnticipacionHoras",
+                    "granularidadMinutos"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "cancelacionAnticipacionHoras": {
+                    "maximum": 720,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "granularidadMinutos": {
+                    "maximum": 240,
+                    "minimum": 5,
+                    "type": "integer"
+                  },
+                  "reservaRequiereConfirmacion": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "cancelacionAnticipacionHoras": {
+                      "type": "integer"
+                    },
+                    "granularidadMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "reservaRequiereConfirmacion": {
+                      "type": "boolean"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "zonaHoraria": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "slug",
+                    "zonaHoraria",
+                    "reservaRequiereConfirmacion",
+                    "cancelacionAnticipacionHoras",
+                    "granularidadMinutos"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/exportaciones": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/exportaciones/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/feriados": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anio",
+            "required": false,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2000,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "descripcion": {
+                        "type": "string"
+                      },
+                      "fecha": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "fecha",
+                      "descripcion"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "descripcion": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "pattern": "[^\\s]",
+                    "type": "string"
+                  },
+                  "fecha": {
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "fecha",
+                  "descripcion"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "descripcion": {
+                      "type": "string"
+                    },
+                    "fecha": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "fecha",
+                    "descripcion"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/feriados/plantilla-nacional": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "anio",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2000,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "anio": {
+                      "type": "integer"
+                    },
+                    "feriados": {
+                      "items": {
+                        "properties": {
+                          "descripcion": {
+                            "type": "string"
+                          },
+                          "fecha": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "fecha",
+                          "descripcion"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "anio",
+                    "feriados"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "anio": {
+                    "maximum": 2100,
+                    "minimum": 2000,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "anio"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "anio": {
+                      "type": "integer"
+                    },
+                    "creados": {
+                      "items": {
+                        "properties": {
+                          "descripcion": {
+                            "type": "string"
+                          },
+                          "fecha": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "fecha",
+                          "descripcion"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "omitidas": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "anio",
+                    "creados",
+                    "omitidas"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/feriados/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/interno/clinicas": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "slug": {
+                    "maxLength": 64,
+                    "minLength": 2,
+                    "pattern": "^[a-z0-9][a-z0-9-]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "slug",
+                  "nombre",
+                  "email"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/pacientes": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dni",
+            "required": false,
+            "schema": {
+              "maxLength": 20,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "apellido",
+            "required": false,
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limite",
+            "required": false,
+            "schema": {
+              "maximum": 50,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "apellido": {
+                        "type": "string"
+                      },
+                      "dni": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "nombre": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "nombre",
+                      "apellido",
+                      "dni"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "apellido": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "dni": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "obraSocial": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "telefono": {
+                    "maxLength": 30,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nombre",
+                  "apellido",
+                  "dni",
+                  "telefono"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "creadoEn": {
+                      "type": "string"
+                    },
+                    "dni": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "obraSocial": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "telefono": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "dni",
+                    "telefono",
+                    "email",
+                    "obraSocial",
+                    "creadoEn"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/pacientes/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "creadoEn": {
+                      "type": "string"
+                    },
+                    "dni": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "obraSocial": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "telefono": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "dni",
+                    "telefono",
+                    "email",
+                    "obraSocial",
+                    "creadoEn"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "apellido": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "dni": {
+                    "maxLength": 20,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "obraSocial": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "telefono": {
+                    "maxLength": 30,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "creadoEn": {
+                      "type": "string"
+                    },
+                    "dni": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "obraSocial": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "telefono": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "dni",
+                    "telefono",
+                    "email",
+                    "obraSocial",
+                    "creadoEn"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/prestaciones": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "activo",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "activa": {
+                        "type": "boolean"
+                      },
+                      "duracionMinutos": {
+                        "type": "integer"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "nombre": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "nombre",
+                      "duracionMinutos",
+                      "activa"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "duracionMinutos": {
+                    "maximum": 480,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nombre",
+                  "duracionMinutos"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activa": {
+                      "type": "boolean"
+                    },
+                    "duracionMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "duracionMinutos",
+                    "activa"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/prestaciones/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activa": {
+                      "type": "boolean"
+                    },
+                    "duracionMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "duracionMinutos",
+                    "activa"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "activa": {
+                    "type": "boolean"
+                  },
+                  "duracionMinutos": {
+                    "maximum": 480,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activa": {
+                      "type": "boolean"
+                    },
+                    "duracionMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "duracionMinutos",
+                    "activa"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/profesionales": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "activo",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "activo": {
+                        "type": "boolean"
+                      },
+                      "apellido": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "matricula": {
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "nombre": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "nombre",
+                      "apellido",
+                      "matricula",
+                      "activo"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "apellido": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "matricula": {
+                    "maxLength": 50,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nombre",
+                  "apellido"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "matricula": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "matricula",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/profesionales/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "matricula": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "matricula",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "activo": {
+                    "type": "boolean"
+                  },
+                  "apellido": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "matricula": {
+                    "maxLength": 50,
+                    "minLength": 1,
+                    "nullable": true,
+                    "pattern": "\\S",
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "apellido": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "matricula": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "matricula",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/profesionales/{id}/horarios": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "franjas": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "diaSemana": {
+                            "maximum": 6,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "horaDesde": {
+                            "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                            "type": "string"
+                          },
+                          "horaHasta": {
+                            "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "diaSemana",
+                          "horaDesde",
+                          "horaHasta"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "profesionalId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "profesionalId",
+                    "franjas"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "franjas": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "diaSemana": {
+                          "maximum": 6,
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "horaDesde": {
+                          "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                          "type": "string"
+                        },
+                        "horaHasta": {
+                          "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "diaSemana",
+                        "horaDesde",
+                        "horaHasta"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 50,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "franjas"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "franjas": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "diaSemana": {
+                            "maximum": 6,
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "horaDesde": {
+                            "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                            "type": "string"
+                          },
+                          "horaHasta": {
+                            "pattern": "^(([01][0-9]|2[0-3]):[0-5][0-9]|24:00)$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "diaSemana",
+                          "horaDesde",
+                          "horaHasta"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "profesionalId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "profesionalId",
+                    "franjas"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/turnos/accion": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "accion": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "confirmar"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "cancelar"
+                        ],
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "token": {
+                    "maxLength": 256,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "accion": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "confirmar"
+                          ],
+                          "type": "string"
+                        },
+                        {
+                          "enum": [
+                            "cancelar"
+                          ],
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "estado": {
+                      "type": "string"
+                    },
+                    "fin": {
+                      "type": "string"
+                    },
+                    "inicio": {
+                      "type": "string"
+                    },
+                    "turnoId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "turnoId",
+                    "accion",
+                    "estado",
+                    "inicio",
+                    "fin"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/{slug}/codigo": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "maxLength": 254,
+                    "minLength": 3,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "enviado": {
+                      "enum": [
+                        true
+                      ],
+                      "type": "boolean"
+                    },
+                    "vigenciaMinutos": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "enviado",
+                    "vigenciaMinutos"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "codigo": {
+                      "type": "string"
+                    },
+                    "mensaje": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "codigo",
+                    "mensaje"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "codigo": {
+                      "type": "string"
+                    },
+                    "mensaje": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "codigo",
+                    "mensaje"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/{slug}/disponibilidad": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "profesionalId",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "prestacionId",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "desde",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasta",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "desde": {
+                      "type": "string"
+                    },
+                    "hasta": {
+                      "type": "string"
+                    },
+                    "huecos": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "fin": {
+                            "type": "string"
+                          },
+                          "inicio": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "inicio",
+                          "fin"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "prestacionId": {
+                      "type": "string"
+                    },
+                    "profesionalId": {
+                      "type": "string"
+                    },
+                    "zonaHoraria": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "zonaHoraria",
+                    "profesionalId",
+                    "prestacionId",
+                    "desde",
+                    "hasta",
+                    "huecos"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/{slug}/prestaciones": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "prestaciones": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "duracionMinutos": {
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "nombre": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "nombre",
+                          "duracionMinutos"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "prestaciones"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/{slug}/profesionales": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "profesionales": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "apellido": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "nombre": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "nombre",
+                          "apellido"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "profesionales"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/publico/{slug}/reservas": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "codigoVerificacion": {
+                    "maxLength": 12,
+                    "minLength": 4,
+                    "type": "string"
+                  },
+                  "inicio": {
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,3})?(Z|[+-]\\d{2}:\\d{2})$",
+                    "type": "string"
+                  },
+                  "paciente": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "apellido": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "dni": {
+                        "maxLength": 20,
+                        "minLength": 7,
+                        "type": "string"
+                      },
+                      "email": {
+                        "maxLength": 254,
+                        "minLength": 3,
+                        "type": "string"
+                      },
+                      "nombre": {
+                        "maxLength": 120,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "obraSocial": {
+                        "maxLength": 120,
+                        "nullable": true,
+                        "type": "string"
+                      },
+                      "telefono": {
+                        "maxLength": 30,
+                        "minLength": 6,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "nombre",
+                      "apellido",
+                      "dni",
+                      "telefono",
+                      "email"
+                    ],
+                    "type": "object"
+                  },
+                  "prestacionId": {
+                    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                    "type": "string"
+                  },
+                  "profesionalId": {
+                    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "profesionalId",
+                  "prestacionId",
+                  "inicio",
+                  "codigoVerificacion",
+                  "paciente"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "estado": {
+                      "type": "string"
+                    },
+                    "fin": {
+                      "type": "string"
+                    },
+                    "inicio": {
+                      "type": "string"
+                    },
+                    "prestacionId": {
+                      "type": "string"
+                    },
+                    "profesionalId": {
+                      "type": "string"
+                    },
+                    "turnoId": {
+                      "type": "string"
+                    },
+                    "zonaHoraria": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "turnoId",
+                    "estado",
+                    "inicio",
+                    "fin",
+                    "zonaHoraria",
+                    "profesionalId",
+                    "prestacionId"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "codigo": {
+                      "type": "string"
+                    },
+                    "mensaje": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "codigo",
+                    "mensaje"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/sillones": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "activo",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "activo": {
+                        "type": "boolean"
+                      },
+                      "bufferMinutos": {
+                        "type": "integer"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "nombre": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "nombre",
+                      "bufferMinutos",
+                      "activo"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "bufferMinutos": {
+                    "maximum": 240,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "nombre"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "bufferMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "bufferMinutos",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/sillones/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "bufferMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "bufferMinutos",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "activo": {
+                    "type": "boolean"
+                  },
+                  "bufferMinutos": {
+                    "maximum": 240,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "nombre": {
+                    "maxLength": 100,
+                    "minLength": 1,
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "activo": {
+                      "type": "boolean"
+                    },
+                    "bufferMinutos": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "nombre": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "nombre",
+                    "bufferMinutos",
+                    "activo"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/turnos": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "bufferMinutos": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "duracionMinutos": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "inicio": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "origen": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "recepcion"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "enlace_web"
+                        ],
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "pacienteId": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "prestacionId": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "profesionalId": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "sillonId": {
+                    "format": "uuid",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pacienteId",
+                  "profesionalId",
+                  "sillonId",
+                  "prestacionId",
+                  "inicio",
+                  "duracionMinutos",
+                  "bufferMinutos",
+                  "origen"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/turnos/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/turnos/{id}/{accion}": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "accion",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "cancelar"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "enum": [
+                    "reprogramar"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "enum": [
+                    "confirmar"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "enum": [
+                    "atendido"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "enum": [
+                    "ausente"
+                  ],
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "activo": {
+                    "type": "boolean"
+                  },
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "password": {
+                    "maxLength": 128,
+                    "minLength": 8,
+                    "type": "string"
+                  },
+                  "profesionalId": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "rol": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "administrador"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "recepcionista"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "odontologo"
+                        ],
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "rol"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "activo": {
+                    "type": "boolean"
+                  },
+                  "email": {
+                    "format": "email",
+                    "maxLength": 254,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "password": {
+                    "maxLength": 128,
+                    "minLength": 8,
+                    "type": "string"
+                  },
+                  "profesionalId": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "rol": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "administrador"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "recepcionista"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "enum": [
+                          "odontologo"
+                        ],
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/salud": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    }
+  }
+}

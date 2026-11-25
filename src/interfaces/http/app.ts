@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
+import swagger from '@fastify/swagger';
 import Fastify, { LogController, type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import type { DestinationStream } from 'pino';
 
@@ -8,6 +9,7 @@ import type { Config } from '../../config/index.js';
 import { crearLogger } from '../../infrastructure/logging/logger.js';
 
 import { registrarManejoDeErrores } from './errores.js';
+import { registrarHardeningHttp } from './hardening.js';
 import { registrarModulos } from './register-modules.js';
 
 export interface OpcionesDeApp {
@@ -15,6 +17,8 @@ export interface OpcionesDeApp {
   destinoDeLogs?: DestinationStream;
   /** Carpeta de módulos HTTP; por defecto `./modules` junto a este archivo. */
   directorioDeModulos?: string;
+  /** Capacidad del almacén LRU del límite global (las pruebas la acotan). */
+  rateLimitGlobalCache?: number;
 }
 
 function rutaSinConsulta(url: string): string {
@@ -35,9 +39,15 @@ export async function buildApp(
     // Los logs de acceso los emite el hook onResponse (sin consulta ni cuerpo).
     logController: new LogController({ disableRequestLogging: true, requestIdLogLabel: 'reqId' }),
     genReqId: () => randomUUID(),
+    bodyLimit: config.httpBodyLimitBytes,
   });
 
   registrarManejoDeErrores(app);
+  await registrarHardeningHttp(app, config, {
+    ...(opciones.rateLimitGlobalCache !== undefined
+      ? { rateLimitGlobalCache: opciones.rateLimitGlobalCache }
+      : {}),
+  });
 
   // Correlación entre el cliente, el log y el detalle de un error.
   app.addHook('onSend', async (request, reply) => {
@@ -57,8 +67,17 @@ export async function buildApp(
     );
   });
 
-  // Sin versiones, rutas del servidor ni configuración (spec http-service).
-  app.get('/salud', async () => ({ estado: 'ok' }));
+  // Contrato OpenAPI derivado de las rutas reales (C-18). Sin interfaz ni ruta propia: el documento
+  // solo se obtiene en proceso con `app.swagger()`. Debe registrarse ANTES de las rutas.
+  await app.register(swagger, {
+    openapi: {
+      openapi: '3.0.3',
+      info: { title: 'API de turnos odontológicos', version: '0.0.0' },
+    },
+  });
+
+  // Sin versiones, rutas del servidor ni configuración (spec http-service); excluido del rate limit global.
+  app.get('/salud', { config: { rateLimit: false } }, async () => ({ estado: 'ok' }));
 
   const directorio =
     opciones.directorioDeModulos ?? fileURLToPath(new URL('./modules', import.meta.url));

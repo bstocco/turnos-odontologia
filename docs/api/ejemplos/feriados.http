@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:3000
+
+### Feriados de la clínica (filtro opcional por año)
+GET {{baseUrl}}/api/v1/feriados?anio=2026
+Authorization: Bearer {{token}}
+
+### Alta de un feriado (solo administrador)
+POST {{baseUrl}}/api/v1/feriados
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "fecha": "2026-12-31", "descripcion": "Feriado de ejemplo" }
+
+### Baja de un feriado (solo administrador); responde 204
+DELETE {{baseUrl}}/api/v1/feriados/{{feriadoId}}
+Authorization: Bearer {{token}}
+
+### Plantilla de feriados nacionales de un año
+GET {{baseUrl}}/api/v1/feriados/plantilla-nacional?anio=2026
+Authorization: Bearer {{token}}
+
+### Copia de la plantilla nacional a la clínica (solo administrador)
+POST {{baseUrl}}/api/v1/feriados/plantilla-nacional
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "anio": 2026 }

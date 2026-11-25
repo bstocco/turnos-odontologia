@@ -106,7 +106,10 @@ export const SECRETO_DE_PRUEBA = 'secreto-de-prueba-c08-0123456789abcdef01234567
  */
 export async function crearAppDePrueba(): Promise<FastifyInstance> {
   process.env.JWT_ACCESS_SECRET = SECRETO_DE_PRUEBA;
-  const { app } = await appDePrueba(undefined, { JWT_ACCESS_SECRET: SECRETO_DE_PRUEBA });
+  const { app } = await appDePrueba(undefined, {
+    JWT_ACCESS_SECRET: SECRETO_DE_PRUEBA,
+    RATE_LIMIT_GLOBAL: '1000/min',
+  });
   await app.ready();
   return app;
 }

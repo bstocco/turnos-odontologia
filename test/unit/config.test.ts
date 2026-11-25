@@ -97,6 +97,69 @@ describe('valores por defecto y datos sensibles', () => {
     expect(config.rateLimitPublic).toBe('30/min');
     expect(config.allowSeed).toBe(false);
     expect(config.seedAllowedHosts).toEqual(['localhost', '127.0.0.1', '::1']);
+    expect(config.corsAllowedOrigins).toEqual([]);
+    expect(config.httpBodyLimitBytes).toBe(102_400);
+    expect(config.rateLimitGlobal).toBe('120/min');
+  });
+
+  it('normaliza una lista válida de orígenes CORS sin comodín', () => {
+    const config = loadConfig('app', {
+      ...BASE_APP,
+      CORS_ALLOWED_ORIGINS:
+        'http://localhost:5173, https://App.Clinica.Example:8443 , http://localhost:5173',
+    });
+    expect(config.corsAllowedOrigins).toEqual([
+      'http://localhost:5173',
+      'https://app.clinica.example:8443',
+    ]);
+  });
+
+  it.each([
+    '*',
+    'https://a.example,*',
+    'ftp://a.example',
+    'https://user:pass@a.example',
+    'https://a.example/ruta',
+    'https://a.example?q=1',
+    'https://a.example#frag',
+    'no-es-url',
+    'https://a.example,',
+  ])('rechaza CORS_ALLOWED_ORIGINS inválido (%s) sin imprimir el valor', (origenInvalido) => {
+    const error = capturarError(() =>
+      loadConfig('app', { ...BASE_APP, CORS_ALLOWED_ORIGINS: origenInvalido }),
+    );
+    expect(error.variables).toEqual(['CORS_ALLOWED_ORIGINS']);
+    expect(error.message).not.toContain(origenInvalido);
+  });
+
+  it('valida HTTP_BODY_LIMIT_BYTES dentro de [1024, 1048576]', () => {
+    expect(
+      loadConfig('app', { ...BASE_APP, HTTP_BODY_LIMIT_BYTES: '1024' }).httpBodyLimitBytes,
+    ).toBe(1024);
+    expect(
+      loadConfig('app', { ...BASE_APP, HTTP_BODY_LIMIT_BYTES: '1048576' }).httpBodyLimitBytes,
+    ).toBe(1_048_576);
+    for (const invalido of ['512', '2000000', 'abc']) {
+      const error = capturarError(() =>
+        loadConfig('app', { ...BASE_APP, HTTP_BODY_LIMIT_BYTES: invalido }),
+      );
+      expect(error.variables).toEqual(['HTTP_BODY_LIMIT_BYTES']);
+    }
+  });
+
+  it('valida RATE_LIMIT_GLOBAL con formato <n>/<s|min|h>', () => {
+    expect(loadConfig('app', { ...BASE_APP, RATE_LIMIT_GLOBAL: '60/s' }).rateLimitGlobal).toBe(
+      '60/s',
+    );
+    expect(loadConfig('app', { ...BASE_APP, RATE_LIMIT_GLOBAL: '1000/h' }).rateLimitGlobal).toBe(
+      '1000/h',
+    );
+    for (const invalido of ['0/min', 'muchos', '10/d']) {
+      const error = capturarError(() =>
+        loadConfig('app', { ...BASE_APP, RATE_LIMIT_GLOBAL: invalido }),
+      );
+      expect(error.variables).toEqual(['RATE_LIMIT_GLOBAL']);
+    }
   });
 
   it('convierte el puerto a número', () => {
@@ -136,9 +199,12 @@ describe('secretos fuera de registros y volcados', () => {
     expect(resumen).toContain('[REDACTADO]');
   });
 
-  it('el resumen omite las variables sensibles no definidas', () => {
+  it('el resumen omite las variables sensibles no definidas y expone hardening HTTP', () => {
     const resumen = describirConfig(loadConfig('app', BASE_APP));
     expect(resumen).not.toHaveProperty('jwtAccessSecret');
+    expect(resumen.corsAllowedOrigins).toEqual([]);
+    expect(resumen.httpBodyLimitBytes).toBe(102_400);
+    expect(resumen.rateLimitGlobal).toBe('120/min');
   });
 });
 

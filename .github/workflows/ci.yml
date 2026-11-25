@@ -31,9 +31,11 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
+      - name: Auditoría de dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
 
   pruebas:
-    name: Pruebas (unitarias, integración, api, build)
+    name: Pruebas (unitarias, integración, api, e2e, seguridad, build)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -73,6 +75,16 @@ jobs:
       - run: npm run test:unit
       - run: npm run test:integration
       - run: npm run test:api
+
+      # C-18: el contrato se compara contra el de `main`; el checkout es superficial, así que se
+      # trae esa rama. Si no se puede leer, la verificación falla (no se omite en CI).
+      - name: Traer main para comparar el contrato OpenAPI
+        run: git fetch --depth=1 origin main:refs/remotes/origin/main
+      - name: Pruebas e2e, matriz de permisos y contrato OpenAPI
+        run: npm run test:e2e
+
+      - name: Pruebas de seguridad, cross-tenant y postura de BD
+        run: npm run test:security
 
       # Verifica la carga de módulos y /salud fuera de tsx, sobre el código compilado.
       - name: Prueba de humo del build

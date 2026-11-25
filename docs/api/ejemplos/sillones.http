@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:3000
+
+### Lista de sillones
+GET {{baseUrl}}/api/v1/sillones
+Authorization: Bearer {{token}}
+
+### Alta de un sillón (solo administrador)
+POST {{baseUrl}}/api/v1/sillones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Sillón 1", "bufferMinutos": 10 }
+
+### Detalle de un sillón
+GET {{baseUrl}}/api/v1/sillones/{{sillonId}}
+Authorization: Bearer {{token}}
+
+### Modificación parcial (solo administrador)
+PATCH {{baseUrl}}/api/v1/sillones/{{sillonId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "bufferMinutos": 5 }

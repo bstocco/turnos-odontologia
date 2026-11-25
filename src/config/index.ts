@@ -28,6 +28,13 @@ export const EsquemaEntorno = Type.Object({
   RATE_LIMIT_PUBLIC: Type.Optional(
     Type.String({ pattern: '^[1-9][0-9]*/(s|min|h)$', default: '30/min' }),
   ),
+  RATE_LIMIT_GLOBAL: Type.Optional(
+    Type.String({ pattern: '^[1-9][0-9]*/(s|min|h)$', default: '120/min' }),
+  ),
+  CORS_ALLOWED_ORIGINS: Type.Optional(Type.String({ minLength: 1 })),
+  HTTP_BODY_LIMIT_BYTES: Type.Optional(
+    Type.Integer({ minimum: 1024, maximum: 1_048_576, default: 102_400 }),
+  ),
   ALLOW_SEED: Type.Optional(
     Type.Union([Type.Literal('true'), Type.Literal('false')], { default: 'false' }),
   ),
@@ -55,6 +62,9 @@ export interface Config {
   readonly logLevel: (typeof NIVELES_DE_LOG)[number];
   readonly defaultTimezone: string;
   readonly rateLimitPublic: string;
+  readonly rateLimitGlobal: string;
+  readonly corsAllowedOrigins: readonly string[];
+  readonly httpBodyLimitBytes: number;
   readonly allowSeed: boolean;
   readonly seedAllowedHosts: readonly string[];
   readonly databaseUrl: string | undefined;
@@ -108,6 +118,31 @@ function esUrlConEsquema(valor: string, esquemas: readonly string[]): boolean {
   } catch {
     return false;
   }
+}
+
+function parsearOrigenesCors(valor: string | undefined): readonly string[] | null {
+  if (valor === undefined) return [];
+  const partes = valor.split(',').map((p) => p.trim());
+  const normalizados: string[] = [];
+  const vistos = new Set<string>();
+  for (const parte of partes) {
+    if (parte === '' || parte.includes('*') || parte.includes('?') || parte.includes('#')) {
+      return null;
+    }
+    try {
+      const url = new URL(parte);
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+      if (url.username !== '' || url.password !== '') return null;
+      if (url.pathname !== '/' || url.search !== '' || url.hash !== '') return null;
+      if (!vistos.has(url.origin)) {
+        vistos.add(url.origin);
+        normalizados.push(url.origin);
+      }
+    } catch {
+      return null;
+    }
+  }
+  return normalizados;
 }
 
 /** Solo toma variables conocidas y trata el texto vacío como ausente. */
@@ -188,6 +223,13 @@ export function loadConfig(
   ) {
     problemas.push({ variable: 'PUBLIC_BASE_URL', motivo: 'debe ser una URL http(s)://' });
   }
+  const origenesCors = parsearOrigenesCors(entorno.CORS_ALLOWED_ORIGINS);
+  if (origenesCors === null) {
+    problemas.push({
+      variable: 'CORS_ALLOWED_ORIGINS',
+      motivo: 'debe contener orígenes http(s):// válidos separados por coma, sin comodín ni ruta',
+    });
+  }
   if (problemas.length > 0) throw new ConfigError(problemas);
 
   return {
@@ -197,6 +239,9 @@ export function loadConfig(
     logLevel: entorno.LOG_LEVEL ?? 'info',
     defaultTimezone: entorno.DEFAULT_TIMEZONE ?? 'America/Argentina/Buenos_Aires',
     rateLimitPublic: entorno.RATE_LIMIT_PUBLIC ?? '30/min',
+    rateLimitGlobal: entorno.RATE_LIMIT_GLOBAL ?? '120/min',
+    corsAllowedOrigins: origenesCors ?? [],
+    httpBodyLimitBytes: entorno.HTTP_BODY_LIMIT_BYTES ?? 102_400,
     allowSeed: entorno.ALLOW_SEED === 'true',
     seedAllowedHosts: (entorno.SEED_ALLOWED_HOSTS ?? 'localhost,127.0.0.1,::1')
       .split(',')
@@ -234,6 +279,9 @@ export function describirConfig(config: Config): Record<string, unknown> {
     logLevel: config.logLevel,
     defaultTimezone: config.defaultTimezone,
     rateLimitPublic: config.rateLimitPublic,
+    rateLimitGlobal: config.rateLimitGlobal,
+    corsAllowedOrigins: config.corsAllowedOrigins,
+    httpBodyLimitBytes: config.httpBodyLimitBytes,
     allowSeed: config.allowSeed,
     seedAllowedHosts: config.seedAllowedHosts,
     emailFrom: config.emailFrom,

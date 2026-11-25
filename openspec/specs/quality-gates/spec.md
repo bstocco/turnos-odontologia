@@ -44,3 +44,32 @@ Las verificaciones SHALL usar únicamente datos sintéticos y credenciales desca
 #### Scenario: Base de las pruebas
 - **WHEN** corren las pruebas de integración
 - **THEN** la base es efímera y sus credenciales no coinciden con las de ningún entorno real
+
+### Requirement: Pruebas e2e y contrato en cada rama
+Cada push a una rama y cada pedido de fusión hacia `main` SHALL ejecutar además las pruebas e2e, la matriz de permisos y la verificación del contrato OpenAPI, con el mismo comando documentado que se usa en local. El resultado SHALL ser un fallo si cualquiera de ellas falla.
+
+#### Scenario: Contrato desactualizado
+- **WHEN** se sube una rama que cambia una ruta sin regenerar el contrato
+- **THEN** el resultado global es un fallo
+
+#### Scenario: Ejecución local de e2e
+- **WHEN** una persona ejecuta el comando documentado de pruebas e2e con la base de pruebas levantada
+- **THEN** corren las mismas pruebas e2e que ejecuta la integración continua
+
+### Requirement: Pruebas e2e sin interferir con integración
+Las pruebas e2e SHALL ejecutarse después de las de integración cuando comparten la base de pruebas, y MUST NOT correr en paralelo con ellas sobre la misma base.
+
+#### Scenario: Todas las pruebas juntas
+- **WHEN** se ejecutan todas las pruebas con un único comando
+- **THEN** las de integración terminan antes de que empiecen las e2e y ambas pasan
+
+### Requirement: Suite de seguridad y auditoría de dependencias en integración continua
+La integración continua SHALL ejecutar la suite de seguridad (`npm run test:security`) de forma secuencial después de `integration` y `e2e` sobre la base de pruebas sin interferir con ellas, y SHALL ejecutar `npm audit` fallando ante vulnerabilidades de severidad `high` o `critical`.
+
+#### Scenario: Suite de seguridad ejecutada con un único comando documentado
+- **WHEN** se ejecuta `npm run test:security` en local o en CI con la base de pruebas disponible
+- **THEN** corren todas las pruebas de `test/seguridad/**` y el resultado global falla si alguna comprobación de seguridad falla
+
+#### Scenario: Auditoría de dependencias detecta vulnerabilidades altas o críticas
+- **WHEN** el árbol de dependencias declaradas contiene una vulnerabilidad de severidad `high` o `critical`
+- **THEN** la verificación de auditoría de dependencias en CI termina con código distinto de cero

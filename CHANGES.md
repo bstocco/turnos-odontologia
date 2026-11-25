@@ -459,7 +459,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 5 — Reserva pública, administración y alta de clínicas
 
 ### [C-15] `reserva-publica-otp-y-tokens`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Reserva del paciente sin cuenta, con validación por email y enlaces de un solo uso
   - Migración `C15_001`: `codigo_verificacion` y `token_accion` con `aplicar_rls`
   - `POST /publico/{slug}/codigo`: envía el código por email (C-04, C-11)
@@ -521,7 +521,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 6 — Endurecimiento y despliegue
 
 ### [C-18] `e2e-flujos-y-contratos-api`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Verificación de extremo a extremo y contrato de la API
   - Pruebas de los 10 flujos de `07_flujos_principales.md` sobre la API real y PostgreSQL de prueba, con datos sintéticos
   - Contrato OpenAPI generado y verificado en CI (los cambios rompientes deben declararse)
@@ -539,7 +539,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-19] `hardening-seguridad-y-privacidad`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Revisión de seguridad y privacidad antes del lanzamiento
   - Prueba cross-tenant automatizada que recorre todos los endpoints con credenciales de otra clínica (esperado: `404`)
   - Verificación de logs: sin datos de pacientes ni secretos (redacción comprobada con pruebas)

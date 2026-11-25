@@ -57,6 +57,30 @@ export const VARIABLES: readonly DefinicionVariable[] = [
     ejemplo: '30/min',
   },
   {
+    nombre: 'RATE_LIMIT_GLOBAL',
+    descripcion: 'Límite de pedidos global por IP, con formato <n>/<s|min|h>',
+    sensible: false,
+    requeridaEn: [],
+    porDefecto: '120/min',
+    ejemplo: '120/min',
+  },
+  {
+    nombre: 'CORS_ALLOWED_ORIGINS',
+    descripcion:
+      'Orígenes CORS http(s):// permitidos separados por coma (vacío = denegación por defecto, nunca *)',
+    sensible: false,
+    requeridaEn: [],
+    ejemplo: '',
+  },
+  {
+    nombre: 'HTTP_BODY_LIMIT_BYTES',
+    descripcion: 'Tamaño máximo de cuerpo HTTP en bytes (entre 1024 y 1048576)',
+    sensible: false,
+    requeridaEn: [],
+    porDefecto: '102400',
+    ejemplo: '102400',
+  },
+  {
     nombre: 'ALLOW_SEED',
     descripcion:
       'Habilita los seeds. Solo el valor exacto "true" los habilita. Nunca en producción',
