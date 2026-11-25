@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -23,7 +25,22 @@ import {
 const PROF_A = 'aaaaaaaa-0000-4000-8000-000000000001' as ProfesionalId;
 const PROF_A2 = 'aaaaaaaa-0000-4000-8000-000000000002' as ProfesionalId;
 const PROF_B = 'bbbbbbbb-0000-4000-8000-000000000001' as ProfesionalId;
-const USUARIO = 'cccccccc-0000-4000-8000-000000000001';
+let USUARIO: string;
+
+async function crearUsuarioSintetico(clinicaId: string): Promise<string> {
+  return comoApp(clinicaId, async (c) => {
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) VALUES (gen_random_uuid(), $1, $2, $3, $4, NULL) RETURNING id',
+      [
+        clinicaId,
+        `usuario.sintetico.${randomUUID()}@example.com`,
+        'hash-sintetico-no-real',
+        'administrador',
+      ],
+    );
+    return rows[0]?.id ?? '';
+  });
+}
 
 const fecha = (valor: string): FechaLocal => {
   const r = crearFechaLocal(valor);
@@ -56,6 +73,7 @@ beforeEach(async () => {
       ),
     );
   }
+  USUARIO = await crearUsuarioSintetico(CLINICA_A.id);
 });
 
 const enA = <T>(fn: (c: Parameters<typeof crearHorarioRepository>[0]) => Promise<T>): Promise<T> =>
