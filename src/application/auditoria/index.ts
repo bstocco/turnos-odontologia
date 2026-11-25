@@ -21,9 +21,12 @@ export {
   type AccionAuditoriaConocida,
   type AuditoriaRepositorio,
   type AuditoriaService,
+  type EjecutorDeConsulta,
   type EntradaAuditoria,
+  type FiltrosDeListarAuditoria,
   type RegistroAuditoriaAInsertar,
   type RegistroAuditoriaCreado,
+  type ResultadoSql,
   type ServicioAuditoria,
   type ValorAuditoria,
 } from './puertos.js';

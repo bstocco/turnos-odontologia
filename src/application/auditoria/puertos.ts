@@ -1,5 +1,14 @@
 import type { RequestContext, TipoActor } from '../shared/request-context.js';
 
+/** Ejecutor transaccional que recibe los repositorios (D7); mínimo estructural (aplicación: puertos). */
+export interface EjecutorDeConsulta {
+  query(texto: string, valores?: unknown[]): Promise<ResultadoSql>;
+}
+
+export interface ResultadoSql {
+  readonly rows: readonly Record<string, unknown>[];
+}
+
 export type ValorAuditoria = unknown;
 
 export const ACCIONES_AUDITORIA = [
@@ -58,12 +67,24 @@ export interface RegistroAuditoriaCreado {
   readonly ip: string | null;
 }
 
+/** Filtros para `listar` en el repositorio append-only de auditoría (lectura). */
+export interface FiltrosDeListarAuditoria {
+  readonly entidad?: string;
+  readonly actorId?: string;
+  readonly desde?: Date | null;
+  readonly hasta?: Date | null;
+}
+
 /**
  * Puerto append-only de auditoría (`RN-AU-01`): expone únicamente inserción, nunca
- * actualización ni borrado.
+ * actualización ni borrado. La lectura (`listar`) es de solo-lectura y filtrable.
  */
 export interface AuditoriaRepositorio {
   insertar(registro: RegistroAuditoriaAInsertar): Promise<RegistroAuditoriaCreado>;
+  listar(
+    filtros: FiltrosDeListarAuditoria,
+    ejecutor: EjecutorDeConsulta,
+  ): Promise<RegistroAuditoriaCreado[]>;
 }
 
 /** Servicio de aplicación para registrar eventos de auditoría con enmascaramiento automático. */
