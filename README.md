@@ -5,6 +5,8 @@ SaaS multi-tenant de turnos para clínicas odontológicas argentinas. El MVP es 
 - Reglas de trabajo del proyecto y del equipo de 4: [CLAUDE.md](CLAUDE.md)
 - Dominio y decisiones: [knowledge-base/](knowledge-base/README.md)
 - Plan de implementación: [CHANGES.md](CHANGES.md)
+- Despliegue y operación (Fly.io, Neon, Resend, runbook, respaldo y protección de datos): [docs/operacion/](docs/operacion/)
+- Instrucciones para agentes: [AGENTS.md](AGENTS.md)
 
 ## Requisitos
 
@@ -86,7 +88,7 @@ npm run test:integration
 | `npm test` | Todos los proyectos de Vitest |
 | `npm run test:unit` / `test:integration` / `test:api` | Un proyecto de Vitest |
 | `npm run db:migrate` | Aplica las migraciones pendientes (usa `DATABASE_MIGRATION_URL`) |
-| `npm run db:seed` | Ejecutor de seeds con sus guardas (todavía no hay seeds) |
+| `npm run db:seed` | Ejecutor de seeds con sus guardas (`seeds/run.ts`); incluye el seed de la clínica de demostración y el de la primera clínica, solo con datos sintéticos |
 
 ## Estructura
 
@@ -102,6 +104,7 @@ seeds/                       # SOLO datos sintéticos
 test/{unit,integration,api}  # un proyecto de Vitest por carpeta
 docker/postgres/init/        # roles y bases para local y CI
 docs/plataforma/             # informe de validación de PostgreSQL
+docs/operacion/              # runbook, imagen Docker, respaldo, retención y protección de datos
 ```
 
 ESLint hace cumplir la regla de capas: `domain` no importa `infrastructure`, `interfaces`, `application`, `pg` ni `fastify`, y `application` no importa `infrastructure` ni `interfaces`.
@@ -155,6 +158,12 @@ Equipo de 4: 1 líder y 3 implementadores (Agentes A, B y C), cada uno en su ram
 
 Reglas duras que conviene recordar: sin datos de pacientes en logs, **sin datos reales fuera de producción** (los seeds se niegan a correr contra producción), aislamiento por `clinica_id` con RLS y cero solapamientos de profesional y de sillón.
 
+## Limitaciones conocidas
+
+- Los defectos **F1, F2, F6, F8 y F9** (autenticación y autorización de `usuarios`, alta de la primera clínica, `turnos`, `agenda`, `bloqueos`, `ausentismo`, `auditoria` y `exportaciones`) están **abiertos**. Están documentados en [docs/seguridad/checklist-ley-25326.md](docs/seguridad/checklist-ley-25326.md) y se resolverán en un change correctivo aparte.
+- Hasta entonces no hay que dar de alta clínicas reales ni cargar datos reales de pacientes. El entorno `produccion` está solo documentado, no aprovisionado.
+- Quedan pendientes la validación legal y el registro ante la AAIP; ver [docs/operacion/proteccion-datos.md](docs/operacion/proteccion-datos.md).
+
 ## Versiones elegidas
 
 Resueltas el 2026-11-22 (ver `package-lock.json`).
@@ -169,7 +178,7 @@ Resueltas el 2026-11-22 (ver `package-lock.json`).
 | `pino` | 10.4.0 | |
 | `argon2` | 0.45.2 | Módulo nativo: verificá que instale en tu sistema |
 | `jose` | 6.2.18 | |
-| `nodemailer` | 10.6.1 | SMTP: neutral entre Resend y Brevo |
+| `nodemailer` | 10.6.1 | Envío por SMTP con Resend (DD-04): `smtp.resend.com:465`, usuario `resend`, contraseña `EMAIL_API_KEY`. No se usa la API HTTP de Resend (`src/infrastructure/email/smtp-sender.ts`) |
 | `typescript` | 6.0.3 | `typescript-eslint` aún no soporta TypeScript 7 |
 | `vitest` | 5.1.1 | |
 | `fast-check` | 4.11.0 | |
