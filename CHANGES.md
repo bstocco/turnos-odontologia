@@ -539,7 +539,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-19] `hardening-seguridad-y-privacidad`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Revisión de seguridad y privacidad antes del lanzamiento
   - Prueba cross-tenant automatizada que recorre todos los endpoints con credenciales de otra clínica (esperado: `404`)
   - Verificación de logs: sin datos de pacientes ni secretos (redacción comprobada con pruebas)
