@@ -1,0 +1,134 @@
+# Despliegue (C-20, D9) — por ahora SOLO el job de verificación de la imagen (tareas 2.1 y 2.2).
+# El job de despliegue con `flyctl` (exige CI verde, tarea 3.4) se agrega en este mismo archivo.
+# `ci.yml` no se modifica. Todas las credenciales son descartables: la base es efímera y no hay
+# datos reales ni secretos del proyecto.
+name: Despliegue
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  # Verifica la imagen en los PR que la tocan, sin desplegar nada.
+  pull_request:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - .github/workflows/deploy.yml
+      - fly.*.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar-imagen:
+    name: Verificar la imagen (build, migraciones, API, worker, configuración)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci_superusuario_descartable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      PGPASSWORD: ci_superusuario_descartable
+      MIGRA_PASSWORD: ci_migra_descartable
+      APP_PASSWORD: ci_app_descartable
+      URL_MIGRACION: postgres://migra:ci_migra_descartable@localhost:5432/turnos
+      URL_APP: postgres://app:ci_app_descartable@localhost:5432/turnos
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Construir la imagen sin variables de entorno de producción
+        run: docker build --tag turnos:ci .
+
+      - name: La imagen no contiene archivos .env
+        run: |
+          encontrados=$(docker run --rm --entrypoint sh turnos:ci -c \
+            'find / -xdev \( -path /proc -o -path /sys \) -prune -o -name ".env*" -not -name ".env.example" -print 2>/dev/null' \
+            | grep -v '/node_modules/' || true)
+          if [ -n "$encontrados" ]; then
+            echo "Se encontraron archivos .env en la imagen:"; echo "$encontrados"; exit 1
+          fi
+          echo "Sin archivos .env en la imagen."
+
+      - name: La imagen corre sin privilegios y sin dependencias de desarrollo
+        run: |
+          uid=$(docker run --rm --entrypoint id turnos:ci -u)
+          echo "UID del proceso de la imagen: $uid"
+          [ "$uid" != "0" ] || { echo "La imagen corre como root."; exit 1; }
+          # typescript es una dependencia de desarrollo: no debe estar en la imagen final.
+          docker run --rm --entrypoint sh turnos:ci -c 'test ! -e /app/node_modules/typescript' \
+            || { echo "La imagen contiene dependencias de desarrollo."; exit 1; }
+          echo "Imagen sin root y sin dependencias de desarrollo."
+
+      - name: Inicializar roles y bases (mismo script que CI y docker compose)
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docker/postgres/init/01-roles.sql
+
+      - name: Modo migraciones
+        run: |
+          docker run --rm --network host \
+            --env DATABASE_MIGRATION_URL="$URL_MIGRACION" \
+            turnos:ci node dist/infrastructure/db/migrate-cli.js
+
+      - name: Modo API (GET /salud y cierre ordenado con SIGTERM)
+        run: |
+          docker run --detach --name api --network host \
+            --env DATABASE_URL="$URL_APP" --env PORT=3100 turnos:ci
+          curl --fail --silent --retry 30 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:3100/salud | tee /dev/stderr | grep -q '"estado":"ok"'
+          docker stop --time 20 api
+          codigo=$(docker inspect --format '{{.State.ExitCode}}' api)
+          echo "Código de salida de la API tras SIGTERM: $codigo"
+          [ "$codigo" = "0" ] || { docker logs api; exit 1; }
+
+      - name: Modo worker (arranque y cierre ordenado con SIGTERM)
+        run: |
+          # El worker exige EMAIL_API_KEY y un EMAIL_FROM válido al arrancar. Los valores son
+          # falsos y descartables (dominio reservado .test): la base de CI no tiene clínicas ni
+          # turnos, así que no se encola ni se envía ningún correo.
+          docker run --detach --name worker --network host \
+            --env DATABASE_URL="$URL_APP" \
+            --env EMAIL_API_KEY=ci-valor-descartable \
+            --env EMAIL_FROM="Turnos CI <no-responder@example.test>" \
+            --env PUBLIC_BASE_URL=https://turnos.example.test \
+            turnos:ci node dist/infrastructure/queue/worker-cli.js
+          for i in $(seq 1 30); do
+            if docker logs worker 2>&1 | grep -q 'Worker de notificaciones iniciado'; then arranco=1; break; fi
+            [ "$(docker inspect --format '{{.State.Running}}' worker)" = "true" ] || break
+            sleep 1
+          done
+          [ "${arranco:-0}" = "1" ] || { echo "El worker no arrancó."; docker logs worker; exit 1; }
+          docker stop --time 30 worker
+          codigo=$(docker inspect --format '{{.State.ExitCode}}' worker)
+          echo "Código de salida del worker tras SIGTERM: $codigo"
+          [ "$codigo" = "0" ] || { docker logs worker; exit 1; }
+
+      - name: Variable obligatoria ausente produce un error con el nombre y sin valores
+        run: |
+          set +e
+          # (a) Falta DATABASE_URL: el error la nombra.
+          salida=$(docker run --rm turnos:ci 2>&1)
+          codigo=$?
+          echo "$salida"
+          [ "$codigo" -ne 0 ] || { echo "Debió fallar sin DATABASE_URL."; exit 1; }
+          echo "$salida" | grep -q 'DATABASE_URL' || { echo "El error no nombra DATABASE_URL."; exit 1; }
+          # (b) Valor inválido: el error nombra la variable pero nunca imprime el valor.
+          salida=$(docker run --rm --env LOG_LEVEL=valor-centinela-no-imprimir turnos:ci 2>&1)
+          codigo=$?
+          echo "$salida"
+          [ "$codigo" -ne 0 ] || { echo "Debió fallar con LOG_LEVEL inválido."; exit 1; }
+          echo "$salida" | grep -q 'LOG_LEVEL' || { echo "El error no nombra LOG_LEVEL."; exit 1; }
+          if echo "$salida" | grep -q 'valor-centinela-no-imprimir'; then
+            echo "El error imprimió el valor de una variable."; exit 1
+          fi

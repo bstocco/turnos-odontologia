@@ -1,0 +1,30 @@
+# Secretos y entorno local: nunca entran al contexto de build
+.env
+.env.*
+!.env.example
+
+# Dependencias y salidas (se regeneran dentro de la imagen)
+node_modules
+dist
+coverage
+*.tsbuildinfo
+
+# Control de versiones y herramientas
+.git
+.github
+.claude
+.atl
+.active-orchestrator-state.json
+
+# Documentación, especificaciones y pruebas: no van en runtime
+openspec
+docs
+knowledge-base
+discovery
+test
+seeds
+docker
+docker-compose.yml
+*.md
+*.pdf
+*.log

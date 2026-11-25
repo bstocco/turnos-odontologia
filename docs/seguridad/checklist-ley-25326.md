@@ -27,15 +27,18 @@ Los siguientes defectos previos de autenticación/autorización fueron detectado
 | ID | Módulo / Change origen | Descripción del defecto | Impacto en seguridad / cumplimiento | Responsable |
 |---|---|---|---|---|
 | **F1** | `usuarios` (`C-06`) | No registra `pluginDeAutenticacion`: `request.userContext` nunca se completa y todo pedido responde `401` incluso con JWT válido. | Impide administrar usuarios y ejecutar pruebas funcionales cross-tenant sobre `usuarios`. | Agente A / Líder técnico |
+| **F2** | `interno` / aprovisionamiento (`C-17`) | El alta interna (`POST /api/v1/interno/clinicas`) crea al primer administrador con una contraseña temporal pero **no la devuelve** (responde solo `clinicaId` y `slug`) y no hay flujo de restablecimiento: el primer administrador de una clínica no puede iniciar sesión. | Imposibilita dar de alta la primera clínica real (puesta en marcha). | Agente A / Líder técnico |
 | **F6** | `turnos`, `agenda`, `bloqueos` (`C-12`) | No registran `pluginDeAutenticacion` (`401` con sesión válida) y usan `requireRole(ctx, 'odontologo')` en acciones donde `03 §RBAC` habilita a administración y recepción. | Bloquea el núcleo de agenda y turnos en operación real. | Agente A / Líder técnico |
 | **F8** | `ausentismo` (`C-16`) | `GET /api/v1/ausentismo` admite solo `administrador`; `03 §RBAC` habilita también a `recepcionista` y (con alcance propio) a `odontologo`. | Inconsistencia con la matriz RBAC aprobada. | Agente A / Líder técnico |
 | **F9** | `auditoria`, `ausentismo`, `exportaciones` (`C-16`) | Sin cabecera `Authorization` responden `403 ACCESO_PROHIBIDO` en lugar de `401` (`exigirContextoDeAdministrador`). | Desvío del contrato de autenticación HTTP (`401` ante ausencia de credenciales). | Agente A / Líder técnico |
+
+> **Decisión de la Líder (2026-11-25):** **F1, F2, F6, F8 y F9 se resuelven en un change correctivo aparte** (no en `C-20`, que no toca código de otros changes). Hasta que ese change esté fusionado, siguen siendo **bloqueantes previos al go-live real**. `C-20` puede aprovisionar `pruebas` y `produccion` sin datos reales, pero no se da de alta ninguna clínica real.
 
 ---
 
 ## 3. Criterio de salida para producción (`C-20`)
 
-1. Resolver y fusionar en `main` los bloqueantes técnicos **F1**, **F6**, **F8** y **F9** (quitando las marcas `it.fails` en `test/e2e/permisos/matriz.ts` y `test/seguridad/cross-tenant.test.ts`).
+1. Resolver y fusionar en `main`, mediante el change correctivo aparte, los bloqueantes técnicos **F1**, **F2**, **F6**, **F8** y **F9** (quitando las marcas `it.fails` en `test/e2e/permisos/matriz.ts` y `test/seguridad/cross-tenant.test.ts`).
 2. Completar la validación legal de **PO-03** (cláusulas contractuales modelo `sa-east-1`), gestionar el registro ante la **AAIP (`PO-14`)** y aprobar la política de retención (**PO-10**).
 3. Verificar en el entorno desplegable de `C-20`:
    - `ALLOW_SEED=false` y `NODE_ENV=production` en variables del PaaS.

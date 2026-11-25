@@ -10,8 +10,8 @@
 | Pruebas | Vitest o Jest | **Decidido** (DD-08): Vitest |
 | Acceso a datos | SQL explícito con migraciones versionadas | **Decidido** (DD-08): los constraints de exclusión y las políticas RLS requieren SQL, no se expresan en un ORM típico |
 | Cola de tareas | Cola sobre PostgreSQL (por ejemplo pg-boss) | **Decidido** (DD-09): pg-boss; evita sumar Redis y su costo |
-| Email | Resend o Brevo | **Opción elegida (Q4=a)**; proveedor concreto a decidir |
-| Hosting | PaaS económico (Railway, Render o Fly.io) con PostgreSQL gestionado | **Opción elegida (Q4=a)**; proveedor concreto a decidir |
+| Email | Resend | **Decidido (2026-11-25, DD-04)** |
+| Hosting | Aplicación en Fly.io (`gru`); base PostgreSQL 17 en Neon (`aws-sa-east-1`) | **Decidido (2026-11-25, DD-04)**; ver `docs/operacion/` |
 
 La versión mínima de cada componente se fija al crear el proyecto (primer change de infraestructura).
 
@@ -49,7 +49,7 @@ La versión mínima de cada componente se fija al crear el proyecto (primer chan
 
 | Servicio | Propósito | Tipo | Alcance |
 |---|---|---|---|
-| Proveedor de email (Resend o Brevo) | Confirmaciones, recordatorios y códigos de verificación | REST / SDK | MVP |
+| Proveedor de email (Resend) | Confirmaciones, recordatorios y códigos de verificación | REST / SDK | MVP |
 | WhatsApp click-to-chat | Recordatorio manual disparado por la recepción | Enlace `https://wa.me/...` generado por la API, sin API de WhatsApp | MVP |
 | WhatsApp Business API | Recordatorios automáticos | REST oficial | Posterior |
 | Google Calendar | Sincronizar agendas | REST | Posterior |
