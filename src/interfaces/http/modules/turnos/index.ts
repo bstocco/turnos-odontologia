@@ -1,13 +1,17 @@
 import type { FastifyInstance } from 'fastify';
+import type { PgBoss } from 'pg-boss';
 import Type, { type Static } from 'typebox';
 
-import { ErrorDeDominio } from '../../../../domain/shared/errores.js';
-import type {
-  PacienteId,
-  PrestacionId,
-  ProfesionalId,
-  SillonId,
-} from '../../../../domain/shared/index.js';
+import {
+  ErrorDeEnvioEmail,
+  crearNotificacionService,
+  crearPublicadorEventosTurno,
+  crearResolvedorContenidoTurno,
+  sanearCodigoError,
+  type LoggerNotificaciones,
+  type ServicioNotificaciones,
+} from '../../../../application/notificaciones/index.js';
+import type { RequestContext } from '../../../../application/shared/request-context.js';
 import {
   agendarTurno,
   cancelarTurno,
@@ -18,14 +22,27 @@ import {
   type AgendaFija,
 } from '../../../../application/turnos/index.js';
 import { loadConfig } from '../../../../config/index.js';
+import { ErrorDeDominio } from '../../../../domain/shared/errores.js';
+import type {
+  PacienteId,
+  PrestacionId,
+  ProfesionalId,
+  SillonId,
+  TurnoId,
+} from '../../../../domain/shared/index.js';
+import { type EventoDeTurno, type TurnoEventPublisher } from '../../../../domain/turno/index.js';
+import { contextoDePedido, requireRole } from '../../../../infrastructure/auth/rbac.js';
 import {
   crearAgendaReader,
   crearRepositorioDeTurnos,
 } from '../../../../infrastructure/db/repositories/turno/index.js';
 import { withTenant } from '../../../../infrastructure/db/tenant/with-tenant.js';
-import { contextoDePedido, requireRole } from '../../../../infrastructure/auth/rbac.js';
-import type { RequestContext } from '../../../../application/shared/request-context.js';
-import type { TurnoId } from '../../../../domain/shared/index.js';
+import {
+  crearColaNotificacionesPgBoss,
+  crearEjecutorTenantNotificaciones,
+  crearLectorDatosTurnoPg,
+  crearPgBossApp,
+} from '../../../../infrastructure/queue/index.js';
 
 const CosaNueva = Type.Object({
   pacienteId: Type.String({ format: 'uuid' }),
@@ -65,25 +82,135 @@ function exigirRolDeTurno(contexto: RequestContext): void {
   }
 }
 
-/** Módulo HTTP de turnos (C-12): handlers delgados, use cases en `src/application/turnos/`. */
-export default async function moduloTurnos(app: FastifyInstance): Promise<void> {
+export interface OpcionesModuloTurnos {
+  readonly publicadorParaClinica?: (clinicaId: string) => TurnoEventPublisher;
+}
+
+function crearColectorDeEventos(): {
+  readonly colector: TurnoEventPublisher;
+  readonly eventos: EventoDeTurno[];
+} {
+  const eventos: EventoDeTurno[] = [];
+  return {
+    eventos,
+    colector: {
+      publicar(evento: EventoDeTurno): void {
+        eventos.push(evento);
+      },
+    },
+  };
+}
+
+function crearResolutorPublicadorPerezoso(
+  app: FastifyInstance,
+): (clinicaId: string) => TurnoEventPublisher {
+  let bossActivo: PgBoss | undefined;
+  let servicioPromesa: Promise<ServicioNotificaciones | null> | undefined;
+
+  const logger: LoggerNotificaciones = {
+    info: (datos, mensaje) => app.log.info(datos, mensaje),
+    warn: (datos, mensaje) => app.log.warn(datos, mensaje),
+    error: (datos, mensaje) => app.log.error(datos, mensaje),
+  };
+
+  const obtenerServicio = async (): Promise<ServicioNotificaciones | null> => {
+    if (servicioPromesa !== undefined) return servicioPromesa;
+
+    servicioPromesa = (async (): Promise<ServicioNotificaciones | null> => {
+      const config = loadConfig('app');
+      if (config.databaseUrl === undefined) return null;
+
+      try {
+        const boss = crearPgBossApp({ connectionString: config.databaseUrl, schedule: false });
+        const cola = await crearColaNotificacionesPgBoss(boss);
+        bossActivo = boss;
+        const reloj = { ahora: () => new Date() };
+        return crearNotificacionService({
+          ejecutorTenant: crearEjecutorTenantNotificaciones(),
+          cola,
+          emailSender: {
+            async enviar() {
+              throw new ErrorDeEnvioEmail(
+                'EMAIL_SOLO_EN_WORKER',
+                false,
+                'El proceso HTTP solo encola notificaciones.',
+              );
+            },
+          },
+          resolvedor: crearResolvedorContenidoTurno({
+            lector: crearLectorDatosTurnoPg(),
+            reloj,
+          }),
+          reloj,
+          logger,
+        });
+      } catch (error) {
+        const codigo = sanearCodigoError(error, 'ERROR_INICIAR_COLA_TURNOS');
+        logger.warn({ codigo }, 'No se pudo inicializar la cola de notificaciones en HTTP');
+        servicioPromesa = undefined;
+        return null;
+      }
+    })();
+
+    return servicioPromesa;
+  };
+
+  app.addHook('onClose', async () => {
+    if (bossActivo !== undefined) {
+      const aCerrar = bossActivo;
+      bossActivo = undefined;
+      await aCerrar.stop({ graceful: false }).catch(() => undefined);
+    }
+  });
+
+  return (clinicaId: string): TurnoEventPublisher => ({
+    async publicar(evento: EventoDeTurno): Promise<void> {
+      const servicio = await obtenerServicio();
+      if (servicio === null) return;
+      await crearPublicadorEventosTurno({ clinicaId, servicio, logger }).publicar(evento);
+    },
+  });
+}
+
+/** Módulo HTTP de turnos (C-12 + C-14): handlers delgados, publicación post-commit (RN-NO-03). */
+export default async function moduloTurnos(
+  app: FastifyInstance,
+  opciones: OpcionesModuloTurnos = {},
+): Promise<void> {
+  const resolverPublicador =
+    opciones.publicadorParaClinica ?? crearResolutorPublicadorPerezoso(app);
+
   app.post('/turnos', { schema: { body: CosaNueva } }, async (request, reply) => {
     const contexto = contextoDePedido(request);
     exigirRolDeTurno(contexto);
     const nuevo = request.body as CosaNueva;
+    const { colector, eventos } = crearColectorDeEventos();
 
     const turno = await withTenant(contexto.clinicaId, async (cliente) =>
-      agendarTurno(crearRepositorioDeTurnos(cliente), crearAgendaReader(cliente), agendaFija(), {
-        pacienteId: nuevo.pacienteId as PacienteId,
-        profesionalId: nuevo.profesionalId as ProfesionalId,
-        sillonId: nuevo.sillonId as SillonId,
-        prestacionId: nuevo.prestacionId as PrestacionId,
-        inicio: new Date(nuevo.inicio),
-        duracionMinutos: nuevo.duracionMinutos,
-        bufferMinutos: nuevo.bufferMinutos,
-        origen: nuevo.origen,
-      }),
+      agendarTurno(
+        crearRepositorioDeTurnos(cliente),
+        crearAgendaReader(cliente),
+        agendaFija(),
+        {
+          pacienteId: nuevo.pacienteId as PacienteId,
+          profesionalId: nuevo.profesionalId as ProfesionalId,
+          sillonId: nuevo.sillonId as SillonId,
+          prestacionId: nuevo.prestacionId as PrestacionId,
+          inicio: new Date(nuevo.inicio),
+          duracionMinutos: nuevo.duracionMinutos,
+          bufferMinutos: nuevo.bufferMinutos,
+          origen: nuevo.origen,
+        },
+        { intentos: 3 },
+        colector,
+      ),
     );
+
+    const publicador = resolverPublicador(contexto.clinicaId);
+    for (const evento of eventos) {
+      await publicador.publicar(evento);
+    }
+
     return reply.code(201).send(turno);
   });
 
@@ -105,11 +232,12 @@ export default async function moduloTurnos(app: FastifyInstance): Promise<void> 
     const { id, accion } = request.params as { id: string; accion: string };
     const turnoId = id as TurnoId;
     const ahora = new Date();
+    const { colector, eventos } = crearColectorDeEventos();
 
     const resultado = await withTenant(contexto.clinicaId, async (cliente) => {
       switch (accion) {
         case 'cancelar':
-          return cancelarTurno(crearRepositorioDeTurnos(cliente), turnoId, ahora);
+          return cancelarTurno(crearRepositorioDeTurnos(cliente), turnoId, ahora, colector);
         case 'reprogramar': {
           const turno = await crearRepositorioDeTurnos(cliente).obtenerPorId(turnoId);
           if (turno === null)
@@ -128,10 +256,11 @@ export default async function moduloTurnos(app: FastifyInstance): Promise<void> 
               origen: turno.origen,
             },
             agendaFija(),
+            colector,
           );
         }
         case 'confirmar':
-          return confirmarTurno(crearRepositorioDeTurnos(cliente), turnoId, ahora);
+          return confirmarTurno(crearRepositorioDeTurnos(cliente), turnoId, ahora, colector);
         case 'atendido':
           return marcarAtendido(crearRepositorioDeTurnos(cliente), turnoId, ahora);
         case 'ausente':
@@ -144,6 +273,12 @@ export default async function moduloTurnos(app: FastifyInstance): Promise<void> 
           );
       }
     });
+
+    const publicador = resolverPublicador(contexto.clinicaId);
+    for (const evento of eventos) {
+      await publicador.publicar(evento);
+    }
+
     return resultado;
   });
 }

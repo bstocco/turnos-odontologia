@@ -7,7 +7,7 @@ Define el almacenamiento multi-tenant aislado por clínica para el estado e hist
 ## Requirements
 
 ### Requirement: Tabla de notificaciones multi-tenant con RLS y restricciones de integridad
-The database schema SHALL provide a `notificacion` table with `id`, `clinica_id` referencing `clinica`, nullable `turno_id` (without foreign key to `turno` while `C-09` is unmerged), `canal`, `tipo`, `estado`, `clave_idempotencia` unique per clinic, `intentos`, UTC `timestamptz` timestamps, and sanitized `error` without personal data, enforcing `aplicar_rls('notificacion')` and granting only `SELECT`, `INSERT`, and `UPDATE` (no `DELETE`) to the application role.
+The database schema SHALL provide `notificacion` with `id`, `clinica_id`, nullable `turno_id` enforcing composite FK `(clinica_id, turno_id)` → `turno (clinica_id, id)` (`MATCH SIMPLE`), `canal`, `tipo`, `estado`, unique `(clinica_id, clave_idempotencia)`, `intentos`, UTC timestamps, and sanitized `error` without PII, enforcing `aplicar_rls('notificacion')` and granting only `SELECT`, `INSERT`, and `UPDATE` to `app`.
 
 #### Scenario: Creación de tabla, índices operativos y privilegios mínimos para la aplicación
 - **WHEN** se aplican las migraciones del proyecto con el rol de migraciones sobre un esquema limpio
@@ -35,6 +35,22 @@ The database schema SHALL provide a `notificacion` table with `id`, `clinica_id`
 #### Scenario: Coherencia entre tipo, turno_id y estado de envío
 - **WHEN** se intenta insertar una fila en `notificacion` con `tipo = 'codigo'` y `turno_id` no nulo, con `estado = 'enviada'` y `enviada_en` nulo, o con `intentos < 0`
 - **THEN** PostgreSQL rechaza la fila por violación de restricción `CHECK` (`23514`)
+
+#### Scenario: Rechazo de turno_id inexistente o perteneciente a otra clínica
+- **WHEN** bajo contexto de la clínica A se intenta insertar una fila en `notificacion` con `turno_id` inexistente o perteneciente a un turno de la clínica B
+- **THEN** PostgreSQL rechaza la inserción por violación de la clave foránea compuesta `(clinica_id, turno_id)` (`23503`)
+
+#### Scenario: Preservación de turno_id nulo para códigos de verificación
+- **WHEN** se inserta una fila en `notificacion` con `tipo = 'codigo'` y `turno_id IS NULL`
+- **THEN** la inserción es aceptada por `MATCH SIMPLE` de la clave foránea compuesta sin requerir una fila en `turno`
+
+#### Scenario: Rechazo de turno_id inexistente o perteneciente a otra clínica
+- **WHEN** bajo contexto de la clínica A se intenta insertar una fila en `notificacion` con `turno_id` inexistente o perteneciente a un turno de la clínica B
+- **THEN** PostgreSQL rechaza la inserción por violación de la clave foránea compuesta `(clinica_id, turno_id)` (`23503`)
+
+#### Scenario: Preservación de turno_id nulo para códigos de verificación
+- **WHEN** se inserta una fila en `notificacion` con `tipo = 'codigo'` y `turno_id IS NULL`
+- **THEN** la inserción es aceptada por `MATCH SIMPLE` de la clave foránea compuesta sin requerir una fila en `turno`
 
 ### Requirement: Instalación idempotente del esquema de cola por el rol de migraciones
 The migration suite SHALL install the queue schema (`pgboss`) owned by the migration role, grant minimum runtime privileges (`USAGE` on schema, `SELECT, INSERT, UPDATE, DELETE` on queue tables, `USAGE, SELECT` on sequences, and `EXECUTE` on schema functions) to the application role, and remain idempotent when `public` migrations are re-run against a database where the queue schema already exists, so the application runtime never executes DDL.

@@ -34,3 +34,4 @@ export {
   type EntradaEncolarNotificacion,
   type EntradaEncolarValidada,
 } from './validaciones.js';
+export * from './turnos/index.js';

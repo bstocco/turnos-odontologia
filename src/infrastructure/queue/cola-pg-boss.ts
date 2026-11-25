@@ -8,6 +8,7 @@ import {
 } from '../../application/notificaciones/index.js';
 
 export const NOMBRE_COLA_EMAIL = 'notificaciones.email';
+export const NOMBRE_COLA_RECORDATORIOS = 'notificaciones.recordatorios';
 
 export interface PoliticaReintentosCola {
   readonly retryLimit: number;
@@ -25,6 +26,7 @@ export const DEFAULTS_REINTENTOS_COLA: PoliticaReintentosCola = {
 
 export interface OpcionesPgBossApp {
   readonly connectionString: string;
+  readonly schedule?: boolean;
 }
 
 export function resolverPoliticaReintentos(
@@ -51,7 +53,7 @@ export function crearPgBossApp(opciones: OpcionesPgBossApp): PgBoss {
     migrate: false,
     createSchema: false,
     supervise: true,
-    schedule: false,
+    schedule: opciones.schedule ?? false,
     reindex: false,
     persistQueueStats: false,
     registerInstance: false,
@@ -71,6 +73,20 @@ export async function asegurarColaEmail(
     retryDelay: p.retryDelay,
     retryBackoff: p.retryBackoff,
     ...(p.retryBackoff && p.retryDelayMax !== undefined ? { retryDelayMax: p.retryDelayMax } : {}),
+  });
+}
+
+/**
+ * Asegura la cola del job periódico `notificaciones.recordatorios` sin particionado
+ * para operar bajo el rol `app` sin permisos DDL.
+ */
+export async function asegurarColaRecordatorios(boss: PgBoss): Promise<void> {
+  await boss.createQueue(NOMBRE_COLA_RECORDATORIOS, {
+    partition: false,
+    policy: 'standard',
+    retryLimit: 1,
+    retryDelay: 30,
+    retryBackoff: false,
   });
 }
 
