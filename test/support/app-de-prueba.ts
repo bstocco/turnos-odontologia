@@ -37,9 +37,10 @@ export function capturarLogs() {
 export async function appDePrueba(
   directorioDeModulos?: string,
   extra: Record<string, string> = {},
+  opcionesExtra: Partial<OpcionesDeApp> = {},
 ): Promise<{ app: FastifyInstance; logs: ReturnType<typeof capturarLogs> }> {
   const logs = capturarLogs();
-  const opciones: OpcionesDeApp = { destinoDeLogs: logs.destino };
+  const opciones: OpcionesDeApp = { destinoDeLogs: logs.destino, ...opcionesExtra };
   if (directorioDeModulos !== undefined) opciones.directorioDeModulos = directorioDeModulos;
   const app = await buildApp(configDePrueba(extra), opciones);
   return { app, logs };

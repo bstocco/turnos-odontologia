@@ -119,7 +119,7 @@ describe('memoria acotada del contador', () => {
       almacenes.add(this.lru);
       return original.apply(this, args);
     });
-    const { app: acotada } = await appDePrueba(dir);
+    const { app: acotada } = await appDePrueba(dir, {}, { rateLimitGlobalCache: CAPACIDAD });
     await acotada.ready();
     try {
       for (let i = 0; i < CAPACIDAD * 2; i++) {

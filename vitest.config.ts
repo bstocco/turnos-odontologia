@@ -49,6 +49,21 @@ export default defineConfig({
           include: ['test/api/**/*.test.ts'],
         },
       },
+      {
+        // C-19: suite de seguridad, cross-tenant, privacidad de logs y postura de BD.
+        // Comparte `turnos_test` con `integration` y `e2e`: corre al final (`groupOrder: 2`).
+        extends: true,
+        test: {
+          name: 'security',
+          include: ['test/seguridad/**/*.test.ts'],
+          globalSetup: ['test/e2e/soporte/global-setup.ts'],
+          setupFiles: ['test/e2e/soporte/entorno-descartable.ts'],
+          fileParallelism: false,
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
+          sequence: { groupOrder: 2 },
+        },
+      },
     ],
   },
 });

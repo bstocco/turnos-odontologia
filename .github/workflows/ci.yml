@@ -31,9 +31,11 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
+      - name: Auditoría de dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
 
   pruebas:
-    name: Pruebas (unitarias, integración, api, e2e, build)
+    name: Pruebas (unitarias, integración, api, e2e, seguridad, build)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -80,6 +82,9 @@ jobs:
         run: git fetch --depth=1 origin main:refs/remotes/origin/main
       - name: Pruebas e2e, matriz de permisos y contrato OpenAPI
         run: npm run test:e2e
+
+      - name: Pruebas de seguridad, cross-tenant y postura de BD
+        run: npm run test:security
 
       # Verifica la carga de módulos y /salud fuera de tsx, sobre el código compilado.
       - name: Prueba de humo del build

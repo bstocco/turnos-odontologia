@@ -75,8 +75,18 @@ describe('redacción de credenciales y secretos', () => {
       codigoVerificacion: '123456',
       jwtAccessSecret: 's',
       EMAIL_API_KEY: 'k',
+      adminInternalKey: 'clave-interna-123',
+      ADMIN_INTERNAL_KEY: 'clave-interna-456',
+      privateKey: 'privada-1',
+      private_key: 'privada-2',
     });
     for (const valor of Object.values(salida)) expect(valor).toBe(MARCADOR);
+  });
+
+  it('no redacta identificadores técnicos legítimos como claveIdempotencia', () => {
+    const salida = redactar({ claveIdempotencia: 'turno:123:creacion', entidadId: 'abc' });
+    expect(salida.claveIdempotencia).toBe('turno:123:creacion');
+    expect(salida.entidadId).toBe('abc');
   });
 });
 
@@ -97,6 +107,22 @@ describe('textos de error', () => {
 
   it('no enmascara números que no son de 7 u 8 dígitos', () => {
     expect(limpiarTexto('turno 12345 de 123456789012')).toBe('turno 12345 de 123456789012');
+    expect(limpiarTexto('instante 2026-11-25T13:00:00.000Z')).toBe(
+      'instante 2026-11-25T13:00:00.000Z',
+    );
+  });
+
+  it('enmascara teléfonos argentinos en formato internacional y JWT sueltos en texto libre', () => {
+    const jwt =
+      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+    const texto = limpiarTexto(
+      `Contacto +5491155551234 y alternativo +54 9 11 4567-8901 con sesión ${jwt}`,
+    );
+    expect(texto).not.toContain('55551234');
+    expect(texto).not.toContain('4567-8901');
+    expect(texto).not.toContain('+54');
+    expect(texto).not.toContain('eyJhbGciOiJIUzI1NiJ9');
+    expect(texto).toContain(MARCADOR);
   });
 
   it('un Error con un DNI en el mensaje conserva el tipo y enmascara el valor', () => {

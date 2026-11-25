@@ -9,6 +9,7 @@ import type { Config } from '../../config/index.js';
 import { crearLogger } from '../../infrastructure/logging/logger.js';
 
 import { registrarManejoDeErrores } from './errores.js';
+import { registrarHardeningHttp } from './hardening.js';
 import { registrarModulos } from './register-modules.js';
 
 export interface OpcionesDeApp {
@@ -16,6 +17,8 @@ export interface OpcionesDeApp {
   destinoDeLogs?: DestinationStream;
   /** Carpeta de módulos HTTP; por defecto `./modules` junto a este archivo. */
   directorioDeModulos?: string;
+  /** Capacidad del almacén LRU del límite global (las pruebas la acotan). */
+  rateLimitGlobalCache?: number;
 }
 
 function rutaSinConsulta(url: string): string {
@@ -36,9 +39,15 @@ export async function buildApp(
     // Los logs de acceso los emite el hook onResponse (sin consulta ni cuerpo).
     logController: new LogController({ disableRequestLogging: true, requestIdLogLabel: 'reqId' }),
     genReqId: () => randomUUID(),
+    bodyLimit: config.httpBodyLimitBytes,
   });
 
   registrarManejoDeErrores(app);
+  await registrarHardeningHttp(app, config, {
+    ...(opciones.rateLimitGlobalCache !== undefined
+      ? { rateLimitGlobalCache: opciones.rateLimitGlobalCache }
+      : {}),
+  });
 
   // Correlación entre el cliente, el log y el detalle de un error.
   app.addHook('onSend', async (request, reply) => {
@@ -67,8 +76,8 @@ export async function buildApp(
     },
   });
 
-  // Sin versiones, rutas del servidor ni configuración (spec http-service).
-  app.get('/salud', async () => ({ estado: 'ok' }));
+  // Sin versiones, rutas del servidor ni configuración (spec http-service); excluido del rate limit global.
+  app.get('/salud', { config: { rateLimit: false } }, async () => ({ estado: 'ok' }));
 
   const directorio =
     opciones.directorioDeModulos ?? fileURLToPath(new URL('./modules', import.meta.url));

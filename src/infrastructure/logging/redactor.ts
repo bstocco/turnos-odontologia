@@ -37,6 +37,8 @@ const PALABRAS_DE_CREDENCIAL: readonly string[] = [
   'cookie',
   'secret',
   'apikey',
+  'internalkey',
+  'privatekey',
 ];
 
 /** Campos cuyo texto libre se limpia con patrones (mensajes y trazas de error). */
@@ -60,6 +62,8 @@ export function esCampoSensible(nombre: string): boolean {
 
 const PATRON_EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const PATRON_DNI = /\b\d{7,8}\b/g;
+const PATRON_TELEFONO_AR = /\+54(?:[\s-]?9)?(?:[\s-]?\d){10}\b/g;
+const PATRON_JWT = /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g;
 const PATRON_URL_CON_CREDENCIALES = /\b([a-z][a-z0-9+.-]*:\/\/)[^\s/@]+:[^\s/@]+@/gi;
 const PATRON_BEARER = /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi;
 
@@ -67,6 +71,8 @@ export function limpiarTexto(texto: string): string {
   return texto
     .replace(PATRON_URL_CON_CREDENCIALES, `$1${MARCADOR}@`)
     .replace(PATRON_BEARER, `Bearer ${MARCADOR}`)
+    .replace(PATRON_JWT, MARCADOR)
+    .replace(PATRON_TELEFONO_AR, MARCADOR)
     .replace(PATRON_EMAIL, MARCADOR)
     .replace(PATRON_DNI, MARCADOR);
 }
