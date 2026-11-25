@@ -25,3 +25,7 @@ Thumbs.db
 
 # Salidas de pruebas locales
 probe-out.txt
+
+# Carpetas de IDE
+.idea/
+.vscode/
