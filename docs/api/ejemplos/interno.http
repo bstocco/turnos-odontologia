@@ -1,0 +1,13 @@
+# Alta interna de clínicas: solo con la clave de servicio de la plataforma.
+@baseUrl = http://localhost:3000
+
+### Alta de una clínica sintética
+POST {{baseUrl}}/api/v1/interno/clinicas
+Authorization: Bearer {{claveInterna}}
+Content-Type: application/json
+
+{
+  "slug": "clinica-ejemplo",
+  "nombre": "Clínica de ejemplo",
+  "email": "admin@ejemplo.invalid"
+}

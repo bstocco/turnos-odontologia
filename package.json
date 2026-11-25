@@ -19,6 +19,7 @@
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
     "test:api": "vitest run --project api",
+    "test:e2e": "vitest run --project e2e",
     "db:migrate": "tsx --env-file-if-exists=.env src/infrastructure/db/migrate-cli.ts",
     "db:seed": "tsx --env-file-if-exists=.env seeds/run.ts"
   },

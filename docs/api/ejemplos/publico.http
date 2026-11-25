@@ -1,0 +1,42 @@
+# Consulta y reserva pública de una clínica: sin sesión; los pedidos de código y de reserva se limitan por IP y por email.
+@baseUrl = http://localhost:3000
+
+### Prestaciones ofrecidas
+GET {{baseUrl}}/api/v1/publico/{{slug}}/prestaciones
+
+### Profesionales activos
+GET {{baseUrl}}/api/v1/publico/{{slug}}/profesionales
+
+### Huecos disponibles (rango de hasta 14 días; hasta es posterior a desde)
+GET {{baseUrl}}/api/v1/publico/{{slug}}/disponibilidad?profesionalId={{profesionalId}}&prestacionId={{prestacionId}}&desde=2026-12-14&hasta=2026-12-18
+
+### Reserva pública, paso 1: pedir el código de verificación (llega por email; límite por IP y por email)
+POST {{baseUrl}}/api/v1/publico/{{slug}}/codigo
+Content-Type: application/json
+
+{ "email": "paciente@ejemplo.invalid" }
+
+### Reserva pública, paso 2: reservar con el código recibido (el sillón se asigna solo)
+POST {{baseUrl}}/api/v1/publico/{{slug}}/reservas
+Content-Type: application/json
+
+{
+  "profesionalId": "{{profesionalId}}",
+  "prestacionId": "{{prestacionId}}",
+  "inicio": "2026-12-15T13:00:00.000Z",
+  "codigoVerificacion": "{{codigoVerificacion}}",
+  "paciente": {
+    "nombre": "Paciente",
+    "apellido": "Sintético",
+    "dni": "99000001",
+    "telefono": "+54 9 11 5555 1001",
+    "email": "paciente@ejemplo.invalid",
+    "obraSocial": "Obra social sintética"
+  }
+}
+
+### Confirmar o cancelar un turno con el enlace del email (un solo uso; "accion" es opcional si el token ya la define)
+POST {{baseUrl}}/api/v1/publico/turnos/accion
+Content-Type: application/json
+
+{ "token": "{{tokenDeAccion}}", "accion": "confirmar" }

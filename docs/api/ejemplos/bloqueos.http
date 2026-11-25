@@ -1,0 +1,18 @@
+# Bloqueos de franja de la agenda de un profesional (C-12).
+@baseUrl = http://localhost:3000
+
+### Bloquear una franja (el motivo es texto libre: no cargar datos de pacientes)
+POST {{baseUrl}}/api/v1/bloqueos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "profesionalId": "{{profesionalId}}",
+  "inicio": "2026-12-14T13:00:00.000Z",
+  "fin": "2026-12-14T14:00:00.000Z",
+  "motivo": "Capacitación"
+}
+
+### Quitar un bloqueo
+DELETE {{baseUrl}}/api/v1/bloqueos/{{bloqueoId}}
+Authorization: Bearer {{token}}

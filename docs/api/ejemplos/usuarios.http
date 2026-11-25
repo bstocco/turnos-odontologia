@@ -1,0 +1,24 @@
+# Usuarios del personal (solo administrador).
+@baseUrl = http://localhost:3000
+
+### Lista de usuarios de la clínica
+GET {{baseUrl}}/api/v1/usuarios
+Authorization: Bearer {{token}}
+
+### Alta de un usuario
+POST {{baseUrl}}/api/v1/usuarios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "email": "nuevo@ejemplo.invalid", "password": "{{password}}", "rol": "recepcionista" }
+
+### Modificación de rol, vínculo o estado
+PUT {{baseUrl}}/api/v1/usuarios/{{usuarioId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "activo": false }
+
+### Baja de un usuario
+DELETE {{baseUrl}}/api/v1/usuarios/{{usuarioId}}
+Authorization: Bearer {{token}}

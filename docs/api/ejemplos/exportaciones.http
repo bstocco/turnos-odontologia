@@ -1,0 +1,10 @@
+# Exportación de los datos de la clínica (C-16): solo administrador; cada exportación queda auditada.
+@baseUrl = http://localhost:3000
+
+### Pedir una exportación (devuelve { "id": "..." })
+POST {{baseUrl}}/api/v1/exportaciones
+Authorization: Bearer {{token}}
+
+### Descargar el archivo JSON de la exportación (contiene datos personales: no compartir ni versionar)
+GET {{baseUrl}}/api/v1/exportaciones/{{exportacionId}}
+Authorization: Bearer {{token}}

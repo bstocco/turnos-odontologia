@@ -28,6 +28,21 @@ export default defineConfig({
         },
       },
       {
+        // C-18: flujos de extremo a extremo, contrato y matriz de permisos. Comparte la base
+        // `turnos_test` con `integration`: corre DESPUÉS (groupOrder) y nunca en paralelo.
+        extends: true,
+        test: {
+          name: 'e2e',
+          include: ['test/e2e/**/*.test.ts'],
+          globalSetup: ['test/e2e/soporte/global-setup.ts'],
+          setupFiles: ['test/e2e/soporte/entorno-descartable.ts'],
+          fileParallelism: false,
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
+          sequence: { groupOrder: 1 },
+        },
+      },
+      {
         extends: true,
         test: {
           name: 'api',

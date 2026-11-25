@@ -1,0 +1,10 @@
+# Consultas del administrador (C-16): auditoría y registro de ausentismo.
+@baseUrl = http://localhost:3000
+
+### Auditoría de la clínica, con filtros opcionales por entidad, actor y rango de fechas
+GET {{baseUrl}}/api/v1/auditoria?entidad=exportacion&desde=2026-12-01T00:00:00.000Z
+Authorization: Bearer {{token}}
+
+### Registro de ausentismo por período, paciente o profesional
+GET {{baseUrl}}/api/v1/ausentismo?desde=2026-12-01T00:00:00.000Z&hasta=2027-01-01T00:00:00.000Z&profesionalId={{profesionalId}}
+Authorization: Bearer {{token}}
