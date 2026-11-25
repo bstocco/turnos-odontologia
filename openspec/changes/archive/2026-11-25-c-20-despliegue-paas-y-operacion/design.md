@@ -169,6 +169,7 @@ Decisión de la Líder (2026-11-25): la Líder no desplegará en Fly.io ni abrir
 | Tarea 3.4 (parte de despliegue) | Job de despliegue con `flyctl` que exige CI verde | Token de Fly limitado a la app |
 | Tareas 5.1, 5.2 | Monitoreo y alertas; revisión de logs de un ciclo de pruebas en vivo | `pruebas` desplegado |
 | Tarea 5.3 (verificación) | Que otra persona ejecute alta y rotación siguiendo solo el runbook | `pruebas` desplegado y F2 corregido |
+| Documentación del proyecto | Regenerar `CLAUDE.md` con la skill `agent-instruction`: su tabla de stack dice "proveedor a decidir" y "Resend o Brevo", y DD-04 ya fijó Fly.io, Neon y Resend | Decisión de la Líder (2026-11-25) |
 | Tarea 6.3 | Aprovisionar `produccion` de verdad (app, secretos, proyecto de Neon con plan y colación `es-AR`) | F1, F2, F6, F8, F9 y checklist legal cerrados |
 
 ## Open Questions

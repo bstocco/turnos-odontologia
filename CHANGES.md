@@ -557,7 +557,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-20] `despliegue-paas-y-operacion`
-- **Estado**: `[ ]` en curso (rama `change/C-20-despliegue-paas-y-operacion`, PR #26); el `[x]` lo marca quien fusiona
+- **Estado**: `[x]` completado y archivado (2026-11-25; rama `change/C-20-despliegue-paas-y-operacion`, PR #26)
 - **Nota de decisión (2026-11-25, Líder)**: aplicación en Fly.io `gru`, **base en Neon `aws-sa-east-1`** (Plan B: el Managed Postgres de Fly rechaza `GRANT ... TO app`), email con **Resend** (DD-04). **Alcance ajustado:** C-20 entrega la imagen verificada en CI, la configuración de Fly (`fly.pruebas.toml`, `fly.produccion.toml`), las migraciones y 516 pruebas de integración en Neon, y los documentos de `docs/operacion/`. **Sin despliegue en Fly.io ni cuenta de Resend; `produccion` solo documentada.** Queda como trabajo posterior (ver `design.md` del change): despliegue de `pruebas`, monitoreo, prueba de restauración, alta de la primera clínica ejecutada, retiro de una clínica y checklist legal. Antes de datos reales: change correctivo de F1, F2, F6, F8 y F9 y checklist de `docs/operacion/proteccion-datos.md`.
 - **Scope**: Puesta en producción y operación mínima
   - `Dockerfile` y configuración del PaaS elegido (DD-04); migraciones al desplegar con el rol `migra`; `GET /salud` como chequeo; variables de entorno como secretos

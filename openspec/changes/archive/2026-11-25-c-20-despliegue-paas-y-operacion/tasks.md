@@ -22,7 +22,7 @@
 - [x] 2.1 Crear `Dockerfile` multi-etapa (build con `npm ci` + `npm run build`; final con `npm ci --omit=dev`, `dist/` y `migrations/`, usuario sin privilegios) y `.dockerignore` (excluye `.env`, `node_modules`, `.git`, `openspec/`, `docs/`, `test/`). Verificar: `docker build` termina sin variables de entorno de producción y la imagen no contiene `.env`. _Evidencia: job `verificar-imagen` en verde en el PR #26._
 - [x] 2.2 Probar los tres modos sobre la misma imagen contra un PostgreSQL efímero: migraciones, API (`GET /salud` → `200`) y worker (arranca y se cierra ordenadamente con `SIGTERM`). Verificar: los tres comandos de `design.md` D3 funcionan y una variable obligatoria ausente produce un error con nombre sin valores. _Evidencia: job `verificar-imagen` en verde en el PR #26._
 - [x] 2.3 Documentar la construcción local y los modos de arranque en `docs/operacion/imagen.md`. Verificar: el procedimiento documentado coincide con los pasos que ejecuta el job `verificar-imagen`.
-- [ ] 2.4 Agregar al job `verificar-imagen` un chequeo de que el proceso de la imagen corre con un usuario distinto de `root`. Verificar: el job pasa en GitHub Actions.
+- [x] 2.4 Agregar al job `verificar-imagen` un chequeo de que el proceso de la imagen corre con un usuario distinto de `root`. Verificar: el job pasa en GitHub Actions. _Evidencia: job `verificar-imagen` en verde en el PR #26, con el chequeo no-root (confirmado por la Líder, 2026-11-25)._
 
 ## 3. Configuración del PaaS
 
@@ -41,7 +41,7 @@
 ## 6. Protección de datos y cierre documental
 
 - [x] 6.1 Crear `docs/operacion/proteccion-datos.md` con el inventario de transferencias (Fly.io, Neon, Resend, GitHub sin datos personales), la base legal (D2) y el checklist previo a datos reales con responsable, fecha y estado (`Q3`, `Q5`, `PO-14`). Verificar: cada ítem del checklist de la spec `operacion-y-proteccion-de-datos` figura con estado.
-- [ ] 6.2 Tras la aprobación, actualizar `knowledge-base/09_decisiones_y_supuestos.md` (`DD-04`: Fly.io para la aplicación, Neon para la base, Resend para el email, y la evidencia) y `knowledge-base/10_preguntas_abiertas.md` (`PO-03`, `PO-10`, `R-05`) y el `CHANGES.md` de C-20 (nota de decisión; el `[x]` lo marca quien fusiona). Verificar: los textos coinciden con `design.md` y no contradicen las reglas duras.
+- [x] 6.2 Tras la aprobación, actualizar `knowledge-base/09_decisiones_y_supuestos.md` (`DD-04`: Fly.io para la aplicación, Neon para la base, Resend para el email, y la evidencia) y `knowledge-base/10_preguntas_abiertas.md` (`PO-03`, `PO-10`, `R-05`) y el `CHANGES.md` de C-20 (nota de decisión; el `[x]` lo marca quien fusiona). Verificar: los textos coinciden con `design.md` y no contradicen las reglas duras. _Hecho en el commit 9a4dc9c; `CHANGES.md` sin `[x]` hasta archivar._
 - [x] 6.3 **Alcance reducido (decisión de la Líder, 2026-11-25, `design.md` D11): solo documentar `produccion`**, sin crear la app, secretos ni Machines en Fly ni el proyecto de producción en Neon. Se cumple dejando `fly.produccion.toml`, el runbook y el procedimiento de aprovisionamiento (incluida la base con colación ICU `es-AR`, ver `docs/operacion/evidencia/spike-postgres.md`) listos y revisados, y registrando el motivo: siguen abiertos F1, F2, F6, F8 y F9 (change correctivo aparte) y el checklist legal (`PO-03`, `PO-10`, `PO-14`). Sin datos reales. Verificar: `fly.produccion.toml` valida con `fly config validate`, el runbook describe el aprovisionamiento de `produccion` y el motivo del aplazamiento figura en `design.md` (D11).
 - [x] 6.4 Revisar que no hay valores de secretos en el contenido versionado (escaneo sobre los archivos de la rama). Verificar: el escaneo no encuentra coincidencias, salvo los valores descartables de CI. _Evidencia: escaneo del 2026-11-25 sobre los archivos versionados y nuevos (sin `.env`): solo valores falsos de pruebas y de CI, sin claves reales ni patrones de tokens conocidos._
 - [x] 6.5 Ejecutar `openspec validate c-20-despliegue-paas-y-operacion` y `openspec status --change c-20-despliegue-paas-y-operacion --json`. Verificar: validan y proposal, specs, design y tasks figuran `done`. _Resultado 2026-11-25: `Change 'c-20-despliegue-paas-y-operacion' is valid`; proposal, specs, design y tasks en `done`._
@@ -58,6 +58,7 @@ Estas tareas se sacaron de C-20 por la decisión de la Líder del 2026-11-25 (si
 - Procedimiento de retiro de una clínica y plazos de eliminación (`PO-10`).
 - Checklist legal completo con fecha y responsable (`PO-03`, `PO-10`, `PO-14` y cláusulas con Fly.io, Neon y Resend).
 - Aprovisionar `produccion` de verdad (app, secretos, proyecto de Neon con plan elegido y colación `es-AR`) y comprobar `GET /salud` y copias activas.
+- Regenerar `CLAUDE.md` del proyecto con la skill `agent-instruction`: su tabla de stack sigue diciendo "PaaS (proveedor a decidir)" y "Resend o Brevo", y la KB ya fijó Fly.io, Neon y Resend (DD-04).
 
 ## Workflow follow-up
 
