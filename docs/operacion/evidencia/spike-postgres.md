@@ -101,6 +101,22 @@ Resultado informado por la Líder tras correr el aprovisionamiento y `verificar-
 - Esquema `public` de `turnos` propiedad de `migra`; `app` con `USAGE` y sin `CREATE`.
 - `npm run db:migrate` aplicó las 13 migraciones sobre `turnos` (incluidas `C03_001` y las que otorgan privilegios a `app`, que en Fly fallaban).
 
+### 1.3 Resultado parcial: una prueba de integración falla en Neon (2026-11-25)
+
+- `npm run db:migrate` aplicó las 13 migraciones sobre `turnos`.
+- `npm run test:integration` contra `turnos_test` en Neon: **516 pruebas en 52 archivos, 515 pasan y 1 falla** (51 de 52 archivos pasan). Las pruebas de exclusión por solapamiento, de aislamiento (RLS) y de `auditoria` append-only no figuran entre las fallidas (según lo informado por la Líder).
+- Prueba fallida: `test/integration/pacientes/busqueda-api.test.ts`, "GET /pacientes por apellido sin tildes ni mayúsculas".
+  - Esperado (DNI): `['34000001', '34000003', '34000002']`, es decir `Gómez` < `Gomez Ajeno` < `Gomez Propio`.
+  - Recibido: `['34000003', '34000002', '34000001']`, es decir `Gomez Ajeno` < `Gomez Propio` < `Gómez`.
+
+**Análisis (sin modificar tests ni código):**
+- El filtro de la búsqueda no depende de la colación: normaliza con `translate(lower(...), 'áéíóúü', 'aeiouu')` (`src/infrastructure/db/repositories/paciente/index.ts`). Lo que cambia es el **orden**, que viene de `ORDER BY apellido, nombre, id` con la colación de la base.
+- El orden recibido es el orden por bytes (`'ó'` va después de los caracteres ASCII, incluido el espacio): corresponde a una colación tipo `C`/`C.UTF-8`. El esperado es el de una colación de idioma (`en_US.utf8` en la imagen `postgres:17` de `docker-compose.yml` y de CI). Ni `docker/postgres/init/01-roles.sql` ni las migraciones fijan colación: las bases `turnos` y `turnos_test` heredan la de `template1` del servidor.
+- **Hipótesis (sin confirmar hasta correr `comparar-collation.mjs`)**: las bases creadas en Neon heredan una colación distinta de la local. Si se confirma, es una **diferencia de entorno** con **impacto de producto**: el código no es incorrecto, pero en `produccion` los listados ordenados por texto (pacientes, profesionales, sillones, prestaciones) saldrían en orden por bytes, con mayúsculas antes que minúsculas y acentuadas después de la `Z`. No afecta al aislamiento, a la integridad ni a la exclusión de solapamientos.
+- Otras consultas con `ORDER BY` sobre texto comparten el riesgo: `paciente`, `profesional`, `sillon`, `prestacion` y un listado de nombres en `src/`.
+
+Estado de la tarea 1.3: **pendiente**, a la espera de decidir la opción.
+
 ### Pendiente en Neon
 
 - 1.3: pruebas de integración y aislamiento sobre `turnos_test` en curso (367 pasadas y 0 fallidas al momento del aviso); falta el resumen final.
