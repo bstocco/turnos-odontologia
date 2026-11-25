@@ -1,0 +1,23 @@
+@baseUrl = http://localhost:3000
+
+### Lista de prestaciones
+GET {{baseUrl}}/api/v1/prestaciones
+Authorization: Bearer {{token}}
+
+### Alta de una prestación (solo administrador)
+POST {{baseUrl}}/api/v1/prestaciones
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Consulta de ejemplo", "duracionMinutos": 30 }
+
+### Detalle de una prestación
+GET {{baseUrl}}/api/v1/prestaciones/{{prestacionId}}
+Authorization: Bearer {{token}}
+
+### Modificación parcial (solo administrador)
+PATCH {{baseUrl}}/api/v1/prestaciones/{{prestacionId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "duracionMinutos": 45 }

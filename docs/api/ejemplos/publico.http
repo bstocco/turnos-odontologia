@@ -1,0 +1,11 @@
+# Consulta pública de una clínica por su slug: sin sesión, limitada por IP.
+@baseUrl = http://localhost:3000
+
+### Prestaciones ofrecidas
+GET {{baseUrl}}/api/v1/publico/{{slug}}/prestaciones
+
+### Profesionales activos
+GET {{baseUrl}}/api/v1/publico/{{slug}}/profesionales
+
+### Huecos disponibles (rango de hasta 14 días; hasta es posterior a desde)
+GET {{baseUrl}}/api/v1/publico/{{slug}}/disponibilidad?profesionalId={{profesionalId}}&prestacionId={{prestacionId}}&desde=2026-12-14&hasta=2026-12-18

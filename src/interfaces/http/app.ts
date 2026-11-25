@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
+import swagger from '@fastify/swagger';
 import Fastify, { LogController, type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import type { DestinationStream } from 'pino';
 
@@ -55,6 +56,15 @@ export async function buildApp(
       },
       'acceso',
     );
+  });
+
+  // Contrato OpenAPI derivado de las rutas reales (C-18). Sin interfaz ni ruta propia: el documento
+  // solo se obtiene en proceso con `app.swagger()`. Debe registrarse ANTES de las rutas.
+  await app.register(swagger, {
+    openapi: {
+      openapi: '3.0.3',
+      info: { title: 'API de turnos odontológicos', version: '0.0.0' },
+    },
   });
 
   // Sin versiones, rutas del servidor ni configuración (spec http-service).

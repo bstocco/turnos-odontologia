@@ -1,0 +1,29 @@
+# Estado del servicio y autenticación del personal.
+# Variables: definilas en el entorno de tu cliente (ver docs/api/README.md); nunca pegues
+# credenciales reales en este archivo.
+@baseUrl = http://localhost:3000
+
+### Estado del servicio (sin sesión)
+GET {{baseUrl}}/salud
+
+### Inicio de sesión del personal (devuelve el token de acceso)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "slug": "{{slug}}",
+  "email": "recepcion@ejemplo.invalid",
+  "password": "{{password}}"
+}
+
+### Rotación del token de refresco
+POST {{baseUrl}}/api/v1/auth/refresh
+Content-Type: application/json
+
+{ "token": "{{refreshToken}}" }
+
+### Cierre de sesión (revoca el token de refresco)
+POST {{baseUrl}}/api/v1/auth/logout
+Content-Type: application/json
+
+{ "token": "{{refreshToken}}" }

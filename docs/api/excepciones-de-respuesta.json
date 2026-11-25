@@ -1,0 +1,12 @@
+{
+  "DELETE /api/v1/feriados/{id}": "Responde 204 sin cuerpo; la ruta no declara respuesta y el contrato la muestra como 200 por defecto. Change responsable: C-08.",
+  "GET /api/v1/usuarios": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-06.",
+  "GET /salud": "Respuesta trivial { estado: 'ok' } sin esquema declarado. Change responsable: C-01.",
+  "DELETE /api/v1/usuarios/{id}": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "POST /api/v1/auth/login": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "POST /api/v1/auth/logout": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "POST /api/v1/auth/refresh": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "POST /api/v1/interno/clinicas": "Responde 201 sin esquema declarado (defecto F4). Change responsable: C-17.",
+  "POST /api/v1/usuarios": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "PUT /api/v1/usuarios/{id}": "Sin esquema de respuesta (defecto F4). Change responsable: C-06."
+}

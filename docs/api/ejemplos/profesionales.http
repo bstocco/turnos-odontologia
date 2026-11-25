@@ -1,0 +1,39 @@
+@baseUrl = http://localhost:3000
+
+### Lista de profesionales
+GET {{baseUrl}}/api/v1/profesionales?activo=true
+Authorization: Bearer {{token}}
+
+### Alta de un profesional (solo administrador)
+POST {{baseUrl}}/api/v1/profesionales
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Profesional", "apellido": "Sintético", "matricula": "MP-0001" }
+
+### Detalle de un profesional
+GET {{baseUrl}}/api/v1/profesionales/{{profesionalId}}
+Authorization: Bearer {{token}}
+
+### Modificación parcial (solo administrador)
+PATCH {{baseUrl}}/api/v1/profesionales/{{profesionalId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "apellido": "Modificado" }
+
+### Horarios de atención (el odontólogo solo ve los propios)
+GET {{baseUrl}}/api/v1/profesionales/{{profesionalId}}/horarios
+Authorization: Bearer {{token}}
+
+### Reemplazo de los horarios (solo administrador); diaSemana 0 = domingo
+PUT {{baseUrl}}/api/v1/profesionales/{{profesionalId}}/horarios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "franjas": [
+    { "diaSemana": 1, "horaDesde": "09:00", "horaHasta": "13:00" },
+    { "diaSemana": 2, "horaDesde": "09:00", "horaHasta": "13:00" }
+  ]
+}

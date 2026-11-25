@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:3000
+
+### Configuración operativa de la clínica
+GET {{baseUrl}}/api/v1/clinica
+Authorization: Bearer {{token}}
+
+### Modificación de la configuración (solo administrador)
+PATCH {{baseUrl}}/api/v1/clinica
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "granularidadMinutos": 30,
+  "cancelacionAnticipacionHoras": 24,
+  "reservaRequiereConfirmacion": false
+}

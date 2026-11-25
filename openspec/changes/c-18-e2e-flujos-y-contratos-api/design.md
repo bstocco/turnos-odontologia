@@ -150,8 +150,12 @@ Ninguna dependencia nueva. El parser de `.http` y el comparador de contratos son
 
 ## Open Questions
 
-- **Q1 (bloqueante solo para el grupo de contrato y matriz)**: ¿el Líder aprueba registrar `@fastify/swagger` en `buildApp` (D4) o prefiere la costura `antesDeLosModulos` solo para pruebas?
-- **Q2 (bloqueante para el CI de e2e)**: ¿el Líder aplica los cambios de `vitest.config.ts`, `package.json` (script) y `ci.yml` de D9, o autoriza a hacerlos en esta rama?
-- **Q3 (no bloqueante)**: ¿cómo debe entregarse la contraseña temporal del primer administrador (F2)? Mientras tanto el e2e crea el usuario por fixture.
-- **Q4 (no bloqueante)**: si la suite e2e crece, ¿base separada `turnos_e2e_test` (requiere tocar `01-roles.sql`)?
-- **Q5 (no bloqueante)**: ¿versión inicial del contrato `1.0.0` o `0.x` hasta el despliegue (C-20)?
+- **Q1 (RESUELTA)**: la Líder aprobó (PR #18) registrar `@fastify/swagger` en `buildApp` (D4), sin interfaz ni ruta expuesta y sin pisar ninguna ruta existente. Aplicado en `src/interfaces/http/app.ts` (cambio mínimo y aditivo).
+- **Q2 (RESUELTA)**: la Líder aprobó (PR #18) que C-18 edite `vitest.config.ts` (proyecto `e2e`), `package.json` (solo el script `test:e2e`, sin dependencias) y `.github/workflows/ci.yml`, con cambios mínimos y aditivos.
+- **Q3 (no bloqueante, recomendación adoptada)**: la contraseña temporal del primer administrador (F2) se resuelve fuera de C-18; mientras tanto el e2e crea los usuarios por fixture y deja `it.fails` con F2.
+- **Q4 (no bloqueante, recomendación adoptada)**: se mantiene la base compartida `turnos_test`; el orden se fuerza con `sequence.groupOrder` y el esquema se reprepara si `integration` lo dejó en otro estado. Base propia solo si la suite crece.
+- **Q5 (no bloqueante, recomendación adoptada)**: versión inicial del contrato `1.0.0`.
+
+## Defectos reportados (D10)
+
+Verificados ejecutando las pruebas (`it.fails` con el motivo en el nombre): **F1** (usuarios sin autenticación: 14 celdas de la matriz), **F2** (alta interna descarta `passwordTemporal`), **F3** (login sin auditar), **F4** (respuestas sin esquema: `docs/api/excepciones-de-respuesta.json`) y **F5** nuevo: `POST /auth/login` crea el token de refresco pero no lo entrega (el refresco usa un token emitido por fixture). Además `POST /auth/refresh` devuelve solo el nuevo token de refresco, sin token de acceso.

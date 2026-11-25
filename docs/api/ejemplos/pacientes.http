@@ -1,0 +1,35 @@
+# Pacientes: solo datos sintéticos (DNI ficticio, teléfono 5555, email @ejemplo.invalid).
+@baseUrl = http://localhost:3000
+
+### Alta de un paciente (administrador o recepcionista)
+POST {{baseUrl}}/api/v1/pacientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Paciente",
+  "apellido": "Sintético",
+  "dni": "99000001",
+  "telefono": "+54 9 11 5555 1001",
+  "email": "paciente@ejemplo.invalid",
+  "obraSocial": "Obra social sintética"
+}
+
+### Búsqueda por DNI (exactamente un criterio: dni o apellido)
+GET {{baseUrl}}/api/v1/pacientes?dni=99000001
+Authorization: Bearer {{token}}
+
+### Búsqueda por prefijo de apellido
+GET {{baseUrl}}/api/v1/pacientes?apellido=Sint&limite=10
+Authorization: Bearer {{token}}
+
+### Ficha de un paciente (queda auditada la lectura)
+GET {{baseUrl}}/api/v1/pacientes/{{pacienteId}}
+Authorization: Bearer {{token}}
+
+### Modificación parcial (null borra el valor)
+PATCH {{baseUrl}}/api/v1/pacientes/{{pacienteId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "obraSocial": null }
