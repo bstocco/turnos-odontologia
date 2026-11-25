@@ -198,3 +198,15 @@ Por gobernanza **ALTO** (`CHANGES.md`), el Líder debe revisar y aprobar estas d
 4. **Q4 — Contrato `ResolvedorContenidoEmail` para cero PII en cola**: para garantizar que `pgboss.job.data` contenga únicamente `{ clinicaId, notificacionId }` sin email ni código OTP en texto plano, ¿se aprueba introducir el puerto `ResolvedorContenidoEmail` en `C-11` (entendiendo que en `C-15` el OTP o su vínculo deberá resolverse de forma segura sin exponerlo en la cola)?
 5. **Q5 — Política de reintentos y modo *fail-open* al encolar (`RN-NO-03`)**: ¿se aprueban los defaults `retryLimit: 4`, `retryDelay: 30` s, `retryBackoff: true`, `retryDelayMax: 1800` s (parametrizables para tests) y que `NotificacionService.encolar` capture fallos de cola devolviendo resultado estructurado sin lanzar error al caso de uso llamador?
 6. **Q6 — Preservación de archivos compartidos fuera de la zona de `C-11`**: ¿se confirma mantener intactos `src/config/**`, `.env.example`, `src/main.ts` (exponiendo el controlador embebido del worker para que lo cablee `C-14`/`C-20`), `package.json` y `test/support/**`?
+
+## Resoluciones del apply
+
+Aprobadas por la Líder el `2026-11-24`:
+
+- **Q1**: Aprobados los 6 valores de `tipo` (`creacion`, `confirmacion`, `recordatorio`, `cancelacion`, `reprogramacion`, `codigo`) y `turno_id` nullable sin FK en `C11_001` (difiriendo la FK a `C-14`).
+- **Q2**: Aprobado `crearEmailSenderSmtp` sobre `nodemailer` con preset Resend SMTP usando `EMAIL_API_KEY` + `EMAIL_FROM`.
+- **Q3**: Aprobado `C11_002_pgboss_esquema.sql` idempotente ejecutado bajo el rol `migra`, configurando `pg-boss` en `app` con `migrate: false, createSchema: false, reindex: false, partition: false`.
+- **Q4**: Aprobado el puerto `ResolvedorContenidoEmail` para que `pgboss.job.data` contenga únicamente `{ clinicaId, notificacionId }` sin PII ni OTPs en claro.
+- **Q5**: Aprobados los defaults de backoff (`retryLimit: 4, retryDelay: 30, retryBackoff: true, retryDelayMax: 1800`) y la política *fail-open* en `NotificacionService.encolar` (`RN-NO-03`).
+- **Q6**: Aprobado mantener intactos `src/config/`, `.env.example`, `src/main.ts`, `package.json` y `test/support/`, exponiendo `iniciar`/`detener` del worker para `C-14`/`C-20`.
+
