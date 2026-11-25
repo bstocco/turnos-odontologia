@@ -459,7 +459,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 5 — Reserva pública, administración y alta de clínicas
 
 ### [C-15] `reserva-publica-otp-y-tokens`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Reserva del paciente sin cuenta, con validación por email y enlaces de un solo uso
   - Migración `C15_001`: `codigo_verificacion` y `token_accion` con `aplicar_rls`
   - `POST /publico/{slug}/codigo`: envía el código por email (C-04, C-11)

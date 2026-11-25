@@ -11,6 +11,7 @@ import {
 } from '../../application/notificaciones/index.js';
 import { ConfigError, loadConfig } from '../../config/index.js';
 import { poolDeLaAplicacion } from '../db/pool/index.js';
+import { crearProveedorEnlacesTurnoPg } from '../db/repositories/reserva-publica/index.js';
 import { crearEmailSenderSmtp } from '../email/index.js';
 import { crearLogger } from '../logging/logger.js';
 
@@ -60,14 +61,18 @@ export async function ejecutarWorkerStandalone(
     emailFrom: config.emailFrom,
   });
 
+  const proveedorEnlaces =
+    opciones.proveedorEnlaces ??
+    (config.publicBaseUrl !== undefined
+      ? crearProveedorEnlacesTurnoPg({ publicBaseUrl: config.publicBaseUrl, reloj })
+      : undefined);
+
   const resolvedor =
     opciones.resolvedor ??
     crearResolvedorContenidoTurno({
       lector: crearLectorDatosTurnoPg(),
       reloj,
-      ...(opciones.proveedorEnlaces !== undefined
-        ? { proveedorEnlaces: opciones.proveedorEnlaces }
-        : {}),
+      ...(proveedorEnlaces !== undefined ? { proveedorEnlaces } : {}),
     });
 
   const habilitarRecordatorios = opciones.habilitarRecordatorios ?? true;
