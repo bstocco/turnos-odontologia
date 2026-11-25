@@ -34,6 +34,6 @@ Se verificó el 2026-11-25 contra la documentación oficial de los tres candidat
 - **Zona de `C-20`** (según `CHANGES.md`): `Dockerfile`, `.dockerignore`, `fly.toml` (configuración del PaaS), `docs/operacion/**`, `.github/workflows/` (solo un workflow nuevo de despliegue).
 - **Código de la aplicación**: ninguno planificado. Si la revisión aprueba un chequeo de salud con base de datos o variables nuevas, serían un change separado (ver `Q4` y `Q8` en `design.md`).
 - **Documentación de la KB a actualizar tras la aprobación**: `knowledge-base/09_decisiones_y_supuestos.md` (`DD-04`) y `knowledge-base/10_preguntas_abiertas.md` (`PO-03`, `PO-10`, `R-05`).
-- **Sistemas externos**: cuenta de Fly.io (Líder) y proveedor de email (`Resend` o `Brevo`, aún sin elegir; también es una transferencia de datos).
+- **Sistemas externos**: cuenta de Fly.io (Líder) y proveedor de email (**Resend**, elegido el 2026-11-25; también es una transferencia de datos).
 - **Contratos congelados**: `RequestContext`, puertos de dominio y `TurnoEventPublisher` sin cambios.
 - **Dependencias**: `C-17`, `C-18` y `C-19` deben estar fusionados antes de **aplicar** este change; la propuesta y el diseño pueden revisarse ya.

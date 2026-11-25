@@ -66,7 +66,7 @@ Render descarta por región (la región de un servicio existente no se puede cam
 `PO-03` ya figura como decidida en la KB (región `sa-east-1` con cláusulas contractuales modelo). `C-20` la **cierra operativamente** así:
 
 1. **Transferencia internacional**: la aplicación y la base se alojan en Brasil (`gru`), país que no figura entre los de nivel adecuado de la AAIP (verificado el 2026-11-22 en `argentina.gob.ar/transferencias-internacionales`). La base legal adoptada es el contrato con **cláusulas contractuales modelo** (Disposición DNPDP 60/2016 y Resolución AAIP 198/2023) entre la clínica (responsable) y el proveedor, sujeto a validación legal.
-2. **Inventario de transferencias** (requisito de la spec `operacion-y-proteccion-de-datos`): (a) Fly.io — aplicación (API y worker), Brasil, datos en tránsito y en memoria; **(a-bis) Neon (AWS `sa-east-1`, Brasil) — base de datos, todos los datos en reposo y copias, agregado tras el Plan B de D1**; (b) proveedor de email (`Resend` o `Brevo`, `Q3`) — nombre, email y detalle del turno de pacientes, país de tratamiento a verificar; (c) GitHub/CI — **ningún dato personal** (solo sintéticos, regla 2).
+2. **Inventario de transferencias** (requisito de la spec `operacion-y-proteccion-de-datos`): (a) Fly.io — aplicación (API y worker), Brasil, datos en tránsito y en memoria; **(a-bis) Neon (AWS `sa-east-1`, Brasil) — base de datos, todos los datos en reposo y copias, agregado tras el Plan B de D1**; (b) proveedor de email **Resend** (decidido el 2026-11-25, D10; `Q3`) — nombre, email y detalle del turno de pacientes, país de tratamiento a verificar; (c) GitHub/CI — **ningún dato personal** (solo sintéticos, regla 2).
 3. **Minimización y trazabilidad**: se mantienen las reglas ya implementadas (logs solo con IDs, `log-redaction`, auditoría de lecturas y exportaciones, RLS forzada). C-20 no agrega almacenamiento de datos nuevos.
 4. **Cifrado**: HTTPS en el borde del PaaS y SSL en la conexión a la base; las copias residen en la misma región del proveedor.
 5. **Puerta antes de datos reales** (checklist, no código): cláusulas firmadas con el PaaS y el proveedor de email, validación legal de `PO-03` y `PO-10`, análisis de `PO-14` (registro de la base ante la AAIP). Mientras no esté completo, solo `pruebas` con datos sintéticos.
@@ -121,6 +121,14 @@ Dos aplicaciones Fly (`turnos-pruebas`, `turnos-produccion`), cada una con su ba
 
 Workflow nuevo `deploy.yml` (manual `workflow_dispatch` y por etiqueta `v*`), que exige que el commit haya pasado `CI` y despliega con `flyctl`. `ci.yml` no se modifica. `pruebas` se despliega desde `main` por acción manual; `produccion`, solo por etiqueta tras la aprobación del Líder.
 
+### D10. Proveedor de email: Resend (decisión de la Líder, 2026-11-25)
+
+El adaptador `src/infrastructure/email/smtp-sender.ts` ya trae el preset de Resend por SMTP (`smtp.resend.com`, puerto 465, TLS, usuario `resend`) y usa **solo dos variables**: `EMAIL_API_KEY` (la clave de API de Resend, usada como contraseña SMTP) y `EMAIL_FROM` (remitente, con o sin nombre: `Nombre <direccion@dominio>`). No hace falta código ni variables nuevas. El worker no arranca sin ambas; `PUBLIC_BASE_URL` es opcional pero necesaria en producción para los enlaces de los correos. Resend es una transferencia más de datos personales (nombre, email y detalle del turno de pacientes): entra al inventario de D2 y a la revisión legal (`Q3`), incluida la región de tratamiento (a verificar en la cuenta).
+
+### D11. Producción: solo documentada en C-20 (decisión de la Líder, 2026-11-25)
+
+La tarea 6.3 se cumple dejando **lista y documentada** la configuración de `produccion` (`fly.produccion.toml`, runbook y procedimiento de aprovisionamiento de Neon con colación `es-AR`), **sin crear la app, secretos ni Machines de producción en Fly, ni el proyecto de producción en Neon**. Motivo: siguen abiertos los defectos F1, F2, F6, F8 y F9 (change correctivo aparte) y el checklist legal (`PO-03`, `PO-10`, `PO-14`, cláusulas con Fly, Neon y Resend); aprovisionar ahora costaría sin permitir operar. El aprovisionamiento real de `produccion` se hace en un change o paso posterior, cuando esos bloqueantes estén cerrados.
+
 ## Risks / Trade-offs
 
 - **Managed Postgres de Fly no habilita lo que necesita el esquema** (`btree_gist`, roles `app`/`migra`) → **materializado el 2026-11-25** (`GRANT ... TO app` rechazado); Plan B Neon activado (D1). Pendiente verificar en Neon lo mismo (roles sin `BYPASSRLS`, migraciones y pruebas de aislamiento) antes de cualquier despliegue.
@@ -146,7 +154,7 @@ Workflow nuevo `deploy.yml` (manual `workflow_dispatch` y por etiqueta `v*`), qu
 
 - **Q1 (gate) — RESUELTA el 2026-11-25**: el Managed Postgres de Fly permite `btree_gist` y crear los roles, pero rechaza los `GRANT ... TO app` de las migraciones ("MPG system roles cannot be modified"). Se activó el Plan B (Neon `aws-sa-east-1`) para la base; ver D1 y D5.
 - **Q2**: ¿qué ventana de recuperación y retención de backups tiene el plan de producción de Managed Postgres? (No figura en la documentación leída.)
-- **Q3**: ¿los términos de Fly.io y del proveedor de email (`Resend` o `Brevo`, también por elegir) cubren las cláusulas contractuales modelo? Responsable: el Líder con asesoría legal.
+- **Q3**: ¿los términos de Fly.io, de Neon y de Resend (proveedor de email elegido, D10) cubren las cláusulas contractuales modelo? Responsable: el Líder con asesoría legal.
 - **Q4**: ¿se agrega un chequeo de disponibilidad que consulte la base (`/salud/listo`) en un change aparte? Se propone **no** en `C-20`: la spec `http-service` exige que `/salud` no exponga datos de la base.
 - **Q5**: valores definitivos de retención (`PO-10`) validados con asesoría legal; el borrador de D7 no es vinculante.
 - **Q6**: precio de `gru` y plan final de producción (¿Basic o superior?); confirmar con el calculador de Fly.
