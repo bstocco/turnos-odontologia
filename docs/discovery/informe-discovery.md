@@ -1,8 +1,8 @@
 # Informe de Discovery — Mercado de software odontológico con gestión de turnos (Argentina y Latinoamérica)
 
-**Fecha de consulta de todas las fuentes:** 2026-11-22
-**Proyecto:** Turnos Odontología (SaaS multi-tenant; MVP como API REST y lógica de dominio)
-**Insumo para:** `kb-creator` (fase `kb`) y `roadmap-generator`
+**Fecha de consulta de todas las fuentes:** 2026-11-22 (verificación de las 16 fuentes: 2026-11-22 y 2026-11-25)  
+**Proyecto:** Turnos Odontología (SaaS multi-tenant; MVP como API REST y lógica de dominio)  
+**Insumo para:** `kb-creator` (fase `kb`) y `roadmap-generator`  
 **Complementa a:** `discovery/discovery.md` (entrevista), `docs/discovery/checklist-discovery.md` (checklist de 11 puntos)
 
 ---
@@ -29,6 +29,26 @@
 
 ---
 
+## Contexto del proyecto (síntesis de la entrevista de Discovery)
+
+Resumen de los 11 puntos del checklist, tomado de `discovery/discovery.md` (entrevista del 2026-11-22). La entrevista se hizo **sin investigar competidores**; este informe cubre ese punto.
+
+| Punto | Síntesis |
+|---|---|
+| 1. Problema | Solapamientos de profesional y de sillón, y ausentismo, en consultorios y clínicas odontológicas pequeñas o medianas de Argentina. Hoy se resuelve con agenda en papel o Excel y WhatsApp manual. Modelo: SaaS multi-tenant. |
+| 2. Usuarios y roles | Recepcionista, odontólogo, paciente y administrador o dueño. |
+| 3. Casos de uso | Agendar con paciente, profesional, prestación y sillón; reprogramar o cancelar liberando el horario; reservar o cancelar por enlace web; bloquear franjas por ausencia. |
+| 4. Competidores | Sin relevamiento en la entrevista. Práctica actual: papel, Excel y WhatsApp. Se cubre en las secciones A a D de este informe (16 sistemas). |
+| 5. Funcionalidades necesarias (v1) | Ficha básica del paciente; recordatorios y confirmación por enlace (click-to-chat de WhatsApp y email automático); agenda diaria y semanal; reserva por enlace web. |
+| 6. Funcionalidades opcionales | Lista de espera y sobreturnos, métricas de asistencia, señas con Mercado Pago, facturación ARCA, obras sociales, odontograma e historia clínica, app móvil, interfaz web. |
+| 7. Reglas de negocio | Sin solapamiento por profesional ni por sillón (intervalo semiabierto: terminar a las 10:00 y empezar a las 10:00 no solapa); duración variable por prestación; buffer de limpieza por sillón; horarios, feriados y bloqueos; cancelación online con 24 hs de anticipación; registro de ausentismo. |
+| 8. Integraciones | MVP: click-to-chat de WhatsApp y email. Posteriores: WhatsApp Business API, Google Calendar, Mercado Pago, ARCA. |
+| 9. Restricciones | Bajo costo en la nube; 8 a 12 semanas; TypeScript, Node.js y PostgreSQL; MVP sin interfaz gráfica; Ley 25.326 y aislamiento por clínica; sin datos reales de pacientes en desarrollo; equipo de 4. |
+| 10. Riesgos | Fricción del recordatorio manual por WhatsApp; reservas falsas o duplicadas por el enlace público; poca visibilidad de precios de la competencia; datos de salud en un sistema multi-tenant. |
+| 11. Preguntas abiertas | Monetización (por clínica o por sillón o profesional); validación de identidad al reservar (DNI y email u OTP); sobreturnos y lista de espera en v2; registro de la base ante la AAIP; cómo se sirve el enlace de reserva sin interfaz web. |
+
+---
+
 ## A. Tabla comparativa (16 sistemas, ordenados por relevancia para Argentina)
 
 **Criterio de orden:** presencia o foco declarado en Argentina, profundidad de evidencia pública y cercanía al caso de uso (clínicas pequeñas y medianas con varios profesionales). No es el ranking de la sección B.
@@ -39,7 +59,7 @@
 |---|---|---|---|---|---|---|
 | 1 | **Oclusar** | Oclusar. Argentina (inferido: leyes argentinas, ARCA, pesos) | https://www.oclusar.com.ar/ | Consultorios individuales y clínicas con equipo; casas dentales y laboratorios vía "Red Oclusar" | Web y celular, sin instalación. "SaaS" no se declara | Plan gratuito sin tarjeta; precios "en pesos"; **montos de planes NE** |
 | 2 | **DentalSoft** | DentalSoft. Argentina (oficinas en La Plata y Rosario, "Hecho en Argentina") | https://dentalsoft.com.ar/ | Consultorios y clínicas | SaaS "100% en la nube" | Gratis $0 (50 turnos/mes, 3 meses); Gestión $30.000/mes; Pro $60.000/mes. **Moneda sin código ISO** (símbolo "$"). Demo gratuita con datos de ejemplo |
-| 3 | **AgendaPro** | AgendaPro Inc. País de origen NE (respaldo: Y Combinator, Kayyak, Riverwood) | https://agendapro.com/ar/dental/software-odontologico | Consultorios y clínicas, multi-sillón y multi-sede | Nube (AWS). "SaaS" no se declara | Desde "$13.900 ARS/mes"; prueba 14 días sin tarjeta |
+| 3 | **AgendaPro** | AgendaPro Inc. País de origen NE (respaldo: Y Combinator, Kayyak, Riverwood) | https://agendapro.com/ar/dental/software-odontologico | Consultorios y clínicas, multi-sillón y multi-sede | Nube (AWS). "SaaS" no se declara | Desde $9.900 ARS/mes (plan Individual, mensual, IVA incluido; precios "solo para cuentas nuevas"); prueba 14 días sin tarjeta |
 | 4 | **Dentalink** | Engenis SpA. Chile (dirección en Santiago) | https://www.softwaredentalink.com/ar | Consultas individuales y clínicas con varias sedes | "100% en la nube" | Planes Esencial, Pro, Titanium; **precios de planes NE** (solo botones "Solicitá tu cotización"); complemento Contact Center IA "por solo USD 50 al mes"; sin contratos de permanencia; prueba gratuita NE ("prueba gratis" y "demo" no aparecen) |
 | 5 | **Bilog** | Bilog. Argentina (inferido: "sector odontológico argentino") | https://bilog.com.ar/ | Consultorios, clínicas, obras sociales y gerenciadoras | App web y móvil; galería "en la nube" | Alta sin costo, mensualidad sin permanencia; **montos y prueba NE** |
 | 6 | **Atiendo** | Atiendo (contacto bajo bitpampa.com). Argentina (inferido) | https://atiendoapp.com/ | Consultorios médicos y odontológicos chicos y medianos | SaaS en navegador | Por profesional, plan mensual o anual, en ARS; **montos NE**; prueba 30 días sin tarjeta |
@@ -64,39 +84,39 @@
 |---|---|---|---|---|---|---|
 | Oclusar | D | D ("asignás los sillones") | NE | NE | NE | D ("la agenda te avisa sola si se superpone") |
 | DentalSoft | D | NE | NE | D (feriados) | D | D (detección automática) |
-| AgendaPro | D | D (ocupación por sillón) | D (por procedimiento) | NE | NE | NE (solo "disponibilidad real") |
+| AgendaPro | D | D (ocupación por sillón) | D ("cada práctica con su duración") | NE | NE | NE (solo "disponibilidad real") |
 | Dentalink | C | NE | NE | NE | NE | NE |
 | Bilog | D | NE | C (estirar el turno) | NE | D | NE |
-| Atiendo | D | NE | NE | D | NE | NE |
-| Odonto.ar | D | NE | D | NE | NE | NE |
+| Atiendo | D | NE | NE | C ("Bloqueos por vacaciones, congresos o feriados") | NE | NE |
+| Odonto.ar | C ("Agenda de todo el equipo") | NE | D | NE | NE | NE |
 | Agenda Profesional | C | C (vista "Box") | NE | C ("excepciones") | NE | NE |
 | OdontoApp | NE | NE | NE | NE | NE | NE |
 | OdontoGRAMA | C | NE | NE | NE | NE | NE |
 | Medilink | D | C ("espacios clínicos") | NE | NE | NE | NE |
-| Dentidesk | NE | NE | NE | NE | NE | NE |
+| Dentidesk | C (indirecto: "Usuarios con Agenda") | NE | NE | NE | NE | NE |
 | Reservo | NE | NE | NE | NE | NE | NE |
 | CareStack | NE | NE | NE | NE | NE | NE |
 | Dentally | NE | NE | NE | NE | NE | NE |
-| Open Dental | NE | NE | NE | C (mejoras anunciadas) | NE | NE |
+| Open Dental | C (indirecto: "Schedule Setup" por proveedor, en beta) | NE | NE | C (mejoras anunciadas) | NE | NE |
 
 **Turnos digitales y automatización**
 
 | Producto | Reserva online / enlace | WhatsApp | Confirmación | Cancelación por el paciente | Lista de espera | Recordatorios |
 |---|---|---|---|---|---|---|
-| Oclusar | D (enlace + seña opcional Mercado Pago) | D (número propio del profesional, un toque) | D | NE | NE | D (WhatsApp) |
-| DentalSoft | D (4 pasos, reconoce paciente por DNI) | D (confirma y cancela por WhatsApp; asistente en plan Pro) | D | D | NE | D (WhatsApp manual en Gestión; automático en Pro; email) |
-| AgendaPro | D (24/7, Google Maps, asistente IA) | D (asistente IA) | D | D | NE | D (WhatsApp 1, 2 o 3 días antes) |
+| Oclusar | D (enlace + seña opcional Mercado Pago) | D (número propio del profesional, un toque; envío manual) | D | NE | NE | D (WhatsApp, envío manual) |
+| DentalSoft | D (4 pasos, reconoce paciente por DNI) | D (confirma y cancela por WhatsApp; asistente en plan Pro) | D | C ("si el paciente confirma o cancela, la agenda se actualiza sola") | NE | D (WhatsApp manual en Gestión; automático en Pro; email) |
+| AgendaPro | D (24/7, Google Maps, asistente IA) | D (asistente IA) | D | C ("cada turno, pago o cancelación reflejado al instante") | NE | D (WhatsApp automático; "1, 2 o 3 días antes" no verificado en la relectura) |
 | Dentalink | D | C ("turnos online y por WhatsApp") | C | NE | NE | C (recordatorios WhatsApp) |
 | Bilog | D | D | D | D | NE | D (WhatsApp, email o llamada) |
 | Atiendo | D (enlace y QR, sin crear cuenta) | Manual (aviso prearmado); recordatorio WhatsApp "próximamente" | D (por email) | D (por email) | D (automática) | D (email) |
 | Odonto.ar | D (enlace) | NE | NE | C (reglas definidas por la clínica) | NE | NE |
-| Agenda Profesional | D (página de reserva) | NE | D | NE | D | C |
+| Agenda Profesional | D (página de reserva) | NE | D | NE | C ("una lista de espera para cubrir cancelaciones") | C |
 | OdontoApp | NE | NE | NE | NE | NE | C |
 | OdontoGRAMA | NE | NE | NE | NE | NE | NE |
 | Medilink | D | C (solo confirmaciones) | D (email o WhatsApp) | NE | NE | NE ("recordatorio" no aparece) |
 | Dentidesk | C (integración disponible) | Anunciado a futuro | NE | NE | NE | C |
 | Reservo | C ("turnero online") | NE | NE | NE | NE | NE |
-| CareStack | D (+ Reserve with Google) | NE (SMS bidireccional) | D (coordinador IA) | "Próximamente" | NE | D |
+| CareStack | C ("Online Self-service Scheduling"; "Reserve with Google") | NE (SMS bidireccional: C, "Two-way Patient Texting") | D (coordinador IA; sin plan indicado) | NE ("Launching Soon": solo cubrir huecos por cancelación) | NE | C |
 | Dentally | C ("Online appointment booking") | NE | C | NE | C ("waitlists" y "short notice appointment filler") | C |
 | Open Dental | C (Web Sched) | NE | NE | NE | NE | C |
 
@@ -104,56 +124,56 @@
 
 | Producto | Odontograma | Periodontograma | Imágenes | Presupuestos | Otros |
 |---|---|---|---|---|---|
-| Oclusar | D | NE | C | D | Historia clínica con evolución, documentos con firma electrónica |
+| Oclusar | C | NE | C | D | Historia clínica con evolución, documentos con firma electrónica |
 | DentalSoft | D (18 estados, FDI) | NE | D (5 o 10 GB) | D | Consentimientos, recetas, módulo de ortodoncia |
 | AgendaPro | D | NE | C | D | Historia clínica, consentimiento con firma electrónica |
 | Dentalink | D | C (solo en una URL) | D | D | Notas clínicas con IA, análisis de radiografías con IA, receta con firma digital |
 | Bilog | D | NE | D | D | Firma electrónica (Ley 25.506, afirmación del proveedor) |
 | Atiendo | D (FDI) | NE | D | C ("plan de tratamiento") | Plantillas para 33 especialidades |
-| Odonto.ar | D | NE | D | D | Historia clínica completa |
-| Agenda Profesional | D | D | NE | D | Estudios |
+| Odonto.ar | D | NE | C | C | Historia clínica completa (C) |
+| Agenda Profesional | C | C | NE | C | Estudios (C) |
 | OdontoApp | C | NE | NE | NE | Historia clínica |
 | OdontoGRAMA | NE (solo en el nombre) | NE | C | NE | Ficha de paciente con imágenes |
 | Medilink | NE | NE | NE | C (ítem de una lista) | Firma de recetas y certificados |
 | Dentidesk | D | NE (hay ficha de Periodoncia) | NE | NE | Fichas por especialidad |
 | Reservo | NE | NE | NE | NE | "Ficha clínica electrónica" |
-| CareStack | D (charting) | D | D (integraciones) | D (con firma electrónica) | Recetas electrónicas |
+| CareStack | C (charting) | C | C (integraciones) | C (con firma electrónica) | Recetas electrónicas (C) |
 | Dentally | C ("Efficient charting") | NE | C ("AI-powered detection") | NE | Notas con IA (C) |
-| Open Dental | D (3D) | NE | NE | NE | — |
+| Open Dental | C (3D) | NE | NE | NE | — |
 
 **Administración, integraciones y operación**
 
 | Producto | Caja / cobros | Facturación electrónica | Mercado Pago | Obras sociales | Reportes | Google Calendar | ARCA/AFIP | API pública | Roles | Auditoría | Exportación | Backup |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Oclusar | D | D (ARCA) | D | D | C | D | D | NE | D | D (append-only) | D | D |
-| DentalSoft | D | NE | D | D | D | D | NE | NE | D | C | D (PDF, Excel) | C |
-| AgendaPro | D | C (listada, sin detalle) | D | NE | D | D | NE | NE (hay enlace a Integraciones) | C (acceso por profesional) | NE | NE | C |
+| Oclusar | D | D (ARCA) | D | D | NE | C | D | NE | D | D (append-only) | D | D |
+| DentalSoft | D | NE | D | D | D | D | NE | NE | D | C | C (PDF, Excel) | C |
+| AgendaPro | D | C (complemento "Próximamente") | D | NE | D | C | NE | D (US$200/mes en cualquier plan) | C (acceso por profesional) | NE | NE | C |
 | Dentalink | D | NE | NE | D | D | NE | NE | C (add-on) | NE | NE | C (Excel) | D (diarios) |
 | Bilog | C | C | NE | D | D | NE | NE | NE | NE | NE | NE | NE |
-| Atiendo | NE | NE (**no emite factura**, explícito) | D (seña) | D | D | D | NE (**no emite factura**) | NE | D | D | D | D (diarios) |
-| Odonto.ar | C (panel) | NE | Solo suscripción | D | NE | NE | NE | NE | D | C (odontograma) | NE (importa Excel) | NE |
-| Agenda Profesional | D | NE | D (seña) | D | NE | NE | NE | NE | C | NE | NE | NE |
+| Atiendo | NE | NE (**no emite factura**, explícito) | D (seña) | D | D | C | NE (**no emite factura**) | NE | D | D | D | C (diarios) |
+| Odonto.ar | C (panel) | NE | Solo suscripción | D | NE | NE | NE | NE | C | C (odontograma) | NE (importa Excel) | NE |
+| Agenda Profesional | C | NE | D (seña) | C | NE | NE | NE | NE | C | NE | NE | NE |
 | OdontoApp | NE | NE | NE | NE | NE | NE | NE | NE | NE | NE | NE | NE |
 | OdontoGRAMA | D | NE | NE | D | C | NE | NE | NE | C | NE | NE | C |
 | Medilink | C ("Controla el flujo de dinero") | D ("boletas electrónicas", régimen chileno) | NE | NE | D (+80) | D | NE | NE | NE | NE | D (reportes) | NE |
-| Dentidesk | NE | D (SII, Chile) | NE | NE | D (+20) | NE | NE | NE | NE | NE | NE | NE |
+| Dentidesk | C | C (SII, Chile; D solo para República Dominicana) | NE | NE | D (+20) | NE | NE | NE | NE | NE | NE | NE |
 | Reservo | NE | C (título "factura AFIP/ARCA") | C | NE | NE | NE | C | NE | NE | NE | NE | NE |
-| CareStack | D (US) | NE | NE | D (seguros de EE. UU.) | C | NE | NE | C | NE | NE | NE | D |
+| CareStack | C (US) | NE | NE | C (seguros de EE. UU.) | C | NE | NE | C | NE | NE | NE | C |
 | Dentally | C | NE | NE | NE | C ("Real-time reporting") | NE | NE | C (Developer Hub) | NE | NE | NE | NE |
-| Open Dental | C | NE | NE | NE | D | NE | NE | NE | NE | NE | NE | NE |
+| Open Dental | C | NE | NE | NE | C | NE | NE | NE | NE | NE | NE | NE |
 
 ### A.3 Seguridad, cumplimiento y adopción declarados por el proveedor
 
 | Producto | Seguridad y normativa declaradas | Adopción publicada (afirmación del proveedor, no verificada) |
 |---|---|---|
-| Oclusar | Cifrado en tránsito, copias diarias con restauración probada, hash SHA-256 por documento, retención de 90 días tras cierre. Cita Leyes 26.529, 25.326 y 25.506; inscripción AAIP "en trámite"; REFEPS | Cantidad de clientes NE |
+| Oclusar | Cifrado en tránsito, copias diarias con restauración probada, hash SHA-256 por documento, plazo de 90 días para descargar la información antes del borrado tras el cierre. Cita Leyes 26.529, 25.326 y 25.506; inscripción como responsable realizada y registro de las bases "en trámite"; REFEPS | Cantidad de clientes NE |
 | DentalSoft | Genérico ("seguro"); enlaza política de privacidad y eliminación de datos | 11 reseñas de Google, promedio 5,0 (mostradas en el sitio) |
-| AgendaPro | Datos en AWS, cifrado, backups; cita Leyes 25.326 y 26.529 | "+30.000" clínicas en Latinoamérica; "4,8 estrellas, +1.200 reseñas" (Capterra, Software Advice, GetApp). Cifras internas inconsistentes: "+30.000" vs "135.000 profesionales" |
+| AgendaPro | Datos en AWS, cifrado, backups; cita Leyes 25.326 y 26.529 (no verificado en la relectura de 2026-11-25: la página se leyó de forma parcial) | "+30.000" clínicas en Latinoamérica; "4,8 estrellas, +1.200 reseñas" (Capterra, Software Advice, GetApp). "+30.000" clínicas y "135.000 profesionales" miden magnitudes distintas (no se contradicen) |
 | Dentalink | ISO 27001 con auditoría anual, AWS cifrado, "alineado a HIPAA". Ley 26.529 solo en un artículo de blog | "+15.000 clínicas", "-30% ausentismo" (afirmaciones del proveedor) |
 | Bilog | Solo declaración genérica sobre la información | "+1.500 clínicas", "+5.000 usuarios", "+150.000 turnos/mes", "+10 M pacientes gestionados", 19 testimonios (15 con nombre) |
 | Atiendo | Conexión cifrada, datos aislados por consultorio, acceso registrado; secretaria sin acceso a la historia clínica. Sin referencias a la Ley 25.326 | NE |
 | Odonto.ar | NE (la pregunta "¿son seguros los datos?" aparece sin respuesta visible) | NE |
-| Agenda Profesional | "Los datos los trata el consultorio"; sin medidas descritas | NE |
+| Agenda Profesional | "Tus datos los trata el consultorio que te atiende"; sin medidas descritas | NE |
 | OdontoApp | NE | "+100 odontólogos y clínicas" |
 | OdontoGRAMA | "Olvídese de los backups" (afirmación sin detalle) | NE |
 | Medilink | Enlaza "Políticas de Privacidad", "Acuerdo de procesamiento de datos" y "Política General de Seguridad de la Información"; contenido no leído | "+12.000 clientes", "+60.000 usuarios" |
@@ -167,17 +187,17 @@
 
 | Producto | Fortaleza respaldada por la evidencia | Limitación o duda |
 |---|---|---|
-| **Oclusar** | Cobertura local más completa: ARCA, Mercado Pago, obras sociales, Google Calendar, auditoría append-only, exportación, normativa citada | No evidencia lista de espera, duración variable ni bloqueos. Precios de planes NE. WhatsApp con número propio, no API |
+| **Oclusar** | Cobertura local más completa: ARCA, Mercado Pago, obras sociales, Google Calendar, auditoría append-only, exportación, normativa citada | No evidencia lista de espera, duración variable ni bloqueos. Precios de planes NE. WhatsApp con número propio (envío manual), no API |
 | **DentalSoft** | Único con precios publicados, detalle de costo de WhatsApp (Meta: "0,026 USD por recordatorio") y detección de solapamientos | Sin multi-sillón evidenciado, sin facturación electrónica, seguridad genérica |
-| **AgendaPro** | Multi-sillón y duración variable evidenciados; IA conversacional; mayor escala declarada | Mucho discurso comercial; prevención de solapamientos NE; origen NE |
+| **AgendaPro** | Multi-sillón y duración variable evidenciados; IA conversacional; mayor escala declarada | Mucho discurso comercial; prevención de solapamientos NE; origen NE; facturación electrónica "Próximamente"; API paga (US$200/mes) |
 | **Dentalink** | Madurez y certificación ISO 27001 | Sin precios; detalle de agenda NE; funciones por plan |
 | **Bilog** | Mayor base argentina declarada; obras sociales y gerenciadoras | Sin precios, sin seguridad evidenciada |
 | **Atiendo** | Mejor experiencia de reserva (sin cuenta, QR, lista de espera automática, seña que se cancela sola) y mejor trazabilidad | No emite factura; WhatsApp automático aún "próximamente"; sin multi-sillón |
 | **Odonto.ar** | Precios publicados y por tramos de usuarios | Sin recordatorios ni seguridad evidenciados |
-| **Agenda Profesional** | Odontograma y periodontograma, lista de espera | Sin alta pública, sin precios |
+| **Agenda Profesional** | Menciona odontograma, periodontograma y lista de espera (una frase cada uno, sin detalle) | Sin alta pública, sin precios |
 | **OdontoApp, OdontoGRAMA, Reservo** | — | Sitios de una página con muy poca evidencia |
 | **Medilink, Dentidesk** | Escala regional (Medilink), reportes | Foco chileno (SII), poco encaje con Argentina |
-| **CareStack, Dentally, Open Dental** | Referentes de profundidad clínica y seguridad (CareStack) | Sin WhatsApp, Mercado Pago ni ARCA evidenciados; orientados a mercados con seguros y NHS |
+| **CareStack, Dentally, Open Dental** | Seguridad certificada (CareStack: HIPAA, SOC 2 Tipo 2, ISO 27001:2022) y amplitud de funciones clínicas listadas, casi todas como títulos sin detalle | Sin WhatsApp, Mercado Pago ni ARCA evidenciados; orientados a mercados con seguros y NHS |
 
 ---
 
@@ -195,19 +215,19 @@
 
 | Producto | T | C | I | A | P | S | $ | **Total ponderado (0-5)** |
 |---|---|---|---|---|---|---|---|---|
-| Oclusar | 4 | 4 | 4 | 4 | 4 | 5 | 4 | **4,10** |
+| Oclusar | 4 | 3 | 4 | 4 | 4 | 5 | 4 | **3,90** |
 | AgendaPro | 4 | 3 | 4 | 4 | 4 | 3 | 5 | **3,75** |
 | DentalSoft | 4 | 4 | 3 | 4 | 4 | 2 | 5 | **3,70** |
-| Atiendo | 4 | 3 | 2 | 3 | 4 | 5 | 3 | **3,40** |
+| Atiendo | 4 | 3 | 2 | 3 | 4 | 4 | 3 | **3,30** |
 | Bilog | 4 | 4 | 2 | 4 | 4 | 1 | 2 | **3,30** |
-| CareStack | 3 | 5 | 1 | 3 | 3 | 4 | 1 | **3,10** |
 | Dentalink | 3 | 4 | 2 | 3 | 3 | 4 | 1 | **3,05** |
-| Agenda Profesional | 3 | 4 | 1 | 3 | 4 | 1 | 1 | **2,70** |
-| Odonto.ar | 2 | 4 | 1 | 3 | 2 | 2 | 5 | **2,55** |
 | Medilink | 3 | 1 | 1 | 3 | 3 | 1 | 1 | **2,00** |
 | Dentidesk | 2 | 3 | 1 | 3 | 1 | 1 | 2 | **2,00** |
+| Odonto.ar | 2 | 2 | 1 | 2 | 2 | 1 | 5 | **1,90** |
+| CareStack | 2 | 1 | 1 | 1 | 2 | 4 | 1 | **1,65** |
+| Agenda Profesional | 2 | 1 | 1 | 2 | 3 | 1 | 1 | **1,60** |
 | OdontoGRAMA | 2 | 2 | 0 | 3 | 0 | 1 | 3 | **1,60** |
-| Open Dental | 2 | 2 | 1 | 2 | 1 | 0 | 1 | **1,50** |
+| Open Dental | 2 | 1 | 1 | 1 | 1 | 0 | 1 | **1,15** |
 | Reservo | 1 | 1 | 1 | 2 | 1 | 0 | 1 | **1,05** |
 | Dentally | 1 | 1 | 1 | 1 | 1 | 0 | 1 | **0,90** |
 | OdontoApp | 1 | 2 | 0 | 0 | 0 | 0 | 1 | **0,70** |
@@ -230,11 +250,13 @@ Los totales se calcularon con la suma ponderada de las columnas (script reproduc
 **Tratamiento de "No evidenciado":** se puntuó **sin crédito** (equivale a ausencia para el cálculo), de forma conservadora. Esto **penaliza a los sitios de una página** (OdontoApp, Reservo, Open Dental, OdontoGRAMA) y puede subestimar productos que sí tienen la función pero no la publican. Los puntajes bajos de esos sistemas expresan "poca evidencia pública", no "mal producto".
 
 **Otras decisiones:**
+
 - Se puntuó la **capacidad evidenciada**, no la calidad de implementación, que solo una demo puede juzgar.
 - En el criterio I (integraciones locales y WhatsApp) se premió la integración con WhatsApp, Google Calendar, Mercado Pago y ARCA, relevantes para Argentina. CareStack, Dentally y Open Dental quedan bajos por falta de esas integraciones, aunque tengan otras.
 - En S, CareStack y Dentalink suben por certificaciones declaradas; Oclusar y Atiendo por funciones concretas de trazabilidad.
 - El criterio $ no penaliza a quien tiene plan gratuito aunque no publique montos, pero sí cuando no hay ni precios ni prueba.
-- Las **diferencias menores de 0,3 puntos no son significativas** dados los márgenes de este método.
+- Las **diferencias menores de 0,3 puntos no son significativas** dados los márgenes de este método. Atiendo y Bilog quedan empatados (3,30).
+- **Reevaluación del 2026-11-25:** al aplicar el criterio D/C estricto a los otros 10 sistemas (ver "Verificación de fuentes"), cambiaron los puntajes de Oclusar (4,10 a 3,90), Atiendo (3,40 a 3,30), Odonto.ar (2,55 a 1,90), Agenda Profesional (2,70 a 1,60), CareStack (3,10 a 1,65) y Open Dental (1,50 a 1,15). Se aplicó la escala tal como está escrita: si en un criterio la evidencia queda solo en menciones de una línea (C), el puntaje de ese criterio baja a 1 o 2. Los 5 primeros puestos no cambian.
 
 ---
 
@@ -257,12 +279,12 @@ Un MVP sin estas piezas no es competitivo como producto final. Pero el MVP defin
 
 | Diferenciador | Quién lo evidencia |
 |---|---|
-| Aviso de solapamiento de agenda | Oclusar, DentalSoft (los demás: NE) |
+| Aviso de solapamiento de agenda | Oclusar, DentalSoft (los demás: NE; en DentalSoft comparte la misma frase con los sobreturnos) |
 | Multi-sillón con asignación | Oclusar, AgendaPro |
 | Duración variable por prestación | AgendaPro, Odonto.ar (Bilog parcial) |
 | Lista de espera automática | Atiendo (Agenda Profesional la menciona) |
 | Auditoría de accesos y cambios | Oclusar, Atiendo |
-| Facturación electrónica ARCA | Oclusar (AgendaPro la lista sin detalle) |
+| Facturación electrónica ARCA | Oclusar (AgendaPro la lista como complemento "Próximamente") |
 | Asistente de IA por WhatsApp | AgendaPro, DentalSoft Pro, Oclusar (OCLU IA) |
 | Certificaciones de seguridad | Dentalink (ISO 27001), CareStack |
 
@@ -270,9 +292,9 @@ Un MVP sin estas piezas no es competitivo como producto final. Pero el MVP defin
 
 1. **Buffer de limpieza o desinfección por sillón: no evidenciado en ninguno de los 16.** Es una regla de negocio que definiste como obligatoria.
 2. **Prevención de solapamientos por profesional y por sillón a la vez:** ningún sitio la describe de forma explícita y completa. Oclusar y DentalSoft avisan solapamientos, pero no se evidencia el control cruzado.
-3. **API pública para integradores:** solo Dentalink la menciona (como complemento). El resto no la evidencia.
+3. **API pública para integradores:** Dentalink la menciona como complemento y AgendaPro la ofrece por US$200 al mes en cualquier plan, ambas sin documentación técnica visible. El resto no la evidencia.
 4. **WhatsApp Business API como integración formal:** ninguno la declara. Oclusar usa el número del profesional y DentalSoft trae un costo por mensaje de Meta que sugiere uso de la API, pero no lo afirma.
-5. **Cumplimiento de la Ley 25.326 declarado y concreto:** solo Oclusar y AgendaPro la citan; Atiendo no la cita pero evidencia aislamiento por consultorio.
+5. **Cumplimiento de la Ley 25.326 declarado y concreto:** solo Oclusar y AgendaPro la citan (la de AgendaPro no se pudo reverificar); Atiendo no la cita pero evidencia aislamiento por consultorio.
 6. **Transparencia de precios:** apenas DentalSoft, Odonto.ar y AgendaPro (desde) publican montos.
 7. **Reglas de cancelación (anticipación mínima):** Odonto.ar dice que la clínica define las reglas sin detalle; ninguno evidencia la regla de 24 hs configurable.
 
@@ -316,6 +338,7 @@ Sexto candidato: **Dentalink**, por su certificación de seguridad y su API como
 El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **es coherente con el mercado**: Atiendo y el plan Gestión de DentalSoft también trabajan con recordatorios por email automáticos y WhatsApp manual con mensaje prearmado, lo que valida el enfoque de bajo costo del MVP.
 
 **Imprescindible (v1):**
+
 - Prevención de solapamientos por profesional y por sillón, con buffer y caso borde.
 - Agenda por profesional con horarios de atención, feriados y bloqueos.
 - Duración variable por prestación.
@@ -329,12 +352,14 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 - Datos de prueba sintéticos únicamente.
 
 **Diferenciadores para reforzar desde el inicio:**
+
 - Garantía de integridad de agenda comprobable con pruebas automatizadas.
 - Auditoría append-only de turnos y accesos.
 - Exportación de datos de la clínica (Atiendo y Oclusar lo evidencian; es un estándar de confianza).
 - Contrato de API documentado como base para integraciones futuras.
 
 **Para etapas posteriores:**
+
 - Interfaz web de reserva y agenda.
 - Lista de espera y sobreturnos.
 - WhatsApp Business API (costo de referencia por mensaje publicado por DentalSoft: USD 0,026).
@@ -350,7 +375,7 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 1. **Nueva pregunta abierta:** ¿la lista de espera se considera v1? Atiendo y Agenda Profesional la evidencian como parte del flujo de cancelación, y ayuda a recuperar huecos. Quedó fuera del MVP por decisión del equipo; conviene reconfirmarlo.
 2. **Riesgo de posicionamiento:** como el MVP no tiene interfaz, el valor se aprecia recién cuando exista un frontend. El plazo de 8 a 12 semanas no cubre esa etapa.
 3. **Riesgo 3 del Discovery (poca visibilidad de precios) queda confirmado y matizado:** hay tres proveedores con precios publicados, pero la mayoría no los publica.
-4. **Referencia de costo:** los precios publicados van de $13.900 ARS/mes (AgendaPro, "desde") a $60.000/mes (DentalSoft Pro) y USD 29 a 99 por mes (Odonto.ar). Una guía genérica de un proveedor de desarrollo (Develop Argentina) cita un rango de $15.000 a $80.000 mensuales **sin fuente ni metodología**, por lo que se descarta como dato.
+4. **Referencia de costo:** los precios publicados van de $9.900 ARS/mes (AgendaPro Individual, "desde") a $60.000/mes (DentalSoft Pro) y USD 29 a 99 por mes (Odonto.ar). Una guía genérica de un proveedor de desarrollo (Develop Argentina) cita un rango de $15.000 a $80.000 mensuales **sin fuente ni metodología**, por lo que se descarta como dato.
 
 ---
 
@@ -394,9 +419,9 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 
 ## Verificación de fuentes
 
-**Fecha de verificación:** 2026-11-22. **Alcance:** 6 URLs. Cada una se consultó con una extracción de citas textuales; las que tenían datos del informe no reconfirmados (Bilog, Dentalink y Medilink) se consultaron una segunda vez con búsqueda de cadenas exactas.
+**Fechas de verificación:** 2026-11-22 (6 URLs) y 2026-11-25 (las otras 10). **Alcance:** las 16 URLs del anexo. Cada una se consultó con una extracción de citas textuales; las que tenían datos del informe no reconfirmados (Bilog, Dentalink y Medilink) se consultaron una segunda vez con búsqueda de cadenas exactas. El 2026-11-25 se contrastó cada celda de las tablas A.2 y A.3 de los otros 10 sistemas con el criterio D/C estricto: **D** solo si la página da detalle operativo (cómo funciona, condiciones, límites o plan que la incluye); **C** si es una mención de una línea o un título.
 
-**Límite que persiste:** la lectura sigue siendo automática y de una sola página por URL. "No evidenciado" significa que la cadena no apareció en el texto extraído, no que la función no exista. Los otros 10 sistemas **no fueron re-verificados** en esta pasada.
+**Límite que persiste:** la lectura sigue siendo automática y de una sola página por URL. "No evidenciado" significa que la cadena no apareció en el texto extraído, no que la función no exista. Para AgendaPro (texto literal parcial: 39.938 de 72.093 caracteres) y OdontoApp (la extracción trajo la pantalla de carga) la lectura quedó incompleta; se indica en cada ficha.
 
 ### 1. https://bilog.com.ar/ — Confirmado, con 1 corrección menor
 
@@ -431,7 +456,7 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 | **Qué decía el informe** | Reserva online "D (portal)", confirmaciones "D", recordatorios "D", charting "D", imágenes "D", reportes "D"; puntaje 2,00 |
 | **Qué se comprobó hoy** | Todas esas funciones aparecen solo como frases de una línea sin detalle operativo: "Online appointment booking", "automated reminders and confirmations", "Efficient charting", "Advanced imaging with AI-powered detection", "Real-time reporting". Lo que sí se confirma: empresa y domicilio (Henry Schein One UK LTD, registro 02940919, Gillingham, Kent); "cloud solution"; "waitlists" y "Short notice appointment filler"; "Developer Hub" y "Partner marketplace"; integración con NHS y HSC; 3 testimonios (Kent Smile Studio, The Smile Designers, Love Teeth Dental). Sin precios, sin cifra de clientes, sin mención de GDPR, roles, auditoría ni exportación |
 | **Corregido** | Los 6 ítems anteriores pasaron de **D a C** en A.2. URL pasada a `/en-gb/`. En la matriz B, Dentally bajó de **2,00 a 0,90** (T, C y P de 3 a 1, aplicando la escala tal como está escrita: solo menciones genéricas = 1) y se reubicó en la tabla |
-| **Aviso de consistencia** | Dentalink y otros productos tienen frases igual de cortas, pero con condiciones concretas (qué plan incluye cada función), por lo que se mantuvieron como **D**. Ese criterio no se revisó para los otros 10 sistemas |
+| **Aviso de consistencia** | Dentalink y otros productos tienen frases igual de cortas, pero con condiciones concretas (qué plan incluye cada función), por lo que se mantuvieron como **D**. Ese criterio se aplicó a los otros 10 sistemas el 2026-11-25 (fichas 7 a 16) |
 
 ### 5. https://www.softwaredentalink.com/ar — Confirmado, con datos agregados
 
@@ -451,6 +476,96 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 | **Corregido** | (1) **Recordatorios** pasó de C a **NE**: la página habla de confirmaciones, no de recordatorios. (2) **Presupuestos** (ítem de una lista) y **caja** ("Controla el flujo de dinero…") pasaron de D a **C**. (3) Se aclaró que la página **no menciona odontología**, por lo que su vínculo con el rubro dental se apoya solo en fuentes secundarias no usadas como evidencia. (4) Facturación se mantiene como D, con la aclaración de que habla de "boletas electrónicas" del régimen chileno |
 | **Efecto en puntajes** | Ninguno. Los puntajes de Medilink ya eran bajos o intermedios por estos criterios y no cambian con la corrección |
 
+### 7. https://www.oclusar.com.ar/ — Confirmado, con 3 ajustes de nivel y 2 de redacción
+
+| | |
+|---|---|
+| **Qué decía el informe** | Agenda con aviso de solapamiento y asignación de sillones; reserva con seña por Mercado Pago; WhatsApp con número propio; ARCA, caja, obras sociales, roles, auditoría append-only, exportación y backup con restauración probada; leyes 26.529, 25.326 y 25.506; AAIP "en trámite"; retención de 90 días; plan gratuito sin tarjeta; sin precios de planes ni cifra de clientes |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "la agenda te avisa sola si se superpone con otro", "asignás los sillones", "Pedís una seña por Mercado Pago para reservar", "Append-only: no se edita ni se borra", "Copias diarias fuera del servidor, con restauración probada", "Huella digital SHA-256 por documento", "Facturás desde el cobro, sin salir del sistema ni pelear con la web de ARCA", "Empezás gratis, sin tarjeta", REFEPS y las tres leyes en el pie. El WhatsApp y los recordatorios son de **envío manual** desde el número propio; la página no describe un recordatorio automático |
+| **Corregido** | (1) **Odontograma** D a C: solo se nombra "el odontograma" y se muestra una maqueta. (2) **Google Calendar** D a C: una frase ("los turnos aparecen también en tu calendario") sin condiciones. (3) **Reportes** C a NE: la palabra "reportes" no aparece; solo hay una vista de caja ("Cuánto entró y cuánto falta"). Redacción: el registro AAIP dice "Inscripción como responsable realizada (Ley 25.326); registro de las bases en trámite"; los 90 días son un plazo para descargar antes del borrado, no una retención. Se aclara el envío manual de WhatsApp y recordatorios. Efecto en B: criterio C de 4 a 3, total 4,10 a 3,90 |
+| **Sin cambios** | Cantidad de clientes y montos de planes siguen NE. La página cita además el Decreto 1089/2012 y el alta en el Registro de Dominios de Interoperabilidad en Salud (no estaban en el informe) |
+
+### 8. https://dentalsoft.com.ar/ — Confirmado, con 2 ajustes de nivel
+
+| | |
+|---|---|
+| **Qué decía el informe** | Multi-profesional, bloqueos, sobreturnos y detección automática de solapamientos; reserva en 4 pasos con DNI; WhatsApp y asistente en plan Pro; odontograma de 18 estados FDI; precios Gratis, Gestión $30.000 y Pro $60.000; costo de Meta 0,026 USD; 11 reseñas de Google, 5,0 |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "Urgencias y sobreturnos con detección automática de solapamiento", "Flujo guiado de 4 pasos", "Reconocimiento automático de pacientes existentes por DNI", "18 estados clínicos, notación FDI", "Meta cobra 0,026 USD por cada recordatorio de WhatsApp", precios $0, $30.000 y $60.000 por mes, "5,0 calificación de 11 reseñas". Los recordatorios por WhatsApp son manuales en Gestión ("No se manda nada de forma automática") y automáticos en Pro; los de email son gratuitos y automáticos |
+| **Corregido** | (1) **Cancelación por el paciente** D a C: solo aparece en una captura y en "Si el paciente confirma o cancela, la agenda se actualiza sola", sin flujo ni condiciones. (2) **Exportación** D a C: es una línea del plan ("Copias de seguridad y exportación de datos"). Sin efecto en B |
+| **Sin cambios** | Multi-sillón, duración variable, lista de espera, facturación electrónica, ARCA y API siguen NE. Sobreturnos y prevención de solapamientos se apoyan en la misma frase, así que no son dos evidencias independientes (se aclaró en C.2) |
+
+### 9. https://agendapro.com/ar/dental/software-odontologico (y https://agendapro.com/ar/planes) — Corregido (precio y 3 niveles); lectura parcial
+
+| | |
+|---|---|
+| **Qué decía el informe** | Multi-sillón y duración variable; asistente IA por WhatsApp; Mercado Pago; API NE; facturación electrónica listada; AWS, cifrado y backups; Leyes 25.326 y 26.529; "+30.000" clínicas y "135.000 profesionales" como cifras inconsistentes; "4,8 estrellas, +1.200 reseñas"; precio "desde $13.900 ARS/mes" |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "Agenda por odontólogo, práctica y sillón", "Sillón 1 · Ortodoncia 92%", "Tu asistente IA conecta tu WhatsApp, Instagram y Facebook Messenger a tu agenda", "Reservas desde Google Maps", "Integración con Mercado Pago" (todos los planes), "+30.000 clínicas y consultorios en LATAM", "más de 135.000 profesionales de la salud", "4.8" y "+ 1.200 Reseñas" con logos de Capterra, Software Advice y GetApp. Planes mensuales con IVA: Individual $9.900, Básico $19.900, Premium $39.900 y Pro IA $129.900, "solo para cuentas nuevas" |
+| **Corregido** | (1) **Precio:** "$13.900" **no aparece** en la página de planes; el mínimo publicado es **$9.900 ARS/mes** (se corrigieron A.1 y D.4). (2) **API pública** NE a D: "con nuestra API para integraciones, disponible en cualquier plan por US$200 al mes" (sin detalle técnico). (3) **Cancelación** D a C y **Google Calendar** D a C: son menciones de una línea. (4) **Facturación electrónica** sigue C pero figura como complemento "Próximamente". (5) Las cifras "+30.000" (clínicas) y "135.000" (profesionales) miden cosas distintas: ya no se las llama inconsistentes. Sin cambios en B (los criterios I y $ se mantienen) |
+| **Sin cambios** | **No verificado:** "1, 2 o 3 días antes" de los recordatorios, y AWS, cifrado, backups y Leyes 25.326 y 26.529; el texto literal llegó parcial (39.938 de 72.093 caracteres) y esos datos se conservan marcados como no reverificados. Bloqueos, sobreturnos, lista de espera y solapamientos siguen NE. La página cita además "Certificación CENS e integración con FONASA" (referencias chilenas) |
+
+### 10. https://atiendoapp.com/ — Confirmado, con 3 ajustes de nivel
+
+| | |
+|---|---|
+| **Qué decía el informe** | Reserva por enlace y QR sin cuenta; lista de espera automática; confirmación y cancelación por email; seña con Mercado Pago; roles, auditoría, exportación y backups diarios; sin factura electrónica; aislamiento por consultorio; sin referencias a la Ley 25.326; prueba de 30 días |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "Un link propio de tu consultorio, con tu logo, y un código QR", "Sin crear cuenta", "Si un día está completo, tus pacientes se anotan solos desde tu página de turnos online", "El paciente confirma o cancela con un toque desde el email", "No emite la factura electrónica: eso lo seguís haciendo como hasta ahora", "Cada acceso queda registrado", "Exportá la historia completa de un paciente en PDF", "Odontograma con numeración FDI". La Ley 25.326 **no aparece** (cita la Ley 27.553 de receta electrónica). El texto extraído no trae importes de planes |
+| **Corregido** | (1) **Bloqueos** D a C: una viñeta ("Bloqueos por vacaciones, congresos o feriados"). (2) **Google Calendar** D a C: una línea. (3) **Backup** D a C: "copias de seguridad diarias" sin detalle de restauración. Efecto en B: criterio S de 5 a 4, total 3,40 a 3,30 (empata con Bilog) |
+| **Sin cambios** | Multi-sillón, duración variable, sobreturnos, periodontograma, caja, ARCA y API siguen NE. La exportación es D pero limitada a un PDF por paciente |
+
+### 11. https://odonto.ar/ — Corregido (4 ítems D a C)
+
+| | |
+|---|---|
+| **Qué decía el informe** | Agenda de equipo, duración variable por motivo, reserva por enlace, odontograma con registro de cambios, imágenes, presupuestos, obras sociales, roles, panel de finanzas; precios USD 29, 49 y 99; sin recordatorios ni seguridad evidenciados |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "Configurás los motivos de consulta y el tiempo de cada uno", "Compartí un link para que tus pacientes elijan un horario disponible", "Consultá tratamientos e historial de cada diente, con registro de quién hizo cada modificación y cuándo", "Configurá los planes y calculá cuánto corresponde a la obra social y cuánto al paciente". Precios confirmados: $29 USD/mes (1 usuario), $49 (5) y $99 (10); prueba de $0 por 30 días. Mercado Pago solo se usa para cobrar la suscripción. La pregunta "¿Están seguros los datos de mis pacientes?" aparece sin respuesta visible (puede estar en un acordeón no extraído) |
+| **Corregido** | **Multi-profesional**, **imágenes** ("Radiografías y estudios"), **presupuestos** ("Presupuestos y tratamientos") y **roles** ("Permisos para cada persona del equipo") pasaron de D a C: son viñetas de una línea. Efecto en B: criterios C de 4 a 2, A de 3 a 2 y S de 2 a 1; total 2,55 a 1,90 |
+| **Sin cambios** | Precios, duración variable, reserva, odontograma y obras sociales confirmados como D. Exportación sigue NE (solo hay importación desde Excel). Recordatorios y WhatsApp para pacientes NE. Seguridad NE: no se concluye porque la respuesta pudo no extraerse |
+
+### 12. https://www.agenda-profesional.com/ — Corregido (6 ítems D a C)
+
+| | |
+|---|---|
+| **Qué decía el informe** | Reserva por página, confirmación y seña por Mercado Pago, lista de espera, odontograma y periodontograma, presupuestos, caja, obras sociales; "Los datos los trata el consultorio"; sin alta pública, sin precios |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "El paciente elige servicio, día y hora, y recibe la confirmación", "El paciente puede confirmar, reprogramar o pagar la seña desde su enlace", "Si lo activás, el turno se confirma cuando se acredita la seña", "una lista de espera para cubrir cancelaciones", "Incluye odontograma, periodontograma y estudios", "Ficha, historia clínica, presupuestos, tratamientos y pagos", "las cuentas las arma el equipo, no hay alta pública". La cita de seguridad es "Tus datos los trata el consultorio que te atiende" |
+| **Corregido** | **Lista de espera**, **odontograma**, **periodontograma**, **presupuestos**, **caja** y **obras sociales** pasaron de D a C: son enumeraciones de una frase sin mecánica. Se corrigió la cita de seguridad. Efecto en B: criterios T de 3 a 2, C de 4 a 1, A de 3 a 2 y P de 4 a 3; total 2,70 a 1,60 |
+| **Sin cambios** | Reserva, confirmación y seña con Mercado Pago siguen D. Duración variable, sobreturnos, imágenes, facturación, reportes, Google Calendar, API, auditoría, exportación y backup siguen NE. Las cifras "Reservas web 41%" y "Pacientes 128" son de una captura de demo, no de adopción |
+
+### 13. https://odontoapp.com.ar/ — Confirmado, con lectura incompleta
+
+| | |
+|---|---|
+| **Qué decía el informe** | Todo NE salvo recordatorios, odontograma e historia clínica como menciones; "+100 odontólogos y clínicas"; país NE; planes sin montos visibles |
+| **Qué se comprobó el 2026-11-25** | La extracción trajo la pantalla de carga ("Cargando OdontoApp") con el texto de portada; las secciones de funcionalidades, planes y preguntas frecuentes no llegaron. Cita: "Agenda digital, historia clínica, odontograma y recordatorios automáticos"; "Más de 100 odontólogos y clínicas ya gestionan su consultorio con OdontoApp". Lista 20 países donde está disponible; no declara país de origen ni precios |
+| **Corregido** | Nada. "Agenda digital" es una mención sin subfunciones, por lo que no sostiene multi-profesional ni ninguna otra columna de agenda |
+| **Sin cambios** | Todos los NE: significan que la cadena no apareció en el texto extraído, no que la función no exista. Es el sistema con menor confiabilidad del informe |
+
+### 14. https://www.dentidesk.cl/ — Confirmado, con 3 ajustes de nivel
+
+| | |
+|---|---|
+| **Qué decía el informe** | Odontograma D; reserva online, WhatsApp futuro y recordatorios como C; facturación D (SII); reportes D (+20); "Se prepara" para la nueva ley de datos de Chile; 3 testimonios con nombre; prueba de 15 días |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "recordatorios personalizados", "WhatsApp automático es una de las próximas alternativas que queremos sumar", "más de 20 tipos de reportes financieros y administrativos", "Todo está completamente integrado con el SII", "DENTIDESK ya se está preparando para estos cambios", "Prueba DENTIDESK gratis por 15 días". El odontograma tiene detalle (nomenclatura chilena, internacional y universal; ruta de configuración Administrador, Usuarios, Usuarios con Agenda). Sede en Providencia, Santiago; clientes también en República Dominicana y Cabo Verde |
+| **Corregido** | (1) **Multi-profesional** NE a C (indirecto: "Usuarios con Agenda"). (2) **Caja** NE a C ("al registrar un pago dentro de DENTIDESK"). (3) **Facturación electrónica** D a C para Chile: la integración con el SII se afirma sin condiciones; sigue D solo para República Dominicana, donde se detalla "la configuración y certificación directamente con Alegra". Sin efecto en B |
+| **Sin cambios** | Periodontograma sigue NE (hay una ficha "Periodoncia", no un periodontograma). Aparecen además "Gestión de Insumos y Stock" (C) y el reporte REMASEP de Chile ("Próximamente") |
+
+### 15. https://www.carestack.com/ — Corregido (10 ítems D a C)
+
+| | |
+|---|---|
+| **Qué decía el informe** | Reserva online, recordatorios, charting, periodontograma, imágenes, presupuestos con firma, caja, seguros y backup como D; coordinador IA D; HIPAA, SOC 2 Tipo 2, ISO 27001:2022 y GDPR; "+3.000" prácticas; Good Methods Global Inc.; puntaje 3,10 |
+| **Qué se comprobó el 2026-11-25** | La página es sobre todo una lista de títulos con una línea o ninguna de descripción: "Online Self-service Scheduling", "Built-in Appointment Reminders", "General and Perio Clinical Charting", "Periodontal Charting", "Digital Imaging Integrations", "Treatment Planning with E-signatures", "Always-On Backups". Citas confirmadas: "CareStack is fully compliant with HIPAA and possesses SOC 2 Type 2 and ISO 27001:2022 certifications", "More than 3000 dental practices trust CareStack", "© 2017 - 2026 Good Methods Global Inc.". GDPR aparece solo como insignia. Precios NE |
+| **Corregido** | **Reserva online, Reserve with Google, recordatorios, odontograma, periodontograma, imágenes, presupuestos, caja, obras sociales y backup** pasaron de D a C. "Two-way Patient Texting" pasó de NE a C. La **cancelación** del paciente: "Launching Soon" aplica a rellenar huecos por cancelación, no a que el paciente cancele, por lo que queda NE. Efecto en B: criterios T de 3 a 2, C de 5 a 1, A de 3 a 1 y P de 3 a 2; total 3,10 a 1,65 |
+| **Sin cambios** | La confirmación por el coordinador IA sigue D ("Confirms appointments through calls, texts, and emails"; estado "Available Now"), sin plan indicado. Seguridad sigue D (certificaciones con cita textual). El texto extraído terminó truncado: no se leyó el pie completo |
+
+### 16. https://www.opendental.com/ — Corregido (3 ítems)
+
+| | |
+|---|---|
+| **Qué decía el informe** | Web Sched C; odontograma 3D D; reportes D; bloqueos con mejoras anunciadas C; caja C; sin adopción, precios ni seguridad |
+| **Qué se comprobó el 2026-11-25** | Citas textuales: "Enhancements to Blockouts" (versión 26.3 beta), "Web Sched" y "Automated Messaging" como eServices, "3D tooth chart shows patient dentition and treatment over time", "Built-in, Graphic, and User Queries" (solo enlaces), "at an affordable price for practices of any size". Es la página de inicio: varias funciones solo aparecen como enlaces a subpáginas no leídas. País, adopción y normativa NE |
+| **Corregido** | **Odontograma** D a C (una frase sin detalle operativo); **Reportes** D a C (solo enlaces en la portada; el detalle estaría en una subpágina no leída); **Multi-profesional** NE a C (indirecto, en beta: "Schedule Setup" por empleado y proveedor). Efecto en B: criterios C de 2 a 1 y A de 2 a 1; total 1,50 a 1,15 |
+| **Sin cambios** | Facturación, Mercado Pago, Google Calendar, ARCA, roles, auditoría, exportación y backup siguen NE. "20+ Clearinghouses" son reclamos a seguros dentales de EE. UU., no obras sociales |
+
 ### Resumen de cambios aplicados
 
 | URL | Resultado | Cambios en el informe |
@@ -458,11 +573,21 @@ El MVP definido en el Discovery (API REST y lógica de dominio, sin interfaz) **
 | bilog.com.ar | Confirmado | Testimonios: 19 (15 con nombre); se agrega "+10 M pacientes gestionados" |
 | odontograma.com.ar | Confirmado | Ninguno |
 | reservo.cl/ar/ | Corregido | URL; aclaración de que no es dental |
-| dentally.com/en-gb/ | Corregido | 6 ítems D→C; URL; puntaje 2,00 → 0,90 |
+| dentally.com/en-gb/ | Corregido | 6 ítems D a C; URL; puntaje 2,00 a 0,90 |
 | softwaredentalink.com/ar | Confirmado | Se agrega precio del Contact Center IA y detalle por plan |
-| web-latam.softwaremedilink.com | Corregido | Recordatorios C→NE; presupuestos y caja D→C; sin odontología |
+| web-latam.softwaremedilink.com | Corregido | Recordatorios C a NE; presupuestos y caja D a C; sin odontología |
+| oclusar.com.ar | Confirmado con ajustes | Odontograma y Google Calendar D a C; reportes C a NE; AAIP y 90 días reformulados; puntaje 4,10 a 3,90 |
+| dentalsoft.com.ar | Confirmado con ajustes | Cancelación y exportación D a C |
+| agendapro.com/ar | Corregido | Precio $13.900 a $9.900; API NE a D; cancelación y Google Calendar D a C; cifras ya no "inconsistentes" |
+| atiendoapp.com | Confirmado con ajustes | Bloqueos, Google Calendar y backup D a C; puntaje 3,40 a 3,30 |
+| odonto.ar | Corregido | Multi-profesional, imágenes, presupuestos y roles D a C; puntaje 2,55 a 1,90 |
+| agenda-profesional.com | Corregido | 6 ítems D a C; cita de seguridad; puntaje 2,70 a 1,60 |
+| odontoapp.com.ar | Confirmado (lectura incompleta) | Ninguno |
+| dentidesk.cl | Confirmado con ajustes | Multi-profesional y caja NE a C; facturación D a C (Chile) |
+| carestack.com | Corregido | 10 ítems D a C; puntaje 3,10 a 1,65 |
+| opendental.com | Corregido | Odontograma y reportes D a C; multi-profesional NE a C; puntaje 1,50 a 1,15 |
 
-### Pendiente derivado de esta verificación
+### Efecto sobre las conclusiones
 
-- Revisar con el mismo criterio D/C estricto a los otros 10 sistemas, para que la escala se aplique de forma uniforme.
-- Las conclusiones de las secciones C y D no cambian, porque no dependían de Dentally ni de los ítems corregidos de Medilink.
+- **Puntajes:** cambian seis (ver la nota metodológica de la sección B). Los cinco primeros puestos y su orden no cambian: Oclusar (3,90), AgendaPro (3,75), DentalSoft (3,70), Atiendo (3,30) y Bilog (3,30, empatado). Las secciones C y D se ajustaron donde citaban datos corregidos (API pública, precio de AgendaPro, perfil de CareStack y de Agenda Profesional).
+- **Límites que persisten:** la lectura sigue siendo automática y de una sola página por sitio; AgendaPro se leyó de forma parcial y OdontoApp solo mostró la pantalla de carga. Un NE significa "no apareció en el texto extraído", no "no existe". Lo que sigue sin hacerse (centros de ayuda, demos en vivo y reseñas verificables) está listado en el anexo.

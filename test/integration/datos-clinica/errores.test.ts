@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { ErrorDeDominio } from '../../../src/domain/shared/index.js';
@@ -19,7 +21,23 @@ import {
 
 const PROF_A = 'aaaaaaaa-0000-4000-8000-000000000001';
 const PROF_B = 'bbbbbbbb-0000-4000-8000-000000000001';
-const USUARIO = 'cccccccc-0000-4000-8000-000000000001';
+let USUARIO: string;
+
+/** Crea un usuario del personal de prueba (sintético; hash de contraseña falso — RN-DA). */
+async function crearUsuarioSintetico(clinicaId: string): Promise<string> {
+  return comoApp(clinicaId, async (c) => {
+    const { rows } = await c.query<{ id: string }>(
+      'INSERT INTO usuario (id, clinica_id, email, hash_contrasena, rol, profesional_id) VALUES (gen_random_uuid(), $1, $2, $3, $4, NULL) RETURNING id',
+      [
+        clinicaId,
+        `usuario.sintetico.${randomUUID()}@example.com`,
+        'hash-sintetico-no-real',
+        'administrador',
+      ],
+    );
+    return rows[0]?.id ?? '';
+  });
+}
 // Datos personales sintéticos que NUNCA deben aparecer en un error (Ley 25.326).
 const DNI = '30111222';
 const TELEFONO = '+5491123456789';
@@ -50,6 +68,7 @@ beforeEach(async () => {
     entorno.urlMigra,
     'TRUNCATE paciente, feriado, horario_atencion, bloqueo, profesional CASCADE',
   );
+  USUARIO = await crearUsuarioSintetico(CLINICA_A.id);
   await comoApp(CLINICA_A.id, (c) =>
     c.query(
       "INSERT INTO profesional (id, clinica_id, nombre, apellido) VALUES ($1, $2, 'n', 'a')",

@@ -381,7 +381,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > C-11, C-12, C-13 y C-14 se reparten entre los tres agentes. C-11 puede empezar en cuanto C-03 y C-04 estén fusionados.
 
 ### [C-11] `cola-y-email-base`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Infraestructura de cola y envío de email, sin reglas de negocio
   - Migración `C11_001`: tabla `notificacion` con `aplicar_rls`
   - Integración con pg-boss (cola sobre PostgreSQL, sin Redis); *worker* arrancable en el mismo proceso o por separado. Los payloads de la cola llevan solo identificadores, sin datos personales
@@ -401,7 +401,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-12] `api-turnos-y-agenda`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de turnos, agenda y bloqueos para el personal
   - Endpoints: `POST /turnos`, `GET /turnos/{id}`, `POST /turnos/{id}/{cancelar|reprogramar|confirmar|atendido|ausente}`, `GET /turnos/{id}/enlace-whatsapp` (con C-04)
   - `GET /agenda?desde&hasta&profesionalId&sillonId`: vista diaria y semanal con turnos, bloqueos y feriados; el odontólogo ve solo la propia
@@ -439,7 +439,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-14] `recordatorios-y-notificaciones-turno`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Emails automáticos asociados a los turnos
   - Suscriptor de `TurnoEventPublisher` (C-09): emails de creación, confirmación, cancelación y reprogramación con las plantillas de C-04, enviados por C-11
   - Job periódico en pg-boss: busca turnos `pendiente_confirmacion` o `confirmado` a 24 horas del inicio (parametrizable) y encola **un solo** recordatorio por turno (idempotente)
@@ -481,7 +481,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-16] `exportacion-auditoria-ausentismo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Consulta de auditoría, exportación de datos y registro de ausentismo para el administrador
   - `GET /auditoria` con filtros por entidad, actor y rango de fechas
   - `POST /exportaciones` y `GET /exportaciones/{id}`: archivo con pacientes, turnos, profesionales, sillones, prestaciones y auditoría de **su** clínica, en un formato abierto (formato a definir, PO-16); la exportación queda auditada (RN-DA-04, RN-AU-03)

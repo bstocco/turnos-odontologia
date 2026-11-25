@@ -8,7 +8,9 @@ import type {
 import {
   crearTurno,
   transicionar,
+  turnoEventPublisherNulo,
   type Turno,
+  type TurnoEventPublisher,
   type TurnoRepository,
 } from '../../domain/turno/index.js';
 import { valorOLanzar } from '../../domain/shared/resultado.js';
@@ -37,6 +39,7 @@ export async function reprogramarTurno(
   turnoId: TurnoId,
   datos: DatosReprogramacion,
   ag: AgendaFija,
+  publicador: TurnoEventPublisher = turnoEventPublisherNulo(),
 ): Promise<Turno> {
   const original = await repositorio.obtenerPorId(turnoId);
   if (original === null) throw turnoNoEncontrado();
@@ -51,7 +54,8 @@ export async function reprogramarTurno(
   });
   if (!nuevo.ok) throw nuevo.error;
 
+  await repositorio.actualizar(hacia.valor, original.estado);
   const insertado = await repositorio.insertar(valorOLanzar(nuevo));
-  await repositorio.actualizar(original, 'pendiente_confirmacion');
+  await publicador.publicar({ tipo: 'reprogramado', turnoId: insertado.id });
   return insertado;
 }

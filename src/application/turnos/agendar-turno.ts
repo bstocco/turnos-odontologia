@@ -15,8 +15,10 @@ import type {
 import { valorOLanzar } from '../../domain/shared/resultado.js';
 import {
   crearTurno,
+  turnoEventPublisherNulo,
   type OrigenTurno,
   type Turno,
+  type TurnoEventPublisher,
   type TurnoRepository,
 } from '../../domain/turno/index.js';
 
@@ -55,6 +57,7 @@ export async function agendarTurno(
   ag: AgendaFija,
   nuevo: NuevoTurnoDelCaso,
   opciones: RetrasoDeRetries = { intentos: 3 },
+  publicador: TurnoEventPublisher = turnoEventPublisherNulo(),
 ): Promise<Turno> {
   const validado = valorOLanzar(
     crearTurno({ ...nuevo, estado: 'pendiente_confirmacion', reprogramadoDe: null }),
@@ -82,7 +85,9 @@ export async function agendarTurno(
   const intentos = Math.max(1, opciones.intentos);
   for (let i = 0; i < intentos; i++) {
     try {
-      return await repositorio.insertar(validado);
+      const insertado = await repositorio.insertar(validado);
+      await publicador.publicar({ tipo: 'creado', turnoId: insertado.id });
+      return insertado;
     } catch (error) {
       if (i === intentos - 1) throw error;
       await new Promise((resolver) => setTimeout(resolver, opciones.esperaMs ?? 30));
