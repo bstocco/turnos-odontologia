@@ -1,11 +1,21 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { claveInterna } from '../soporte/clinica.js';
 import { abrirEntorno, type EntornoE2E } from '../soporte/entorno.js';
 
+import { configurarEntornoDeReservaPublica } from '../soporte/reserva-publica.js';
+
 import { MATRIZ } from './matriz.js';
 import { construirMundo } from './mundo.js';
 import type { Actor, FilaDeMatriz, Mundo, PedidoDePrueba, RolDePersonal } from './tipos.js';
+
+// Único doble de la matriz: el proveedor de email de las operaciones públicas (C-15).
+vi.mock('../../../src/infrastructure/email/index.js', async (importarOriginal) => {
+  const original =
+    await importarOriginal<typeof import('../../../src/infrastructure/email/index.js')>();
+  const { emailFalso } = await import('../soporte/email-falso.js');
+  return { ...original, crearEmailSenderSmtp: () => emailFalso };
+});
 
 const ROLES: readonly RolDePersonal[] = ['administrador', 'recepcionista', 'odontologo'];
 
@@ -17,6 +27,7 @@ describe('matriz de permisos: endpoint por actor sobre la API real', () => {
   let mundo: Mundo;
 
   beforeAll(async () => {
+    configurarEntornoDeReservaPublica();
     entorno = await abrirEntorno();
     mundo = await construirMundo(entorno);
   });

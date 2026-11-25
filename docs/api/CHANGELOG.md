@@ -13,6 +13,12 @@ un enumerado) exige subir el número **mayor** y marcar la entrada con **Rompien
 - **Rompiente**: se quita `GET /api/v1/ejemplo`.
 ```
 
+## [1.2.0] - 2026-11-25
+
+- Operaciones nuevas (no rompiente) incorporadas por C-15 (change C-18, Fase 2b), todas públicas y
+  sin sesión: `POST /api/v1/publico/{slug}/codigo`, `POST /api/v1/publico/{slug}/reservas` y
+  `POST /api/v1/publico/turnos/accion`. Ninguna operación de 1.1.0 cambió.
+
 ## [1.1.0] - 2026-11-25
 
 - Operaciones nuevas (no rompiente) incorporadas por C-12, C-14 y C-16 (change C-18, Fase 2a):

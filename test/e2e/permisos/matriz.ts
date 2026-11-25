@@ -667,4 +667,46 @@ export const MATRIZ: Readonly<Record<string, FilaDeMatriz>> = {
       }).toString()}`,
     }),
   },
+
+  // --- Reserva pública y acción por token (C-15; sin sesión, 03 §RBAC "paciente sin cuenta") -----
+  // Los pedidos no tienen efectos: un email nuevo por pedido (adaptador de email simulado en la
+  // prueba), un código de verificación inexistente y un token inexistente. La prueba afirma que
+  // el token del personal se ignora (misma respuesta con y sin él).
+  [`POST ${API}/publico/{slug}/codigo`]: {
+    tipo: 'publica',
+    comparacion: 'estado',
+    pedido: async (m) => ({
+      metodo: 'POST',
+      url: `${API}/publico/${m.a.clinica.slug}/codigo`,
+      payload: { email: `matriz.${randomBytes(6).toString('hex')}@ejemplo.invalid` },
+    }),
+  },
+  [`POST ${API}/publico/{slug}/reservas`]: {
+    tipo: 'publica',
+    pedido: async (m) => ({
+      metodo: 'POST',
+      url: `${API}/publico/${m.a.clinica.slug}/reservas`,
+      payload: {
+        profesionalId: m.a.profesionalId,
+        prestacionId: m.a.prestacionId,
+        inicio: '2041-03-04T13:00:00.000Z',
+        codigoVerificacion: '000000',
+        paciente: {
+          nombre: 'Matriz',
+          apellido: 'Sintética',
+          dni: '99000001',
+          telefono: '+54 9 11 5555 0001',
+          email: 'matriz.sin-codigo@ejemplo.invalid',
+        },
+      },
+    }),
+  },
+  [`POST ${API}/publico/turnos/accion`]: {
+    tipo: 'publica',
+    pedido: async () => ({
+      metodo: 'POST',
+      url: `${API}/publico/turnos/accion`,
+      payload: { token: randomBytes(32).toString('base64url') },
+    }),
+  },
 };

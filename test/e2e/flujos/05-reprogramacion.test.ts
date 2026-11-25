@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { abrirEntorno, type EntornoE2E } from '../soporte/entorno.js';
+import { afirmarSinDatosPersonales, valoresSensibles } from '../soporte/privacidad.js';
 import { ponerEnMarchaUnaClinica, type ClinicaConfigurada } from '../soporte/puesta-en-marcha.js';
 import type { Sesion } from '../soporte/sesion.js';
 import {
@@ -105,4 +106,8 @@ describe('Flujo 5: reprogramación', () => {
       expect(intacto.inicio).toBe(original.inicio);
     },
   );
+
+  it('los logs del flujo no contienen datos personales del paciente (Ley 25.326)', () => {
+    afirmarSinDatosPersonales(entorno.logs, valoresSensibles(lista.paciente));
+  });
 });

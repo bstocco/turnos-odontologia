@@ -90,9 +90,16 @@ describe('analizarEjemplos', () => {
     );
     expect(clave.problemas.join('\n')).toContain('claveInterna');
 
+    const codigo = analizarEjemplos(
+      'o.http',
+      'POST {{baseUrl}}/api/v1/pacientes\n\n{ "codigoVerificacion": "123456" }',
+      contrato,
+    );
+    expect(codigo.problemas.join('\n')).toContain('codigoVerificacion');
+
     const conVariable = analizarEjemplos(
       'v.http',
-      'POST {{baseUrl}}/api/v1/pacientes\n\n{ "password": "{{password}}", "token": "{{refresco}}" }',
+      'POST {{baseUrl}}/api/v1/pacientes\n\n{ "password": "{{password}}", "token": "{{refresco}}", "codigoVerificacion": "{{codigo}}" }',
       contrato,
     );
     expect(conVariable.problemas).toEqual([]);

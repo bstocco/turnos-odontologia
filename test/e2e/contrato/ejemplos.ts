@@ -11,7 +11,7 @@ const LINEA_DE_PEDIDO = /^(GET|POST|PUT|PATCH|DELETE)\s+(\S+)/;
 const JWT = /\beyJ[\w-]+\.[\w-]+\.[\w-]+/;
 const BEARER = /Bearer\s+(\S+)/i;
 const CAMPO_SECRETO =
-  /"(password|passwordTemporal|clave|claveInterna|token|refreshToken|secret|apiKey)"\s*:\s*"([^"]*)"/g;
+  /"(password|passwordTemporal|clave|claveInterna|codigoVerificacion|token|refreshToken|secret|apiKey)"\s*:\s*"([^"]*)"/g;
 const VARIABLE_SECRETA = /^@(\w*(token|clave|password|secret|key)\w*)\s*=\s*(.*)$/i;
 const EMAIL = /[\w.+-]+@[\w-]+(\.[\w-]+)+/g;
 const ES_VARIABLE = /^\{\{[^{}]+\}\}$/;

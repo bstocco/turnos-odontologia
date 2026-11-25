@@ -46,7 +46,9 @@ igual en local y en CI. Necesitan la base de pruebas (`TEST_DATABASE_URL` y
 npm run test:e2e
 ```
 
-Usan solo datos sintéticos y secretos descartables generados en cada ejecución. En `npm test`
+Usan solo datos sintéticos y secretos descartables generados en cada ejecución. En los flujos de
+reserva pública el único doble es el proveedor de email (adaptador en memoria): los códigos y los
+enlaces se leen del email simulado, con el worker real de la cola, y nunca se escriben en archivos. En `npm test`
 corren después de las pruebas de integración, nunca en paralelo.
 
 ### Flujos cubiertos (`test/e2e/flujos`)
@@ -55,10 +57,13 @@ corren después de las pruebas de integración, nunca en paralelo.
 |---|---|
 | `01-autenticacion`, `00-puesta-en-marcha` | 1 y puesta en marcha |
 | `02-agendar-desde-recepcion` | 2 (turnos, solapes, horario, feriado, bloqueo) |
-| `03-reserva-publica` | 3, solo la consulta pública (el resto depende de C-15) |
+| `03-reserva-publica` | 3, consulta pública (prestaciones, profesionales, disponibilidad) |
+| `03-reserva-publica-reserva` | 3, código por email, reserva, sillón automático, estado inicial, enlaces, `409`/`422`/`429` |
+| `04-accion-por-token` | 4 (confirmar y cancelar por enlace de un solo uso: gastado, vencido, inexistente, menos de 24 h) |
+| `11-concurrencia-personal-vs-publico` | Concurrencia: recepción y reserva pública por el mismo hueco |
 | `05-reprogramacion`, `06-bloqueo-de-franja`, `09-ausentismo` | 5, 6 y 9 |
 | `07-recordatorio-por-email` | 7 (reloj y proveedor de email simulados) |
-| `08-whatsapp-manual` | 8: brecha, la ruta no existe todavía |
+| `08-whatsapp-manual` | 8: brecha, `GET /turnos/{id}/enlace-whatsapp` no existe todavía |
 | `10-exportacion` | 10 |
 
 Los escenarios que hoy no se cumplen por defectos de otros changes se escriben con el comportamiento
@@ -74,7 +79,7 @@ Los archivos de `ejemplos/` usan variables, nunca credenciales:
 | `{{baseUrl}}` | URL de la API (por defecto `http://localhost:3000`). |
 | `{{slug}}` | `slug` de la clínica. |
 | `{{token}}` | Token de acceso obtenido con `POST /api/v1/auth/login`. |
-| `{{refreshToken}}`, `{{password}}`, `{{claveInterna}}` | Secretos: definilos en tu entorno, no en el archivo. |
+| `{{refreshToken}}`, `{{password}}`, `{{claveInterna}}`, `{{codigoVerificacion}}`, `{{tokenDeAccion}}` | Secretos (el código y el token llegan por email): definilos en tu entorno, no en el archivo. |
 | `{{profesionalId}}`, `{{sillonId}}`, `{{prestacionId}}`, `{{pacienteId}}`, `{{feriadoId}}`, `{{usuarioId}}`, `{{turnoId}}`, `{{bloqueoId}}`, `{{exportacionId}}` | Ids devueltos por las altas. |
 
 En VS Code (extensión REST Client) definilas en `rest-client.environmentVariables`; en JetBrains,
