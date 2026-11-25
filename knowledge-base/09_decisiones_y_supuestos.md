@@ -29,13 +29,18 @@ Se distingue lo **decidido por el equipo** de lo **propuesto por la fundación y
 **Trade-offs aceptados**: el paciente no tiene historial propio; la validez de su identidad depende del email y del token.
 
 ### DD-04 — Hosting en un PaaS económico y email transaccional
-**Estado**: decidido en el tipo (Q4 = a); proveedor concreto abierto
-**Decisión**: PaaS económico (Railway, Render o Fly.io) con PostgreSQL gestionado, y Resend o Brevo para email.
-**Región (decisión del Líder, 2026-11-22)**: base de datos y backend en Sudamérica (`sa-east-1`, São Paulo, Brasil) o infraestructura local equivalente. **Base legal:** Brasil **no figura** en la lista de países con nivel adecuado de protección de la AAIP (verificado el 2026-11-22 en `argentina.gob.ar/transferencias-internacionales`). La transferencia requiere cláusulas contractuales modelo (Disposición DNPDP 60/2016, Resolución AAIP 198/2023) o una validación legal equivalente. Pendiente de asesoría legal (PO-03); bloquea el despliegue (C-20). El PaaS elegido debe ofrecer región en São Paulo: no está verificado cuál de los tres candidatos la ofrece.
+**Estado**: decidido (2026-11-25, Líder, change `c-20-despliegue-paas-y-operacion`); la puesta en marcha real queda pendiente (ver trabajo posterior de C-20)
+**Decisión**: **aplicación (API y worker) en Fly.io, región `gru` (São Paulo); base de datos PostgreSQL 17 en Neon `aws-sa-east-1` (Plan B); email transaccional con Resend.** Evidencia en `docs/operacion/evidencia/spike-postgres.md` y `openspec/changes/c-20-despliegue-paas-y-operacion/design.md` (D1, D5, D10, D11):
+- De los tres candidatos (Railway, Render, Fly.io), solo Fly.io ofrece región en São Paulo con PostgreSQL gestionado.
+- El Managed Postgres de Fly habilita `btree_gist` y permite crear roles, pero **rechaza los `GRANT ... TO app`** de las migraciones ("MPG system roles cannot be modified"); por eso la base pasó a Neon. Las migraciones no se modificaron y el aislamiento (RLS, `app` sin `BYPASSRLS`) no se debilitó.
+- En Neon los roles `migra` y `app` se crean con SQL (no desde la consola, que da `BYPASSRLS`) y las bases con colación ICU `es-AR`. Verificado: 13 migraciones y 516 pruebas de integración.
+- El plan Free de Neon solo da 6 horas de historial: no alcanza para datos reales (`docs/operacion/respaldo.md`).
+- `produccion` solo está documentada; no se aprovisiona hasta cerrar F1, F2, F6, F8, F9 y el checklist legal (D11).
+**Región (decisión del Líder, 2026-11-22)**: base de datos y backend en Sudamérica (`sa-east-1`, São Paulo, Brasil) o infraestructura local equivalente. **Base legal:** Brasil **no figura** en la lista de países con nivel adecuado de protección de la AAIP (verificado el 2026-11-22 en `argentina.gob.ar/transferencias-internacionales`). La transferencia requiere cláusulas contractuales modelo (Disposición DNPDP 60/2016, Resolución AAIP 198/2023) o una validación legal equivalente. Pendiente de asesoría legal (PO-03) y firma con Fly.io, Neon y Resend (`docs/operacion/proteccion-datos.md`); bloquea cargar datos reales. Verificado el 2026-11-25: Fly.io ofrece región en São Paulo (`gru`) y Neon también (`aws-sa-east-1`); Render y Railway no.
 **Contexto**: presupuesto bajo y equipo de 4 personas sin dedicación a operaciones.
-**Alternativas consideradas**: (b) VPS propia con Docker; (c) diferir.
+**Alternativas consideradas**: (b) VPS propia con Docker; (c) diferir; Render y Railway (descartados por región); Supabase y AWS (no elegidos).
 **Justificación**: menos trabajo de operación.
-**Trade-offs aceptados**: dependencia del proveedor; posible transferencia internacional de datos (PO-03).
+**Trade-offs aceptados**: dependencia del proveedor; posible transferencia internacional de datos (PO-03); tres proveedores con datos personales (Fly.io, Neon, Resend) en lugar de uno o dos; latencia adicional entre la aplicación y la base.
 
 ### DD-05 — Auditoría append-only y exportación de datos incluidas en el MVP
 **Estado**: decidido (confirmado por el equipo)
