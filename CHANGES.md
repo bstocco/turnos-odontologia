@@ -358,7 +358,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-10] `api-pacientes`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de la ficha básica del paciente
   - `POST /pacientes`, `GET /pacientes/{id}`, `PATCH /pacientes/{id}`, `GET /pacientes?dni=&apellido=`
   - Normalización del teléfono con C-04 al guardar; DNI único por clínica
@@ -381,7 +381,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > C-11, C-12, C-13 y C-14 se reparten entre los tres agentes. C-11 puede empezar en cuanto C-03 y C-04 estén fusionados.
 
 ### [C-11] `cola-y-email-base`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Infraestructura de cola y envío de email, sin reglas de negocio
   - Migración `C11_001`: tabla `notificacion` con `aplicar_rls`
   - Integración con pg-boss (cola sobre PostgreSQL, sin Redis); *worker* arrancable en el mismo proceso o por separado. Los payloads de la cola llevan solo identificadores, sin datos personales
@@ -421,7 +421,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-13] `disponibilidad-publica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Consulta pública de prestaciones y horarios libres, sin cuenta
   - `GET /publico/{slug}/prestaciones` y `GET /publico/{slug}/disponibilidad` (profesional, prestación y rango de fechas)
   - La clínica se resuelve con `resolver_clinica_por_slug` y el cálculo de disponibilidad es el de C-02 (profesional, sillón, buffer, feriados y bloqueos)
