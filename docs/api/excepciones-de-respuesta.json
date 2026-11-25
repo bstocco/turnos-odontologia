@@ -8,5 +8,15 @@
   "POST /api/v1/auth/refresh": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
   "POST /api/v1/interno/clinicas": "Responde 201 sin esquema declarado (defecto F4). Change responsable: C-17.",
   "POST /api/v1/usuarios": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
-  "PUT /api/v1/usuarios/{id}": "Sin esquema de respuesta (defecto F4). Change responsable: C-06."
+  "PUT /api/v1/usuarios/{id}": "Sin esquema de respuesta (defecto F4). Change responsable: C-06.",
+  "POST /api/v1/turnos": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "GET /api/v1/turnos/{id}": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "POST /api/v1/turnos/{id}/{accion}": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "GET /api/v1/agenda": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "POST /api/v1/bloqueos": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "DELETE /api/v1/bloqueos/{id}": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-12.",
+  "GET /api/v1/auditoria": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-16.",
+  "GET /api/v1/ausentismo": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-16.",
+  "POST /api/v1/exportaciones": "Sin esquema de respuesta (defecto F4): puede filtrar campos no previstos. Change responsable: C-16.",
+  "GET /api/v1/exportaciones/{id}": "Responde un adjunto JSON (content-disposition) sin esquema declarado (defecto F4). Change responsable: C-16."
 }

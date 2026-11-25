@@ -28,6 +28,10 @@ export interface Mundo {
   readonly pacienteAjeno: { readonly id: string; readonly dni: string };
   /** Otro profesional de la clínica (no vinculado al odontólogo de matriz). */
   readonly profesionalAjenoId: string;
+  /** Turno del profesional del odontólogo de matriz. */
+  readonly turnoDelOdontologoId: string;
+  /** Turno de otro profesional de la clínica (ajeno al odontólogo de matriz). */
+  readonly turnoAjenoId: string;
   /** Recursos nuevos por caso (las celdas que modifican o eliminan no dependen del orden). */
   readonly nuevo: {
     profesional(): Promise<string>;
@@ -38,6 +42,14 @@ export interface Mundo {
     fechaDeFeriado(): string;
     paciente(): Promise<string>;
     usuario(): Promise<string>;
+    /** Turno activo nuevo (por fixture) del profesional de matriz, en un horario libre. */
+    turno(): Promise<string>;
+    /** Bloqueo nuevo (por fixture) del profesional de matriz, en un horario libre. */
+    bloqueo(): Promise<string>;
+    /** Bloqueo nuevo (por fixture) de otro profesional de la clínica (ajeno al odontólogo). */
+    bloqueoAjeno(): Promise<string>;
+    /** Instante libre (2041 en adelante) para pedidos de alta de turnos y bloqueos. */
+    instanteLibre(): Date;
   };
   /** Credenciales válidas para login (usuario de la clínica A). */
   credencialesDeLogin(): Promise<{ slug: string; email: string; password: string }>;

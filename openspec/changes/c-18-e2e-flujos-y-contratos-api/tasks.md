@@ -79,21 +79,21 @@
 
 ## 8. Actualización del contrato y la matriz con los endpoints nuevos
 
-- [ ] 8.1 Rebase sobre `main`, regenerar `docs/api/openapi.json` y declarar en `docs/api/CHANGELOG.md` los cambios (rompientes, si los hubo, con subida de mayor). Verificación: pruebas de contrato en verde.
+- [x] 8.1 Rebase sobre `main`, regenerar `docs/api/openapi.json` y declarar en `docs/api/CHANGELOG.md` los cambios (rompientes, si los hubo, con subida de mayor). Verificación: pruebas de contrato en verde.
 - [ ] 8.2 Agregar a la matriz las filas de turnos, agenda, bloqueos, enlace de WhatsApp, reserva pública y acción por token, exportación, auditoría y ausentismo según `03 §RBAC`, con alcance propio del odontólogo donde corresponda. Verificación: completitud y ejecución de la matriz en verde.
-- [ ] 8.3 Revisar `docs/api/excepciones-de-respuesta.json`: quitar las excepciones resueltas por sus dueños (F4) y agregar solo las justificadas. Verificación: prueba de respuestas declaradas en verde.
+- [x] 8.3 Revisar `docs/api/excepciones-de-respuesta.json`: quitar las excepciones resueltas por sus dueños (F4) y agregar solo las justificadas. Verificación: prueba de respuestas declaradas en verde.
 
 ## 9. Flujos de Fase 2
 
-- [ ] 9.1 Flujo 2 — agendar desde recepción: `201`, `409` `TURNO_SOLAPADO_PROFESIONAL` y `TURNO_SOLAPADO_SILLON`, `422` fuera de horario, feriado y bloqueo. Verificación: escenario "Agendar desde la recepción con solape" en verde.
+- [x] 9.1 Flujo 2 — agendar desde recepción: `201`, `409` `TURNO_SOLAPADO_PROFESIONAL` y `TURNO_SOLAPADO_SILLON`, `422` fuera de horario, feriado y bloqueo. Verificación: escenario "Agendar desde la recepción con solape" en verde.
 - [ ] 9.2 Flujo 3 (resto) — código por email (email simulado), `POST /publico/{slug}/reservas`, sillón automático, estado inicial según configuración, email con enlaces; `409` hueco ocupado o sin sillón, `422` código vencido o incorrecto con límite de intentos, `429`. Verificación: pruebas en verde.
 - [ ] 9.3 Flujo 4 — confirmar y cancelar por token; `409` con menos de 24 h; `410`/`404` token usado, vencido o inexistente. Verificación: pruebas en verde.
-- [ ] 9.4 Flujo 5 — reprogramación exitosa y reprogramación con solape que revierte todo con el original intacto. Verificación: escenario "Reprogramación fallida" en verde.
-- [ ] 9.5 Flujo 6 — bloqueo de franja, `409` con la lista de turnos en conflicto y disponibilidad pública sin la franja bloqueada. Verificación: pruebas en verde.
-- [ ] 9.6 Flujo 7 — recordatorio por email con reloj y proveedor simulados: notificación `pendiente` → `enviada`, y `fallida` tras el máximo de reintentos. Verificación: pruebas en verde.
+- [x] 9.4 Flujo 5 — reprogramación exitosa y reprogramación con solape que revierte todo con el original intacto. Verificación: escenario "Reprogramación fallida" en verde.
+- [x] 9.5 Flujo 6 — bloqueo de franja, `409` con la lista de turnos en conflicto y disponibilidad pública sin la franja bloqueada. Verificación: pruebas en verde.
+- [x] 9.6 Flujo 7 — recordatorio por email con reloj y proveedor simulados: notificación `pendiente` → `enviada`, y `fallida` tras el máximo de reintentos. Verificación: pruebas en verde.
 - [ ] 9.7 Flujo 8 — `GET /turnos/{id}/enlace-whatsapp` con teléfono normalizado y error con teléfono ausente o inválido. Verificación: pruebas en verde.
-- [ ] 9.8 Flujo 9 — `POST /turnos/{id}/ausente` sobre turno confirmado ya comenzado, con auditoría; `409` en turno futuro u otro estado. Verificación: pruebas en verde.
-- [ ] 9.9 Flujo 10 — `POST /exportaciones` y `GET /exportaciones/{id}` con auditoría y solo datos de la clínica; `403` para no administrador. Verificación: escenario "Exportación sin rol de administrador" en verde.
+- [x] 9.8 Flujo 9 — `POST /turnos/{id}/ausente` sobre turno confirmado ya comenzado, con auditoría; `409` en turno futuro u otro estado. Verificación: pruebas en verde.
+- [x] 9.9 Flujo 10 — `POST /exportaciones` y `GET /exportaciones/{id}` con auditoría y solo datos de la clínica; `403` para no administrador. Verificación: escenario "Exportación sin rol de administrador" en verde.
 - [ ] 9.10 `afirmarSinDatosPersonales` sobre los logs de cada flujo de Fase 2 (incluidos payloads de la cola y emails simulados). Verificación: pruebas en verde.
 
 ## 10. Concurrencia personal vs. público
@@ -105,3 +105,9 @@
 - [ ] 11.1 Agregar `.http` para cada operación nueva y verificar que toda operación del contrato tenga al menos un ejemplo (ampliar `ejemplos.test.ts` con esa regla). Verificación: escenario "Cierre del change" en verde.
 - [ ] 11.2 Actualizar `docs/api/README.md` con los flujos de Fase 2; `npm test`, lint, formato y tipos en verde; CI en verde. Verificación: run de CI enlazado en el PR.
 - [ ] 11.3 Confirmar que no quedan celdas `defecto` sin reporte vigente y que todas las tareas de ambas fases están `[x]`; recién entonces archivar el change. Verificación: `openspec validate c-18-e2e-flujos-y-contratos-api --strict` en verde y archivo hecho por el Líder.
+
+> **Estado de la Fase 2a (C-12, C-14 y C-16 fusionados; sin archivar):**
+> - Hecho: contrato 1.1.0 (minor, 10 operaciones nuevas, nada rompiente) con `CHANGELOG`; excepciones de respuesta de turnos, agenda, bloqueos, auditoría, ausentismo y exportación (F4); matriz con las 10 filas nuevas; flujos 2, 5, 6, 7, 9 y 10; ejemplos `.http` de todas las operaciones actuales y la regla "toda operación tiene un ejemplo".
+> - Marcados `it.fails` (defecto y change responsable en el nombre): **F6** (C-12: turnos, agenda y bloqueos no registran la autenticación, 401 con sesión válida), **F7** (C-12: `requireRole` exacto de odontólogo en las acciones y bloqueos), **F8** (C-16: ausentismo solo del administrador) y **F9** (C-16: sin sesión responde 403 en lugar de 401). Confirmados aplicando la autenticación fuera del repo: **F10** (reprogramar ignora el cuerpo y usa `new Date()`), **F11** (solape responde 500 por reintento dentro de la transacción abortada, SQLSTATE 25P02, en lugar de 409), **F12** (bloqueo sobre turno activo responde 201 en lugar de 409), **F13** (acciones de turno sin auditoría), **F14** (turno futuro responde 422; la KB dice 409).
+> - Brecha: Flujo 8 (9.7): `GET /turnos/{id}/enlace-whatsapp` no existe (C-04 solo entregó el dominio); queda una guarda y dos `it.todo`.
+> - **Pendiente para C-15 (Fase 2b):** 8.2 (filas de reserva pública y acción por token; hoy faltan además las del enlace de WhatsApp), 9.2 (flujo 3: código, reserva, enlaces), 9.3 (flujo 4: token), 9.10 (privacidad de los flujos de C-15), 10.1 (concurrencia personal vs. público), 11.1 (ejemplos de las operaciones de C-15), 11.2 y 11.3. Al fusionarse C-15 la completitud de la matriz, el contrato y los ejemplos fallarán nombrando sus operaciones.

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import type { Contrato } from './comparar.js';
+import { operacionesDe, type Contrato } from './comparar.js';
 import { analizarEjemplos } from './ejemplos.js';
 import { DIRECTORIO_EJEMPLOS, RUTA_CONTRATO } from './soporte-contrato.js';
 
@@ -127,5 +127,19 @@ describe('ejemplos de uso de la API (docs/api/ejemplos)', () => {
     }
     expect(pedidos).toBeGreaterThan(0);
     expect(problemas).toEqual([]);
+  });
+
+  it('toda operación del contrato tiene al menos un ejemplo (cierre del change)', async () => {
+    const real = JSON.parse(await readFile(RUTA_CONTRATO, 'utf8')) as Contrato;
+    const archivos = (await readdir(DIRECTORIO_EJEMPLOS)).filter((a) => a.endsWith('.http')).sort();
+    const cubiertas = new Set<string>();
+    for (const archivo of archivos) {
+      const texto = await readFile(join(DIRECTORIO_EJEMPLOS, archivo), 'utf8');
+      for (const operacion of analizarEjemplos(archivo, texto, real).operaciones) {
+        cubiertas.add(operacion);
+      }
+    }
+    const sinEjemplo = [...operacionesDe(real).keys()].filter((o) => !cubiertas.has(o)).sort();
+    expect(sinEjemplo).toEqual([]);
   });
 });

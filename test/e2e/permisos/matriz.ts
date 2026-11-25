@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 import { pacienteSintetico, semillaNueva } from '../soporte/datos-sinteticos.js';
 import { sumarDias } from '../soporte/fechas.js';
@@ -52,6 +52,40 @@ const F1: Defecto = {
   change: 'C-06',
   motivo:
     'F1: el módulo usuarios no registra la autenticación y responde 401 incluso al administrador',
+};
+
+/**
+ * F6 (C-12): los módulos turnos, agenda y bloqueos usan `contextoDePedido` pero no registran
+ * `pluginDeAutenticacion`: `request.userContext` nunca se completa y todo pedido responde 401,
+ * incluso al administrador. Además (por lectura, no verificable hasta corregir F6) las acciones de
+ * turno y los bloqueos usan `requireRole(ctx, 'odontologo')`, que solo admite al odontólogo y
+ * rechazaría a la administración y a la recepción que `03 §RBAC` habilita. Se informa al Líder.
+ */
+const F6: Defecto = {
+  change: 'C-12',
+  motivo:
+    'F6: turnos, agenda y bloqueos no registran la autenticación y responden 401 incluso al administrador',
+};
+
+/**
+ * F8 (C-16): `GET /ausentismo` es solo del administrador; `03 §RBAC` da lectura también a la
+ * recepcionista y, con alcance propio, al odontólogo.
+ */
+const F8: Defecto = {
+  change: 'C-16',
+  motivo:
+    'F8: ausentismo solo admite al administrador; 03 §RBAC lo habilita a recepción y odontólogo',
+  actores: ['recepcionista', 'odontologo'],
+};
+
+/**
+ * F9 (C-16): sin sesión, `auditoria`, `ausentismo` y `exportaciones` responden 403 ACCESO_PROHIBIDO en lugar de
+ * 401 (`exigirContextoDeAdministrador` trata la ausencia de contexto como falta de permiso).
+ */
+const F9: Defecto = {
+  change: 'C-16',
+  motivo: 'F9: sin sesión responde 403 ACCESO_PROHIBIDO en lugar de 401',
+  actores: ['anonimo'],
 };
 
 const conAnio = (anio: number): string => `?anio=${anio}`;
@@ -405,6 +439,205 @@ export const MATRIZ: Readonly<Record<string, FilaDeMatriz>> = {
       metodo: 'DELETE',
       url: `${API}/usuarios/${await m.nuevo.usuario()}`,
     }),
+  },
+
+  // --- Turnos, agenda y bloqueos (C-12; F6) -------------------------------------------------------
+  [`POST ${API}/turnos`]: {
+    tipo: 'personal',
+    // 03 §RBAC: crea turnos el administrador y la recepcionista; el odontólogo solo registra atención.
+    roles: ADMIN_Y_RECEPCION,
+    defecto: F6,
+    pedido: async (m) => ({
+      metodo: 'POST',
+      url: `${API}/turnos`,
+      payload: {
+        pacienteId: m.pacienteAjeno.id,
+        profesionalId: m.a.profesionalId,
+        sillonId: m.a.sillonId,
+        prestacionId: m.a.prestacionId,
+        inicio: m.nuevo.instanteLibre().toISOString(),
+        duracionMinutos: 30,
+        bufferMinutos: 0,
+        origen: 'recepcion',
+      },
+    }),
+  },
+  [`GET ${API}/turnos/{id}`]: {
+    tipo: 'personal',
+    // 03 §RBAC: el odontólogo lee solo sus turnos ("R (propios)").
+    roles: {
+      administrador: 'permitido',
+      recepcionista: 'permitido',
+      odontologo: 'permitido_con_alcance',
+    },
+    conId: true,
+    defecto: F6,
+    pedido: async (m) => ({ metodo: 'GET', url: `${API}/turnos/${m.turnoDelOdontologoId}` }),
+    alcance: async (m) => {
+      const respuesta = await m.entorno.inject({
+        method: 'GET',
+        url: `${API}/turnos/${m.turnoAjenoId}`,
+        headers: m.sesiones.odontologo.encabezados,
+      });
+      if (![403, 404].includes(respuesta.statusCode)) {
+        throw new Error(`El odontólogo obtuvo un turno ajeno (estado ${respuesta.statusCode}).`);
+      }
+    },
+  },
+  [`POST ${API}/turnos/{id}/{accion}`]: {
+    tipo: 'personal',
+    // Representada por `cancelar`: administrador y recepcionista sí; el odontólogo solo registra atención.
+    roles: ADMIN_Y_RECEPCION,
+    conId: true,
+    defecto: F6,
+    pedido: async (m) => ({
+      metodo: 'POST',
+      url: `${API}/turnos/${await m.nuevo.turno()}/cancelar`,
+    }),
+  },
+  [`GET ${API}/agenda`]: {
+    tipo: 'personal',
+    // 03 §RBAC: agenda "R (propia)" para el odontólogo.
+    roles: {
+      administrador: 'permitido',
+      recepcionista: 'permitido',
+      odontologo: 'permitido_con_alcance',
+    },
+    defecto: F6,
+    pedido: async (m) => ({
+      metodo: 'GET',
+      url: `${API}/agenda?${new URLSearchParams({
+        desde: m.a.diaConHuecos,
+        hasta: sumarDias(m.a.diaConHuecos, 1),
+        profesionalId: m.a.profesionalId,
+      }).toString()}`,
+    }),
+    alcance: async (m) => {
+      const respuesta = await m.entorno.inject({
+        method: 'GET',
+        url: `${API}/agenda?${new URLSearchParams({
+          desde: m.a.diaConHuecos,
+          hasta: sumarDias(m.a.diaConHuecos, 1),
+          profesionalId: m.profesionalAjenoId,
+        }).toString()}`,
+        headers: m.sesiones.odontologo.encabezados,
+      });
+      if (![403, 404].includes(respuesta.statusCode)) {
+        throw new Error(`El odontólogo obtuvo la agenda ajena (estado ${respuesta.statusCode}).`);
+      }
+    },
+  },
+  [`POST ${API}/bloqueos`]: {
+    tipo: 'personal',
+    // 03 §RBAC: bloqueos C R U D para los tres roles ("propios" para el odontólogo).
+    roles: {
+      administrador: 'permitido',
+      recepcionista: 'permitido',
+      odontologo: 'permitido_con_alcance',
+    },
+    defecto: F6,
+    pedido: async (m) => {
+      const inicio = m.nuevo.instanteLibre();
+      return {
+        metodo: 'POST',
+        url: `${API}/bloqueos`,
+        payload: {
+          profesionalId: m.a.profesionalId,
+          inicio: inicio.toISOString(),
+          fin: new Date(inicio.getTime() + 60 * 60_000).toISOString(),
+          motivo: 'Bloqueo sintético de la matriz',
+        },
+      };
+    },
+    alcance: async (m) => {
+      const inicio = m.nuevo.instanteLibre();
+      const respuesta = await m.entorno.inject({
+        method: 'POST',
+        url: `${API}/bloqueos`,
+        headers: m.sesiones.odontologo.encabezados,
+        payload: {
+          profesionalId: m.profesionalAjenoId,
+          inicio: inicio.toISOString(),
+          fin: new Date(inicio.getTime() + 60 * 60_000).toISOString(),
+        },
+      });
+      if (![403, 404].includes(respuesta.statusCode)) {
+        throw new Error(`El odontólogo bloqueó una agenda ajena (estado ${respuesta.statusCode}).`);
+      }
+    },
+  },
+  [`DELETE ${API}/bloqueos/{id}`]: {
+    tipo: 'personal',
+    roles: {
+      administrador: 'permitido',
+      recepcionista: 'permitido',
+      odontologo: 'permitido_con_alcance',
+    },
+    conId: true,
+    defecto: F6,
+    pedido: async (m) => ({
+      metodo: 'DELETE',
+      url: `${API}/bloqueos/${await m.nuevo.bloqueo()}`,
+    }),
+    alcance: async (m) => {
+      // Bloqueo del profesional de matriz: el odontólogo de matriz es su dueño; uno de otro profesional no.
+      const ajeno = await m.nuevo.bloqueoAjeno();
+      const respuesta = await m.entorno.inject({
+        method: 'DELETE',
+        url: `${API}/bloqueos/${ajeno}`,
+        headers: m.sesiones.odontologo.encabezados,
+      });
+      if (![403, 404].includes(respuesta.statusCode)) {
+        throw new Error(`El odontólogo eliminó un bloqueo ajeno (estado ${respuesta.statusCode}).`);
+      }
+    },
+  },
+
+  // --- Auditoría, ausentismo y exportación (C-16) -----------------------------------------------
+  [`GET ${API}/auditoria`]: {
+    tipo: 'personal',
+    roles: SOLO_ADMIN,
+    defecto: F9,
+    pedido: async () => ({ metodo: 'GET', url: `${API}/auditoria` }),
+  },
+  [`GET ${API}/ausentismo`]: {
+    tipo: 'personal',
+    // 03 §RBAC: Registro de ausentismo R para administrador y recepcionista, R (propio) para el odontólogo.
+    roles: {
+      administrador: 'permitido',
+      recepcionista: 'permitido',
+      odontologo: 'permitido_con_alcance',
+    },
+    defecto: {
+      ...F8,
+      actores: ['anonimo', ...(F8.actores ?? [])],
+      motivo: F8.motivo + '; sin sesión responde 403 (F9)',
+    },
+    pedido: async () => ({ metodo: 'GET', url: `${API}/ausentismo` }),
+    alcance: async (m) => {
+      const respuesta = await m.entorno.inject({
+        method: 'GET',
+        url: `${API}/ausentismo`,
+        headers: m.sesiones.odontologo.encabezados,
+      });
+      if (respuesta.statusCode !== 200) {
+        throw new Error(
+          `El odontólogo debe ver su propio ausentismo (estado ${respuesta.statusCode}).`,
+        );
+      }
+    },
+  },
+  [`POST ${API}/exportaciones`]: {
+    tipo: 'personal',
+    roles: SOLO_ADMIN,
+    defecto: F9,
+    pedido: async () => ({ metodo: 'POST', url: `${API}/exportaciones` }),
+  },
+  [`GET ${API}/exportaciones/{id}`]: {
+    tipo: 'personal',
+    roles: SOLO_ADMIN,
+    defecto: F9,
+    pedido: async () => ({ metodo: 'GET', url: `${API}/exportaciones/${randomUUID()}` }),
   },
 
   // --- Consulta pública (sin sesión) -------------------------------------------------------------

@@ -14,6 +14,13 @@ import { emitirRefrescoSintetico, iniciarSesion } from '../soporte/sesion.js';
 import type { Mundo } from './tipos.js';
 
 /** Fecha única por feriado nuevo (2040 en adelante: lejos de cualquier día usado por otros flujos). */
+let contadorDeInstante = 0;
+/** Instante único por caso (2041 en adelante): ningún otro flujo agenda tan lejos. */
+function instanteLibreNuevo(): Date {
+  contadorDeInstante += 1;
+  return new Date(Date.UTC(2041, 0, 1, 12, 0, 0) + contadorDeInstante * 86_400_000);
+}
+
 let contadorDeFeriado = 0;
 function fechaDeFeriadoNueva(): string {
   contadorDeFeriado += 1;
@@ -80,19 +87,56 @@ export async function construirMundo(entorno: EntornoE2E): Promise<Mundo> {
   // El odontólogo solo alcanza a pacientes con un turno activo con su profesional.
   const pacienteDelOdontologo = await pacienteNuevo();
   const pacienteAjeno = await pacienteNuevo();
-  await withTenant(a.clinica.id, (cliente) =>
-    cliente.query(
-      `INSERT INTO turno (id, clinica_id, paciente_id, profesional_id, inicio, fin, fin_sillon)
-       VALUES ($1, $2, $3, $4, $5, $6, $6)`,
-      [
-        randomUUID(),
-        a.clinica.id,
-        pacienteDelOdontologo.id,
-        a.profesionalId,
-        new Date(Date.UTC(2031, 0, 5, 12, 0, 0)),
-        new Date(Date.UTC(2031, 0, 5, 12, 30, 0)),
-      ],
-    ),
+  async function insertarTurno(
+    pacienteId: string,
+    profesionalId: string,
+    inicio: Date,
+  ): Promise<string> {
+    const id = randomUUID();
+    await withTenant(a.clinica.id, (cliente) =>
+      cliente.query(
+        `INSERT INTO turno (id, clinica_id, paciente_id, profesional_id, inicio, fin, fin_sillon)
+         VALUES ($1, $2, $3, $4, $5, $6, $6)`,
+        [
+          id,
+          a.clinica.id,
+          pacienteId,
+          profesionalId,
+          inicio,
+          new Date(inicio.getTime() + 30 * 60_000),
+        ],
+      ),
+    );
+    return id;
+  }
+  async function insertarBloqueo(profesionalId: string): Promise<string> {
+    const id = randomUUID();
+    const inicio = instanteLibreNuevo();
+    await withTenant(a.clinica.id, (cliente) =>
+      cliente.query(
+        `INSERT INTO bloqueo (id, clinica_id, profesional_id, inicio, fin, creado_por)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          id,
+          a.clinica.id,
+          profesionalId,
+          inicio,
+          new Date(inicio.getTime() + 60 * 60_000),
+          odontologo.id,
+        ],
+      ),
+    );
+    return id;
+  }
+  const turnoDelOdontologoId = await insertarTurno(
+    pacienteDelOdontologo.id,
+    a.profesionalId,
+    new Date(Date.UTC(2031, 0, 5, 12, 0, 0)),
+  );
+  const turnoAjenoId = await insertarTurno(
+    pacienteAjeno.id,
+    profesionalAjeno.id,
+    new Date(Date.UTC(2031, 0, 6, 12, 0, 0)),
   );
 
   const sesiones = {
@@ -115,6 +159,8 @@ export async function construirMundo(entorno: EntornoE2E): Promise<Mundo> {
     pacienteDelOdontologo,
     pacienteAjeno,
     profesionalAjenoId: profesionalAjeno.id,
+    turnoDelOdontologoId,
+    turnoAjenoId,
     nuevo: {
       profesional: async () =>
         (
@@ -146,6 +192,10 @@ export async function construirMundo(entorno: EntornoE2E): Promise<Mundo> {
       fechaDeFeriado: fechaDeFeriadoNueva,
       paciente: async () => (await pacienteNuevo()).id,
       usuario: async () => (await usuarioNuevo()).id,
+      turno: () => insertarTurno(pacienteAjeno.id, a.profesionalId, instanteLibreNuevo()),
+      bloqueo: () => insertarBloqueo(a.profesionalId),
+      bloqueoAjeno: () => insertarBloqueo(profesionalAjeno.id),
+      instanteLibre: instanteLibreNuevo,
     },
     async credencialesDeLogin() {
       const usuario = await usuarioNuevo();

@@ -49,6 +49,22 @@ npm run test:e2e
 Usan solo datos sintéticos y secretos descartables generados en cada ejecución. En `npm test`
 corren después de las pruebas de integración, nunca en paralelo.
 
+### Flujos cubiertos (`test/e2e/flujos`)
+
+| Archivo | Flujo de `07_flujos_principales.md` |
+|---|---|
+| `01-autenticacion`, `00-puesta-en-marcha` | 1 y puesta en marcha |
+| `02-agendar-desde-recepcion` | 2 (turnos, solapes, horario, feriado, bloqueo) |
+| `03-reserva-publica` | 3, solo la consulta pública (el resto depende de C-15) |
+| `05-reprogramacion`, `06-bloqueo-de-franja`, `09-ausentismo` | 5, 6 y 9 |
+| `07-recordatorio-por-email` | 7 (reloj y proveedor de email simulados) |
+| `08-whatsapp-manual` | 8: brecha, la ruta no existe todavía |
+| `10-exportacion` | 10 |
+
+Los escenarios que hoy no se cumplen por defectos de otros changes se escriben con el comportamiento
+esperado y se marcan `it.fails` con el defecto y el change responsable en el nombre: el día que se
+corrija, la prueba avisa y hay que quitar la marca. Nunca se cambia lo esperado para que pase.
+
 ## Usar los ejemplos
 
 Los archivos de `ejemplos/` usan variables, nunca credenciales:
@@ -59,7 +75,7 @@ Los archivos de `ejemplos/` usan variables, nunca credenciales:
 | `{{slug}}` | `slug` de la clínica. |
 | `{{token}}` | Token de acceso obtenido con `POST /api/v1/auth/login`. |
 | `{{refreshToken}}`, `{{password}}`, `{{claveInterna}}` | Secretos: definilos en tu entorno, no en el archivo. |
-| `{{profesionalId}}`, `{{sillonId}}`, `{{prestacionId}}`, `{{pacienteId}}`, `{{feriadoId}}`, `{{usuarioId}}` | Ids devueltos por las altas. |
+| `{{profesionalId}}`, `{{sillonId}}`, `{{prestacionId}}`, `{{pacienteId}}`, `{{feriadoId}}`, `{{usuarioId}}`, `{{turnoId}}`, `{{bloqueoId}}`, `{{exportacionId}}` | Ids devueltos por las altas. |
 
 En VS Code (extensión REST Client) definilas en `rest-client.environmentVariables`; en JetBrains,
 en `http-client.private.env.json` (ignorado por git). Una prueba verifica que cada ejemplo

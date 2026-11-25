@@ -1,0 +1,42 @@
+# Turnos desde la recepción (C-12). Solo datos sintéticos; los ids salen de las altas anteriores.
+@baseUrl = http://localhost:3000
+
+### Agendar un turno (administrador o recepcionista). 409 si el profesional o el sillón se solapan.
+POST {{baseUrl}}/api/v1/turnos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pacienteId": "{{pacienteId}}",
+  "profesionalId": "{{profesionalId}}",
+  "sillonId": "{{sillonId}}",
+  "prestacionId": "{{prestacionId}}",
+  "inicio": "2026-12-14T12:00:00.000Z",
+  "duracionMinutos": 30,
+  "bufferMinutos": 10,
+  "origen": "recepcion"
+}
+
+### Detalle de un turno
+GET {{baseUrl}}/api/v1/turnos/{{turnoId}}
+Authorization: Bearer {{token}}
+
+### Confirmar un turno
+POST {{baseUrl}}/api/v1/turnos/{{turnoId}}/confirmar
+Authorization: Bearer {{token}}
+
+### Cancelar un turno
+POST {{baseUrl}}/api/v1/turnos/{{turnoId}}/cancelar
+Authorization: Bearer {{token}}
+
+### Reprogramar un turno (crea el turno nuevo y deja el original en "reprogramado")
+POST {{baseUrl}}/api/v1/turnos/{{turnoId}}/reprogramar
+Authorization: Bearer {{token}}
+
+### Registrar la atención (solo si el turno ya comenzó)
+POST {{baseUrl}}/api/v1/turnos/{{turnoId}}/atendido
+Authorization: Bearer {{token}}
+
+### Registrar el ausentismo (solo un turno confirmado que ya comenzó; queda en el registro de ausentismo)
+POST {{baseUrl}}/api/v1/turnos/{{turnoId}}/ausente
+Authorization: Bearer {{token}}
