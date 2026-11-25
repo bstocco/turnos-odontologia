@@ -55,7 +55,10 @@ function crearServicioDePrueba(fallarEnInsertar = false): {
       };
     },
   );
-  const repositorio: AuditoriaRepositorio = { insertar: spyInsertar };
+  const repositorio: AuditoriaRepositorio = {
+    insertar: spyInsertar,
+    listar: vi.fn(async () => []),
+  };
   return {
     auditoria: crearAuditoriaService(repositorio),
     insertados,

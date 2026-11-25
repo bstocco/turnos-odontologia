@@ -39,7 +39,7 @@ function crearRepositorioFake(): {
     },
   );
   return {
-    repositorio: { insertar: spyInsertar },
+    repositorio: { insertar: spyInsertar, listar: vi.fn(async () => []) },
     insertados,
     spyInsertar,
   };
