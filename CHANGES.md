@@ -521,7 +521,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ## FASE 6 — Endurecimiento y despliegue
 
 ### [C-18] `e2e-flujos-y-contratos-api`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Verificación de extremo a extremo y contrato de la API
   - Pruebas de los 10 flujos de `07_flujos_principales.md` sobre la API real y PostgreSQL de prueba, con datos sintéticos
   - Contrato OpenAPI generado y verificado en CI (los cambios rompientes deben declararse)
