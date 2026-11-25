@@ -29,7 +29,16 @@ Ver `proposal.md` (Why). Estado verificado del repositorio al 2026-11-25:
 
 ## Decisions
 
-### D1. PaaS: Fly.io, región `gru` (São Paulo), Managed Postgres 17
+### D1. PaaS: Fly.io, región `gru` (São Paulo), Managed Postgres 17 — **actualizado: la base pasa a Neon (Plan B)**
+
+> **Decisión del Líder, 2026-11-25 (resultado del spike `Q1`): se activa el Plan B.** La **aplicación** (API y worker) sigue en Fly.io `gru`; la **base de datos** pasa a **Neon `aws-sa-east-1`** (PostgreSQL 17). Motivo: el Managed Postgres de Fly rechaza `GRANT ... TO app` ejecutado por `migra` con "MPG system roles cannot be modified" (ver `docs/operacion/evidencia/spike-postgres.md`), y las migraciones `C03_001` (y las que otorgan privilegios a `app`, p. ej. `C06_002`) lo necesitan. Las migraciones **no se modifican** (regla 6) y el aislamiento (RLS forzada, `app` sin `BYPASSRLS` ni propiedad) **no se debilita**. Consecuencias:
+> - Hay un tercer proveedor con datos de pacientes (Neon, AWS `sa-east-1`, Brasil): se agrega al inventario de transferencias de D2 y a la revisión legal (`Q3`).
+> - `Q2` (retención de backups) y `Q6` (precio) se reabren para el plan de Neon; la evidencia de Fly sobre backups deja de aplicar a la base.
+> - Hay latencia adicional aplicación-base entre proveedores (ambos en Brasil); se mide en `pruebas`.
+> - Las URLs de conexión son las del rol correspondiente en Neon; para `pg-boss` y migraciones se usa el host **directo** (sin `-pooler`) y `sslmode=require`.
+> - El cluster `turnos-pruebas-db` de Fly queda sin uso; su baja es decisión de la Líder una vez verificado Neon.
+>
+> Lo que sigue de D1 (tabla comparativa y alternativas) es la evidencia previa al spike y se conserva como registro.
 
 **Evidencia verificada el 2026-11-25** (páginas oficiales, leídas por un subagente de lectura web y contrastadas con las condiciones de `DD-04`):
 
@@ -57,7 +66,7 @@ Render descarta por región (la región de un servicio existente no se puede cam
 `PO-03` ya figura como decidida en la KB (región `sa-east-1` con cláusulas contractuales modelo). `C-20` la **cierra operativamente** así:
 
 1. **Transferencia internacional**: la aplicación y la base se alojan en Brasil (`gru`), país que no figura entre los de nivel adecuado de la AAIP (verificado el 2026-11-22 en `argentina.gob.ar/transferencias-internacionales`). La base legal adoptada es el contrato con **cláusulas contractuales modelo** (Disposición DNPDP 60/2016 y Resolución AAIP 198/2023) entre la clínica (responsable) y el proveedor, sujeto a validación legal.
-2. **Inventario de transferencias** (requisito de la spec `operacion-y-proteccion-de-datos`): (a) Fly.io — aplicación y base, Brasil, todos los datos; (b) proveedor de email (`Resend` o `Brevo`, `Q3`) — nombre, email y detalle del turno de pacientes, país de tratamiento a verificar; (c) GitHub/CI — **ningún dato personal** (solo sintéticos, regla 2).
+2. **Inventario de transferencias** (requisito de la spec `operacion-y-proteccion-de-datos`): (a) Fly.io — aplicación (API y worker), Brasil, datos en tránsito y en memoria; **(a-bis) Neon (AWS `sa-east-1`, Brasil) — base de datos, todos los datos en reposo y copias, agregado tras el Plan B de D1**; (b) proveedor de email (`Resend` o `Brevo`, `Q3`) — nombre, email y detalle del turno de pacientes, país de tratamiento a verificar; (c) GitHub/CI — **ningún dato personal** (solo sintéticos, regla 2).
 3. **Minimización y trazabilidad**: se mantienen las reglas ya implementadas (logs solo con IDs, `log-redaction`, auditoría de lecturas y exportaciones, RLS forzada). C-20 no agrega almacenamiento de datos nuevos.
 4. **Cifrado**: HTTPS en el borde del PaaS y SSL en la conexión a la base; las copias residen en la misma región del proveedor.
 5. **Puerta antes de datos reales** (checklist, no código): cláusulas firmadas con el PaaS y el proveedor de email, validación legal de `PO-03` y `PO-10`, análisis de `PO-14` (registro de la base ante la AAIP). Mientras no esté completo, solo `pruebas` con datos sintéticos.
@@ -86,6 +95,10 @@ El comando de migraciones se ejecuta como paso de liberación (en Fly, `release_
 
 Se replica `01-roles.sql` sobre Managed Postgres: `migra` con permisos de esquema (rol `Schema Admin`) y `app` con el rol más restringido posible (`Writer`), verificando después con consultas sobre `pg_roles`/`pg_class` que `app` no es superusuario, no tiene `BYPASSRLS` y no es propietario de tablas. Fly crea de entrada un único usuario administrador (`fly-user`): se usa solo para el aprovisionamiento y no se carga como secreto de la aplicación.
 
+**Resultado del spike (2026-11-25)**: (a) `btree_gist` se habilita y (b) los roles `app` y `migra` se crean desde el panel, pero **(c) falla**: `GRANT USAGE ON SCHEMA public TO app` y `GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE clinica, clinica_config TO app` (sentencias 5 y 6 de `C03_001`) responden "MPG system roles cannot be modified". **Se activa el Plan B (Neon)**; ver D1.
+
+**Aprovisionamiento en Neon (Plan B)**: los roles creados desde la consola o la API de Neon son miembros de `neon_superuser` (con `BYPASSRLS`), así que `app` y `migra` **se crean con SQL** (`CREATE ROLE ... NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS`), conectando con el rol propietario que crea Neon (`neondb_owner`), que se usa solo para aprovisionar y no se carga como secreto de la aplicación. Las bases `turnos` y `turnos_test` pertenecen a `migra`. Se verifica con `pg_roles`/`pg_class` que `app` no es superusuario, no tiene `BYPASSRLS` y no es propietario de tablas.
+
 **Riesgo conocido y primera tarea (spike `Q1`)**: la documentación no confirma que (a) el rol `Schema Admin` pueda ejecutar `CREATE EXTENSION btree_gist` (la doc ofrece `fly mpg databases extensions enable`), ni que (b) los roles con nombre `app` y `migra` puedan crearse con esos atributos, ni que (c) `Writer` reciba los `GRANT` que otorgan las migraciones (`C06_002_privilegios_app.sql`). El spike lo verifica en una base de `pruebas` antes de escribir nada más; **si falla, se activa el Plan B (Neon `aws-sa-east-1` para la base)** sin cambiar el resto del diseño.
 
 ### D6. Entornos y secretos
@@ -110,7 +123,8 @@ Workflow nuevo `deploy.yml` (manual `workflow_dispatch` y por etiqueta `v*`), qu
 
 ## Risks / Trade-offs
 
-- **Managed Postgres de Fly no habilita lo que necesita el esquema** (`btree_gist`, roles `app`/`migra`) → spike `Q1` como primera tarea; Plan B Neon; no se despliega nada en producción hasta pasarlo.
+- **Managed Postgres de Fly no habilita lo que necesita el esquema** (`btree_gist`, roles `app`/`migra`) → **materializado el 2026-11-25** (`GRANT ... TO app` rechazado); Plan B Neon activado (D1). Pendiente verificar en Neon lo mismo (roles sin `BYPASSRLS`, migraciones y pruebas de aislamiento) antes de cualquier despliegue.
+- **Scale-to-zero de Neon y worker `pg-boss`**: la base puede suspenderse por inactividad; se verifica en `pruebas` que el worker y el primer pedido tras una pausa se comportan bien, y se ajusta el plan si hace falta.
 - **Retención de backups desconocida** (`Q2`) → se verifica en el panel y por escrito antes del primer cliente; si es insuficiente, se sube de plan o se agrega un volcado cifrado periódico.
 - **Validez legal de los términos del proveedor** (`Q3`) → fuera del control técnico; puerta explícita del checklist: sin cláusulas firmadas no se cargan datos reales.
 - **`/salud` no consulta la base**: el PaaS puede considerar sana una API sin base → aceptado en esta versión; mejorar con un chequeo de disponibilidad es un change aparte (`Q4`).
@@ -130,7 +144,7 @@ Workflow nuevo `deploy.yml` (manual `workflow_dispatch` y por etiqueta `v*`), qu
 
 ## Open Questions
 
-- **Q1 (gate, resolver al inicio de apply)**: ¿el Managed Postgres de Fly permite `CREATE EXTENSION btree_gist` y los roles `app`/`migra` con los atributos de `01-roles.sql`? Si no, activar el Plan B (Neon `aws-sa-east-1`).
+- **Q1 (gate) — RESUELTA el 2026-11-25**: el Managed Postgres de Fly permite `btree_gist` y crear los roles, pero rechaza los `GRANT ... TO app` de las migraciones ("MPG system roles cannot be modified"). Se activó el Plan B (Neon `aws-sa-east-1`) para la base; ver D1 y D5.
 - **Q2**: ¿qué ventana de recuperación y retención de backups tiene el plan de producción de Managed Postgres? (No figura en la documentación leída.)
 - **Q3**: ¿los términos de Fly.io y del proveedor de email (`Resend` o `Brevo`, también por elegir) cubren las cláusulas contractuales modelo? Responsable: el Líder con asesoría legal.
 - **Q4**: ¿se agrega un chequeo de disponibilidad que consulte la base (`/salud/listo`) en un change aparte? Se propone **no** en `C-20`: la spec `http-service` exige que `/salud` no exponga datos de la base.
