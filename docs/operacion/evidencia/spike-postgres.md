@@ -115,7 +115,16 @@ Resultado informado por la Líder tras correr el aprovisionamiento y `verificar-
 - **Hipótesis (sin confirmar hasta correr `comparar-collation.mjs`)**: las bases creadas en Neon heredan una colación distinta de la local. Si se confirma, es una **diferencia de entorno** con **impacto de producto**: el código no es incorrecto, pero en `produccion` los listados ordenados por texto (pacientes, profesionales, sillones, prestaciones) saldrían en orden por bytes, con mayúsculas antes que minúsculas y acentuadas después de la `Z`. No afecta al aislamiento, a la integridad ni a la exclusión de solapamientos.
 - Otras consultas con `ORDER BY` sobre texto comparten el riesgo: `paciente`, `profesional`, `sillon`, `prestacion` y un listado de nombres en `src/`.
 
-Estado de la tarea 1.3: **pendiente**, a la espera de decidir la opción.
+**Causa confirmada (2026-11-25, informado por la Líder tras correr `comparar-collation.mjs`):** las bases `turnos` y `turnos_test` creadas en Neon usan colación **`C.UTF-8` con proveedor `builtin`** (orden por bytes), distinta de la local (`en_US.utf8`). Es una **diferencia de entorno** y no un defecto de la lógica; su efecto es el orden de los listados por texto. Neon ofrece la colación ICU `es-AR-x-icu`.
+
+**Decisión de la Líder: opción A.** Recrear `turnos` y `turnos_test` con `TEMPLATE template0`, `LOCALE_PROVIDER icu` e `ICU_LOCALE 'es-AR'`, propiedad de `migra` (eran solo datos sintéticos). La colación no se puede cambiar después de crear la base, por eso se recrean. Queda dentro de la zona de C-20 (solo aprovisionamiento).
+- **Forma parte del aprovisionamiento de `produccion` (tarea 6.3):** esa base se crea desde el principio con la misma colación; no hay nada que eliminar.
+- Sentencia de creación: `CREATE DATABASE "<base>" OWNER migra TEMPLATE template0 ENCODING 'UTF8' LOCALE_PROVIDER icu ICU_LOCALE 'es-AR'`.
+- El script de aprovisionamiento solo elimina una base existente si su colación no es ICU `es-AR` y se confirma con `CONFIRMAR_BORRADO=SI`; si ya es correcta, la conserva.
+
+**Mejora propuesta para el change correctivo aparte (opción B, no se hace en C-20):** fijar la colación en el código de las consultas con `ORDER BY` sobre texto (por ejemplo `ORDER BY apellido COLLATE "es-AR-x-icu"` en pacientes, profesionales, sillones y prestaciones), para que el orden no dependa de la colación con que se creó la base. Implica tocar código de otros changes y verificar que la colación exista en cada servidor.
+
+Estado de la tarea 1.3: **pendiente** hasta repetir `db:migrate` y `test:integration` sobre las bases recreadas.
 
 ### Pendiente en Neon
 

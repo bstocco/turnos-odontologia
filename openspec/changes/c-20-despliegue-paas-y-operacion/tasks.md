@@ -43,7 +43,7 @@
 
 - [ ] 6.1 Crear `docs/operacion/proteccion-datos.md` con el inventario de transferencias (Fly.io, proveedor de email, GitHub sin datos personales), la base legal (D2) y el checklist previo a datos reales con responsable, fecha y estado (`Q3`, `Q5`, `PO-14`). Verificar: cada ítem del checklist de la spec `operacion-y-proteccion-de-datos` figura con estado.
 - [ ] 6.2 Tras la aprobación, actualizar `knowledge-base/09_decisiones_y_supuestos.md` (`DD-04`: proveedor Fly.io y evidencia) y `knowledge-base/10_preguntas_abiertas.md` (`PO-03`, `PO-10`, `R-05`) y el `CHANGES.md` de C-20 (nota de decisión; el `[x]` lo marca quien fusiona). Verificar: los textos coinciden con `design.md` y no contradicen las reglas duras.
-- [ ] 6.3 Aprovisionar `produccion` con el mismo procedimiento que `pruebas`, **sin cargar datos reales**. Verificar: `GET /salud` responde `200` y los backups figuran activos.
+- [ ] 6.3 Aprovisionar `produccion` con el mismo procedimiento que `pruebas` (incluida la base creada con colación ICU `es-AR`, ver `docs/operacion/evidencia/spike-postgres.md`), **sin cargar datos reales**. Verificar: `GET /salud` responde `200` y los backups figuran activos.
 - [ ] 6.4 Ejecutar `openspec validate c-20-despliegue-paas-y-operacion` y `openspec status --change c-20-despliegue-paas-y-operacion --json`. Verificar: validan y proposal, specs, design y tasks figuran `done`.
 
 ## Workflow follow-up
