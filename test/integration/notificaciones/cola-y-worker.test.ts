@@ -27,6 +27,7 @@ import {
   cerrarPool,
   comoApp,
   consultarComoMigra,
+  crearTurnoSintetico,
   limpiarColaYNotificaciones,
   prepararBaseNotificaciones,
   type EntornoNotificaciones,
@@ -134,7 +135,7 @@ describe('C-11 integración cola pg-boss y worker dual', () => {
     const sys = await montarSistemaCola();
     await sys.worker.iniciar();
 
-    const turnoId = randomUUID();
+    const { turnoId } = await crearTurnoSintetico(CLINICA_A.id);
     const res = await sys.servicio.encolar({
       clinicaId: CLINICA_A.id,
       turnoId,

@@ -3,7 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Tabla de notificaciones multi-tenant con RLS y restricciones de integridad
-The database schema SHALL provide a `notificacion` table with `id`, `clinica_id` referencing `clinica`, nullable `turno_id` enforcing a composite foreign key `(clinica_id, turno_id)` referencing `turno (clinica_id, id)` (`MATCH SIMPLE` via `turno_clinica_id_id_key` so `turno_id` remains nullable when `tipo = 'codigo'`), `canal`, `tipo`, `estado`, `clave_idempotencia` unique per clinic, `intentos`, UTC `timestamptz` timestamps, and sanitized `error` without personal data, enforcing `aplicar_rls('notificacion')` and granting only `SELECT`, `INSERT`, and `UPDATE` (no `DELETE`) to the application role.
+The database schema SHALL provide `notificacion` with `id`, `clinica_id`, nullable `turno_id` enforcing composite FK `(clinica_id, turno_id)` → `turno (clinica_id, id)` (`MATCH SIMPLE`), `canal`, `tipo`, `estado`, unique `(clinica_id, clave_idempotencia)`, `intentos`, UTC timestamps, and sanitized `error` without PII, enforcing `aplicar_rls('notificacion')` and granting only `SELECT`, `INSERT`, and `UPDATE` to `app`.
 
 #### Scenario: Creación de tabla, índices operativos y privilegios mínimos para la aplicación
 - **WHEN** se aplican las migraciones del proyecto con el rol de migraciones sobre un esquema limpio

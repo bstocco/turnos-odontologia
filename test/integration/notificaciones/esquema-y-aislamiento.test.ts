@@ -14,6 +14,7 @@ import {
   comoApp,
   comoAppSinContexto,
   consultarComoMigra,
+  crearTurnoSintetico,
   limpiarColaYNotificaciones,
   prepararBaseNotificaciones,
   type EntornoNotificaciones,
@@ -80,13 +81,15 @@ describe('C-11 esquema notificacion y pgboss', () => {
       'codigo',
     ] as const;
 
+    const { turnoId } = await crearTurnoSintetico(CLINICA_A.id);
+
     for (const tipo of tipos) {
       const id = randomUUID();
       await comoApp(CLINICA_A.id, async (cliente) => {
         await cliente.query(
           `INSERT INTO notificacion (id, clinica_id, turno_id, canal, tipo, clave_idempotencia)
            VALUES ($1, $2, $3, 'email', $4, $5)`,
-          [id, CLINICA_A.id, tipo === 'codigo' ? null : randomUUID(), tipo, `clave-${tipo}-${id}`],
+          [id, CLINICA_A.id, tipo === 'codigo' ? null : turnoId, tipo, `clave-${tipo}-${id}`],
         );
       });
     }
@@ -226,6 +229,41 @@ describe('C-11 esquema notificacion y pgboss', () => {
         cliente.query('DELETE FROM notificacion WHERE id = $1', [idA]),
       ),
     ).rejects.toMatchObject({ code: '42501' });
+  });
+
+  it('impone FK compuesta (clinica_id, turno_id) -> turno (clinica_id, id) y preserva tipo=codigo con turno_id NULL (C14_001)', async () => {
+    const turnoB = await crearTurnoSintetico(CLINICA_B.id);
+
+    // turno_id inexistente -> 23503
+    await expect(
+      comoApp(CLINICA_A.id, (cliente) =>
+        cliente.query(
+          `INSERT INTO notificacion (id, clinica_id, turno_id, canal, tipo, clave_idempotencia)
+           VALUES ($1, $2, $3, 'email', 'creacion', $4)`,
+          [randomUUID(), CLINICA_A.id, randomUUID(), `fk-inexistente-${randomUUID()}`],
+        ),
+      ),
+    ).rejects.toMatchObject({ code: '23503' });
+
+    // turno_id perteneciente a otra clínica -> 23503 (FK compuesta impide cruce entre tenants)
+    await expect(
+      comoApp(CLINICA_A.id, (cliente) =>
+        cliente.query(
+          `INSERT INTO notificacion (id, clinica_id, turno_id, canal, tipo, clave_idempotencia)
+           VALUES ($1, $2, $3, 'email', 'creacion', $4)`,
+          [randomUUID(), CLINICA_A.id, turnoB.turnoId, `fk-cruzada-${randomUUID()}`],
+        ),
+      ),
+    ).rejects.toMatchObject({ code: '23503' });
+
+    // tipo = 'codigo' con turno_id NULL aceptado por MATCH SIMPLE
+    await comoApp(CLINICA_A.id, (cliente) =>
+      cliente.query(
+        `INSERT INTO notificacion (id, clinica_id, turno_id, canal, tipo, clave_idempotencia)
+         VALUES ($1, $2, NULL, 'email', 'codigo', $3)`,
+        [randomUUID(), CLINICA_A.id, `fk-codigo-${randomUUID()}`],
+      ),
+    );
   });
 
   it('instala pgboss v47 bajo migra, permite operar a app sin DDL y es idempotente tras reiniciar public', async () => {

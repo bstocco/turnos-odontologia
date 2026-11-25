@@ -10,6 +10,7 @@ import {
   CLINICA_B,
   cerrarPool,
   comoApp,
+  crearTurnoSintetico,
   limpiarColaYNotificaciones,
   prepararBaseNotificaciones,
   type EntornoNotificaciones,
@@ -32,13 +33,14 @@ afterAll(async () => {
 describe('crearRepositorioNotificacionesPg', () => {
   it('crea de forma idempotente y consulta respetando aislamiento multi-tenant', async () => {
     const id = randomUUID();
+    const { turnoId } = await crearTurnoSintetico(CLINICA_A.id);
     const programadaPara = new Date('2026-11-25T10:00:00.000Z');
 
     const primera = await comoApp(CLINICA_A.id, (cliente) =>
       crearRepositorioNotificacionesPg(cliente).crearOEncontrarIdempotente({
         id,
         clinicaId: CLINICA_A.id,
-        turnoId: randomUUID(),
+        turnoId,
         canal: 'email',
         tipo: 'creacion',
         claveIdempotencia: 'clave-repo-1',
@@ -54,7 +56,7 @@ describe('crearRepositorioNotificacionesPg', () => {
       crearRepositorioNotificacionesPg(cliente).crearOEncontrarIdempotente({
         id: randomUUID(),
         clinicaId: CLINICA_A.id,
-        turnoId: randomUUID(),
+        turnoId,
         canal: 'email',
         tipo: 'creacion',
         claveIdempotencia: 'clave-repo-1',

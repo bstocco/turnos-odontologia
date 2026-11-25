@@ -163,3 +163,14 @@ Por gobernanza **ALTO** (`CHANGES.md`), la Líder debe revisar y aprobar estas d
 4. **Q4 — Semántica de `reprogramado` en `EventoDeTurno`**: `reprogramarTurno` crea un turno nuevo con `reprogramadoDe = original.id` y marca el original como `reprogramado`. ¿Se confirma que `{ tipo: 'reprogramado', turnoId }` transporta el `id` del **turno nuevo** (resolviendo `inicioAnterior` vía `reprogramado_de`) para enviar un único correo con ambos horarios sin duplicar un email de `creado`?
 5. **Q5 — Cadencia cron, `crearPgBossApp` y `worker-cli.ts`**: ¿se aprueba habilitar `schedule?: boolean` en `crearPgBossApp`, registrar la cola `notificaciones.recordatorios` con `partition: false` y cron por defecto `'*/15 * * * *'` (configurable en fábrica/opciones), y cablear el resolvedor de turnos + job de recordatorios dentro de `src/infrastructure/queue/worker-cli.ts`?
 6. **Q6 — Descarte defensivo en entrega y puente de enlaces para `C-15`**: ¿se aprueba que el resolvedor descarte (marcando `fallida` sin reintentos extra) cuando el turno haya pasado a `cancelado`/`reprogramado` (para `creacion`/`confirmacion`/`recordatorio`), cuando `inicio <= ahora` (para `recordatorio`), o cuando el paciente no tenga email (`PACIENTE_SIN_EMAIL`), exponiendo además el puerto opcional `ProveedorEnlacesTurno` listo para que `C-15` inyecte links de confirmación/cancelación?
+
+## Resoluciones del apply
+
+Aprobadas por la Líder el `2026-11-25`:
+
+- **Q1**: Aprobado agregar `UNIQUE (clinica_id, id)` en `turno` y la FK compuesta `(clinica_id, turno_id) REFERENCES turno (clinica_id, id)` (`MATCH SIMPLE`) en `C14_001`, adaptando los 3 fixtures de `C-11` (`cola-y-worker.test.ts` y `repositorio-pg.test.ts`).
+- **Q2**: Aprobado el cableado fuera de zona mediante el parámetro opcional retrocompatible `publicador: TurnoEventPublisher = turnoEventPublisherNulo()` en los 4 casos de uso de `src/application/turnos/` e inyectarlo en las rutas de `src/interfaces/http/modules/turnos/index.ts`.
+- **Q3**: Aprobado calcular la ventana *catch-up* `(ahora, limiteSuperior]` en la zona IANA de cada clínica con default `anticipacionHoras = 24` por parámetro, sin modificar `clinica_config` ni `src/config/variables.ts`.
+- **Q4**: Confirmado que `{ tipo: 'reprogramado', turnoId }` transporte el `id` del turno nuevo (resolviendo `inicioAnterior` vía `reprogramado_de`) para enviar un único correo con ambos horarios sin duplicar el email de creación.
+- **Q5**: Aprobado habilitar `schedule?: boolean` en `cola-pg-boss.ts`, registrar `notificaciones.recordatorios` con `partition: false` y cron `'*/15 * * * *'`, y cablear el resolvedor y job en `worker-cli.ts`.
+- **Q6**: Aprobado el descarte defensivo sin reintentos extra (`cancelado`/`reprogramado`, `inicio <= ahora` en recordatorios, o `PACIENTE_SIN_EMAIL`) y dejar definido el puerto opcional `ProveedorEnlacesTurno` listo para `C-15`.
