@@ -317,7 +317,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 > C-08, C-09 y C-11 se ejecutan en paralelo (GATE 3). C-09 es el núcleo del producto: el líder revisa su PR con especial atención.
 
 ### [C-08] `api-configuracion-clinica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de configuración de la clínica para el administrador (lectura para recepción)
   - Migración `C08_001`: clave foránea `usuario.profesional_id → profesional`
   - Endpoints: `/clinica` (`GET`, `PATCH` de `reserva_requiere_confirmacion`, anticipación de cancelación y granularidad), `/profesionales`, `/profesionales/{id}/horarios`, `/sillones`, `/prestaciones`, `/feriados` (con plantilla de feriados nacionales)
@@ -336,7 +336,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-09] `turnos-persistencia-y-casos-de-uso`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Persistencia de turnos y casos de uso de agenda, sin HTTP
   - Migración `C09_001`: tabla `turno` con `fin_sillon` como columna común más `CHECK` de coherencia con `buffer_minutos`, `rango_profesional` y `rango_sillon`, **constraints de exclusión** por profesional y por sillón (`WHERE estado NOT IN ('cancelado','reprogramado')`), índices y `aplicar_rls`
   - Repositorio y `AgendaReader` (consultas de ocupación) que implementan los puertos de C-02
@@ -358,7 +358,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-10] `api-pacientes`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: API de la ficha básica del paciente
   - `POST /pacientes`, `GET /pacientes/{id}`, `PATCH /pacientes/{id}`, `GET /pacientes?dni=&apellido=`
   - Normalización del teléfono con C-04 al guardar; DNI único por clínica
@@ -421,7 +421,7 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 ---
 
 ### [C-13] `disponibilidad-publica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` archivado
 - **Scope**: Consulta pública de prestaciones y horarios libres, sin cuenta
   - `GET /publico/{slug}/prestaciones` y `GET /publico/{slug}/disponibilidad` (profesional, prestación y rango de fechas)
   - La clínica se resuelve con `resolver_clinica_por_slug` y el cálculo de disponibilidad es el de C-02 (profesional, sillón, buffer, feriados y bloqueos)

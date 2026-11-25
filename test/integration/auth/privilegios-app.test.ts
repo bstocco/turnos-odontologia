@@ -104,7 +104,14 @@ describe('C-06 usuario como rol app: operaciones que el código necesita', () =>
 
   it('actualiza rol, profesional_id y activo', async () => {
     const id = await crearUsuario(CLINICA_A.id, 'actualiza@sintetico.test', 'recepcionista');
-    const profesional = '99999999-0000-4000-8000-000000000001';
+    // C08_001 agrega la FK usuario.profesional_id → profesional: el profesional debe existir.
+    const profesional = await comoApp(CLINICA_A.id, async (c) => {
+      const res = await c.query<{ id: string }>(
+        `INSERT INTO profesional (clinica_id, nombre, apellido) VALUES ($1, 'Sintetico', 'Prueba') RETURNING id`,
+        [CLINICA_A.id],
+      );
+      return res.rows[0]?.id ?? '';
+    });
 
     await comoApp(CLINICA_A.id, (c) =>
       actualizarUsuarioDePersonal(c, CLINICA_A.id, id, {
