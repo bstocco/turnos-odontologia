@@ -22,7 +22,7 @@ SaaS multi-tenant para clínicas odontológicas argentinas pequeñas y medianas.
 | Acceso a datos | SQL explícito (`pg`) con migraciones versionadas | pg 8.23 |
 | Pruebas | Vitest (más fast-check para propiedades) | Vitest 5.1, fast-check 4.11 |
 | Cola de tareas | pg-boss sobre PostgreSQL, sin Redis | 12.39 |
-| Email | Resend (DD-04), por SMTP con nodemailer | nodemailer 10.6 |
+| Email | Resend (DD-04) por **SMTP** con nodemailer (`smtp.resend.com:465`, TLS, usuario `resend`, contraseña `EMAIL_API_KEY`); no usa la API HTTP de Resend. Adaptador: `src/infrastructure/email/smtp-sender.ts` | nodemailer 10.6 |
 | Hosting de la aplicación | Fly.io, región `gru` (API y worker en una sola imagen Docker) | — |
 | Base gestionada | Neon, `aws-sa-east-1` (Fly Managed Postgres se descartó por no permitir `GRANT ... TO app`) | PostgreSQL 17 |
 

@@ -178,7 +178,7 @@ Resueltas el 2026-11-22 (ver `package-lock.json`).
 | `pino` | 10.4.0 | |
 | `argon2` | 0.45.2 | Módulo nativo: verificá que instale en tu sistema |
 | `jose` | 6.2.18 | |
-| `nodemailer` | 10.6.1 | SMTP; el proveedor elegido es Resend (DD-04) |
+| `nodemailer` | 10.6.1 | Envío por SMTP con Resend (DD-04): `smtp.resend.com:465`, usuario `resend`, contraseña `EMAIL_API_KEY`. No se usa la API HTTP de Resend (`src/infrastructure/email/smtp-sender.ts`) |
 | `typescript` | 6.0.3 | `typescript-eslint` aún no soporta TypeScript 7 |
 | `vitest` | 5.1.1 | |
 | `fast-check` | 4.11.0 | |
