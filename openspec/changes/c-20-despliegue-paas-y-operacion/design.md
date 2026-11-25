@@ -150,6 +150,27 @@ La tarea 6.3 se cumple dejando **lista y documentada** la configuración de `pro
 5. Aprovisionar `produccion` con el mismo procedimiento; dar de alta la primera clínica con el runbook.
 6. **Reversión**: la versión anterior sigue activa si falla la migración; para volver atrás tras un despliegue exitoso se redepliega la imagen anterior (migraciones aditivas, D4); la restauración de datos sigue el runbook.
 
+## Trabajo posterior
+
+Decisión de la Líder (2026-11-25): la Líder no desplegará en Fly.io ni abrirá cuenta de Resend dentro de C-20, y `produccion` queda solo documentada (D11). Lo siguiente se **saca del alcance verificable de C-20** (specs y tareas) y queda como trabajo posterior, para un change o paso futuro cuando existan los entornos y se cierren F1, F2, F6, F8, F9 y el checklist legal:
+
+| Origen | Qué queda pendiente | Depende de |
+|---|---|---|
+| Spec despliegue: migración fallida | Comprobar que, si una migración falla durante `fly deploy`, la versión anterior sigue activa y el error nombra el archivo | App desplegada en Fly |
+| Spec despliegue: entornos separados | Secretos distintos entre `pruebas` y `produccion`; datos solo sintéticos en `pruebas` | Ambas apps con secretos cargados |
+| Spec despliegue: secretos | Revisar los logs de un despliegue real; bloquear el despliegue si CI está en rojo | Job de despliegue con `flyctl` y token |
+| Spec operación: monitoreo | Monitoreo externo de `GET /salud` y del worker, con alerta a la persona de guardia; alertas sin datos de pacientes | `pruebas` desplegado y un monitor externo |
+| Spec operación: runbook | Alta de la primera clínica ejecutada por otra persona (bloqueada por F2); retiro de una clínica (`PO-10`); ejecución de la rotación por otra persona | F2 corregido y `pruebas` desplegado |
+| Spec operación: checklist legal | Checklist completo con cumplimiento, fecha y responsable | Asesoría legal, cláusulas con Fly.io, Neon y Resend, `PO-14` |
+| Spec respaldo: copias activas | Copias automáticas activas y ventana registrada en `produccion` antes del primer alta real | `produccion` aprovisionada |
+| Spec respaldo: baja de una clínica | Plazos de eliminación en base activa y en copias, documentados en el runbook | Procedimiento de retiro y `PO-10` validada |
+| Spec respaldo: prueba de restauración (tarea 4.2) | Restaurar una copia de `pruebas` en una base nueva y verificar migraciones, RLS, `app` sin `BYPASSRLS`, aislamiento y `auditoria` append-only. Se puede hacer solo con Neon | Decisión de la Líder de retomarla |
+| Tareas 3.2, 3.3 | Crear la app `turnos-pruebas`, cargar secretos y desplegar; el procedimiento está en `docs/operacion/runbook.md` §2.1 | Cuenta y recursos en Fly.io; clave de Resend |
+| Tarea 3.4 (parte de despliegue) | Job de despliegue con `flyctl` que exige CI verde | Token de Fly limitado a la app |
+| Tareas 5.1, 5.2 | Monitoreo y alertas; revisión de logs de un ciclo de pruebas en vivo | `pruebas` desplegado |
+| Tarea 5.3 (verificación) | Que otra persona ejecute alta y rotación siguiendo solo el runbook | `pruebas` desplegado y F2 corregido |
+| Tarea 6.3 | Aprovisionar `produccion` de verdad (app, secretos, proyecto de Neon con plan y colación `es-AR`) | F1, F2, F6, F8, F9 y checklist legal cerrados |
+
 ## Open Questions
 
 - **Q1 (gate) — RESUELTA el 2026-11-25**: el Managed Postgres de Fly permite `btree_gist` y crear los roles, pero rechaza los `GRANT ... TO app` de las migraciones ("MPG system roles cannot be modified"). Se activó el Plan B (Neon `aws-sa-east-1`) para la base; ver D1 y D5.

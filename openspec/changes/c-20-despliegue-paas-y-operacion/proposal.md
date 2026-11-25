@@ -19,6 +19,10 @@ Se verificó el 2026-11-25 contra la documentación oficial de los tres candidat
 - **Limpieza ya aplicada en esta rama**: se eliminó `probe-out.txt` (archivo de salida accidental, versionado en `e6941c3`) y se agregó al `.gitignore`.
 - **Fuera de alcance**: cambios de comportamiento de la API, nuevas tablas, nuevas dependencias de npm (solo las toca el Líder, regla 14), interfaz gráfica, dominio propio y CDN, alta disponibilidad multi-región, y la firma real de contratos o el registro ante la AAIP (`PO-14`), que son acciones legales del equipo y no software.
 
+## Ajuste de alcance (2026-11-25)
+
+Tras el spike y por decisión de la Líder: la **base de datos pasa a Neon `aws-sa-east-1`** (Plan B; la aplicación sigue en Fly.io `gru`), el **email es Resend**, y C-20 **no despliega en Fly.io ni abre la cuenta de Resend**; `produccion` solo se documenta. Quedan como **trabajo posterior** el despliegue real de `pruebas`, el monitoreo y las alertas, la prueba de restauración, el alta de la primera clínica ejecutada, el retiro de una clínica y el checklist legal completo (ver `design.md`, D10, D11 y "Trabajo posterior"). Las specs conservan los escenarios que se verifican con la imagen en CI, las migraciones y pruebas en Neon, `fly config validate` y los documentos de `docs/operacion/`.
+
 ## Capabilities
 
 ### New Capabilities

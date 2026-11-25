@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define cómo se empaqueta, configura y despliega el servicio (API y worker) en el PaaS elegido, con entornos de pruebas y producción separados, secretos fuera del repositorio y migraciones aplicadas con el rol propio antes de que la nueva versión reciba tráfico.
+Define cómo se empaqueta y configura el servicio (API y worker) para el PaaS elegido, con secretos fuera del repositorio y migraciones declaradas como paso previo con el rol propio. Los escenarios que requieren un entorno desplegado (entornos separados con secretos distintos, migración fallida en vivo y puerta de calidad del despliegue) quedan como trabajo posterior (ver `design.md`, "Trabajo posterior").
 
 ## ADDED Requirements
 
@@ -33,39 +33,24 @@ La misma imagen SHALL poder arrancar como API, como worker de tareas o como ejec
 - **WHEN** un proceso arranca sin una variable obligatoria
 - **THEN** termina con un error que nombra la variable faltante, sin mostrar valores, y no queda escuchando
 
-### Requirement: Migraciones antes de la nueva versión
-El despliegue SHALL aplicar las migraciones pendientes con el rol de migraciones antes de que la nueva versión de la API reciba tráfico. Si una migración falla, el despliegue MUST detenerse y la versión anterior SHALL seguir sirviendo.
+### Requirement: Migraciones previas con el rol de migraciones
+La configuración de despliegue SHALL ejecutar las migraciones con el rol de migraciones (`release_command`) como paso previo, y la API SHALL conectarse con el rol de la aplicación.
 
 #### Scenario: Migración exitosa
-- **WHEN** se despliega una versión con migraciones pendientes
-- **THEN** las migraciones se aplican con `DATABASE_MIGRATION_URL` y luego la nueva versión pasa a recibir tráfico
+- **WHEN** se ejecuta el comando de migraciones con `DATABASE_MIGRATION_URL` sobre una base vacía
+- **THEN** se aplican todas las migraciones pendientes
 
-#### Scenario: Migración fallida
-- **WHEN** una migración falla durante el despliegue
-- **THEN** el despliegue se cancela, la versión anterior sigue activa y el error indica el archivo de migración
+#### Scenario: Configuración declarada
+- **WHEN** se revisan `fly.pruebas.toml` y `fly.produccion.toml`
+- **THEN** ambos declaran como `release_command` el comando de migraciones y `fly config validate` los acepta
 
 #### Scenario: Rol de la aplicación sin privilegios de esquema
-- **WHEN** la API se ejecuta en el PaaS
+- **WHEN** la API se conecta a la base gestionada
 - **THEN** usa `DATABASE_URL` con el rol `app`, que no es propietario de las tablas ni tiene `BYPASSRLS`
 
-### Requirement: Entornos separados
-Los entornos `pruebas` y `produccion` SHALL tener bases de datos, secretos y claves de servicio distintos. Ninguna credencial de un entorno MUST ser válida en el otro.
-
-#### Scenario: Secretos distintos
-- **WHEN** se comparan los secretos de `pruebas` y de `produccion`
-- **THEN** ninguno de los valores sensibles coincide
-
-#### Scenario: Datos reales fuera de producción
-- **WHEN** se carga cualquier dato en el entorno `pruebas`
-- **THEN** son datos sintéticos, y los seeds siguen negándose a ejecutarse contra producción
-
 ### Requirement: Secretos solo como variables del PaaS
-Los secretos (`DATABASE_URL`, `DATABASE_MIGRATION_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `EMAIL_API_KEY`, `ADMIN_INTERNAL_KEY`) SHALL definirse únicamente como secretos del PaaS o de GitHub Actions. Los archivos del repositorio y los logs de construcción y despliegue MUST NOT contener sus valores.
+Los secretos (`DATABASE_URL`, `DATABASE_MIGRATION_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `EMAIL_API_KEY`, `ADMIN_INTERNAL_KEY`) SHALL definirse únicamente como secretos del PaaS o de GitHub Actions. Los archivos versionados del repositorio MUST NOT contener sus valores.
 
 #### Scenario: Revisión del repositorio
-- **WHEN** se revisa el contenido versionado y los logs de un despliegue
-- **THEN** no aparece ningún valor de secreto
-
-#### Scenario: Despliegue sin pasar las puertas de calidad
-- **WHEN** el lint, el formato, los tipos o las pruebas fallan sobre el commit a desplegar
-- **THEN** el despliegue no se ejecuta
+- **WHEN** se revisa el contenido versionado
+- **THEN** no aparece ningún valor de secreto, salvo valores descartables y claramente falsos de CI

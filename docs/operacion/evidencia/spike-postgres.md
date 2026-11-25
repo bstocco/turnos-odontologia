@@ -124,7 +124,7 @@ Resultado informado por la Líder tras correr el aprovisionamiento y `verificar-
 
 **Mejora propuesta para el change correctivo aparte (opción B, no se hace en C-20):** fijar la colación en el código de las consultas con `ORDER BY` sobre texto (por ejemplo `ORDER BY apellido COLLATE "es-AR-x-icu"` en pacientes, profesionales, sillones y prestaciones), para que el orden no dependa de la colación con que se creó la base. Implica tocar código de otros changes y verificar que la colación exista en cada servidor.
 
-Estado de la tarea 1.3: **pendiente** hasta repetir `db:migrate` y `test:integration` sobre las bases recreadas.
+**Resultado final de 1.3 y 1.4 (informado por la Líder, 2026-11-25):** con `turnos` y `turnos_test` recreadas con colación ICU `es-AR`, `npm run test:integration` pasa completo (**516 pruebas**, incluida la búsqueda por apellido que fallaba, la exclusión por solapamiento, el aislamiento entre clínicas y la auditoría append-only). El worker corrió contra el **host directo** de Neon (sin `-pooler`) y las pruebas de `pg-boss` de `test/integration/notificaciones/` pasan contra esa base. Tareas 1.3 y 1.4: **cumplidas**.
 
 ### Pendiente en Neon
 

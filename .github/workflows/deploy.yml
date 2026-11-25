@@ -62,6 +62,16 @@ jobs:
           fi
           echo "Sin archivos .env en la imagen."
 
+      - name: La imagen corre sin privilegios y sin dependencias de desarrollo
+        run: |
+          uid=$(docker run --rm --entrypoint id turnos:ci -u)
+          echo "UID del proceso de la imagen: $uid"
+          [ "$uid" != "0" ] || { echo "La imagen corre como root."; exit 1; }
+          # typescript es una dependencia de desarrollo: no debe estar en la imagen final.
+          docker run --rm --entrypoint sh turnos:ci -c 'test ! -e /app/node_modules/typescript' \
+            || { echo "La imagen contiene dependencias de desarrollo."; exit 1; }
+          echo "Imagen sin root y sin dependencias de desarrollo."
+
       - name: Inicializar roles y bases (mismo script que CI y docker compose)
         run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f docker/postgres/init/01-roles.sql
 
