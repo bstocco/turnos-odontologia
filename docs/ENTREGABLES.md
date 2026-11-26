@@ -1,6 +1,6 @@
 # Entregables del Trabajo de Integración "Del Discovery al primer Change"
 
-Índice de los entregables del Trabajo de Integración (SDD + Active Stack). Materia: Desarrollo de Software, Tecnicatura Universitaria en Programación, UTN. Comisión 3k09.
+Índice de los entregables del Trabajo de Integración (SDD + Active Stack). Materia: Desarrollo de Software. Carrera: Ingeniería en Sistemas de Información. Facultad: Universidad Tecnológica Nacional, Facultad Regional Mendoza (UTN FRM). Comisión 3k9.
 
 Integrantes: Stocco Bárbara (líder), Bricco Martín, Castro Santiago y Yanzón Santiago.
 

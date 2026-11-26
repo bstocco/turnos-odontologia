@@ -1,8 +1,9 @@
 # Informe de Discovery — Mercado de software odontológico con gestión de turnos (Argentina y Latinoamérica)
 
 **Materia:** Desarrollo de Software  
-**Carrera:** Tecnicatura Universitaria en Programación, UTN  
-**Comisión:** 3k09  
+**Carrera:** Ingeniería en Sistemas de Información  
+**Facultad:** Universidad Tecnológica Nacional, Facultad Regional Mendoza (UTN FRM)  
+**Comisión:** 3k9  
 **Trabajo:** Trabajo de Integración "Del Discovery al primer Change" (SDD + Active Stack)
 
 **Integrantes:**
