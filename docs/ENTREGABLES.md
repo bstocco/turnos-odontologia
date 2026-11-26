@@ -8,7 +8,7 @@ Integrantes: Stocco Bárbara (líder), Bricco Martín, Castro Santiago y Yanzón
 
 ## Video
 
-**Video: https://youtu.be/GGHIPzrCWtQ**
+**Video: https://youtu.be/GGHIPzrCWtQ?si=K-pCCaEcMSl_l9AZ**
 
 ## Reflexión
 
