@@ -5,7 +5,7 @@
 - [Reflexión sobre SDD (PDF)](docs/reflexion/reflexion-sdd.pdf)
 - [Informe de Discovery (PDF)](docs/discovery/informe-discovery.pdf)
 - [Índice completo de entregables](docs/ENTREGABLES.md)
-- Video: (link de YouTube)
+- Video: [Video de defensa en YouTube](https://youtu.be/GGHIPzrCWtQ)
 
 > El MVP es una **API REST sin interfaz gráfica** (front y back en el mismo proyecto: el backend vive en `src/`).
 
