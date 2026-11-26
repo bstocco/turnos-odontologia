@@ -152,6 +152,25 @@ Con 4 a 6 horas por change, son 8 pasos de trabajo efectivo. Sobra margen dentro
 
 ---
 
+## Riesgos
+
+> Tomados de `knowledge-base/10_preguntas_abiertas.md` (sección "Riesgos pendientes de validación" y preguntas abiertas), de `discovery/discovery.md` y del estado del proyecto (`.active-orchestrator-state.json`). No se agregan riesgos nuevos. Detalle y mitigaciones completas en la KB.
+
+| ID (KB) | Riesgo | Mitigación prevista |
+|---------|--------|---------------------|
+| R-01 | La carga manual de recordatorios por WhatsApp genera fricción en recepciones con mucho volumen; solo el email es automático | Medir el ausentismo; priorizar WhatsApp Business API |
+| R-02 | Reservas falsas o duplicadas por el enlace público | Código por email, límite de tasa y tope de reservas activas (PO-02, PO-09) |
+| R-03 | Filtración de datos entre clínicas | RLS forzada, rol sin `BYPASSRLS`, pruebas automatizadas de aislamiento |
+| R-04 | El diseño con `timestamptz + interval` en columnas generadas no es válido | *Spike* temprano; columna común más `CHECK` |
+| R-05 | El PostgreSQL gestionado elegido no habilita `btree_gist` | Verificarlo antes de elegir el proveedor (verificado en C-20; el riesgo que se materializó fue `GRANT ... TO app` en Fly, y la base pasó a Neon) |
+| R-06 | Poca evidencia pública en el mercado del buffer de limpieza, del solapamiento por sillón y de la API pública | Validar los diferenciadores con demos antes de apostar a ellos |
+
+Riesgos del Discovery sin ID propio en la KB: poca visibilidad de competidores locales (`discovery/discovery.md`, punto 10).
+
+Preguntas abiertas que bloquean el lanzamiento con datos reales: **PO-10** (retención de datos) y **PO-14** (registro de la base ante la AAIP). Ver "Limitaciones conocidas" en `CLAUDE.md`.
+
+---
+
 ## FASE 0 — Cimientos
 
 ### [C-01] `foundation-setup`
