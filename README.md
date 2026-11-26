@@ -1,5 +1,14 @@
 # Turnos Odontología
 
+## 📦 Entregables del Trabajo de Integración
+
+- [Reflexión sobre SDD (PDF)](docs/reflexion/reflexion-sdd.pdf)
+- [Informe de Discovery (PDF)](docs/discovery/informe-discovery.pdf)
+- [Índice completo de entregables](docs/ENTREGABLES.md)
+- Video: (link de YouTube)
+
+> El MVP es una **API REST sin interfaz gráfica** (front y back en el mismo proyecto: el backend vive en `src/`).
+
 SaaS multi-tenant de turnos para clínicas odontológicas argentinas. El MVP es una **API REST** (TypeScript, Node.js, Fastify y PostgreSQL), sin interfaz gráfica. Su regla central: **nunca hay solapamientos de profesional ni de sillón**.
 
 - Reglas de trabajo del proyecto y del equipo de 4: [CLAUDE.md](CLAUDE.md)
